@@ -1,13 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+>
+
 <title>Marketplace SSA</title>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <style>
+
+/* =========================================================
+   RESET
+========================================================= */
+
 *{
     margin:0;
     padding:0;
@@ -20,13 +32,21 @@ body{
     color:#222;
 }
 
-button,input,select{
+button,
+input,
+select,
+textarea{
     font:inherit;
 }
 
 button{
     cursor:pointer;
 }
+
+
+/* =========================================================
+   HEADER
+========================================================= */
 
 header{
     position:sticky;
@@ -41,9 +61,11 @@ header{
 .header{
     max-width:1250px;
     margin:auto;
+
     display:flex;
     align-items:center;
     justify-content:space-between;
+
     gap:15px;
 }
 
@@ -66,8 +88,10 @@ header{
 .header-btn{
     background:#222;
     color:#fff;
+
     border:1px solid #444;
     border-radius:8px;
+
     padding:9px 12px;
 }
 
@@ -78,20 +102,35 @@ header{
 .cart-count{
     background:#00c853;
     color:#fff;
+
     border-radius:50%;
+
     min-width:20px;
     height:20px;
+
     display:inline-flex;
     align-items:center;
     justify-content:center;
+
     font-size:12px;
+
     margin-left:4px;
 }
+
+
+/* =========================================================
+   CONTAINER
+========================================================= */
 
 .container{
     width:min(1250px,94%);
     margin:20px auto;
 }
+
+
+/* =========================================================
+   BUSCA
+========================================================= */
 
 .search-box{
     display:flex;
@@ -101,10 +140,14 @@ header{
 
 .search-box input{
     width:100%;
+
     padding:14px;
+
     border:1px solid #ddd;
     border-radius:10px;
+
     background:#fff;
+
     outline:none;
 }
 
@@ -112,11 +155,20 @@ header{
     border-color:#00c853;
 }
 
+
+/* =========================================================
+   BANNER
+========================================================= */
+
 .banner{
     background:linear-gradient(135deg,#111,#333);
+
     color:#fff;
+
     border-radius:15px;
+
     padding:28px;
+
     margin-bottom:20px;
 }
 
@@ -129,11 +181,19 @@ header{
     color:#ddd;
 }
 
+
+/* =========================================================
+   CATEGORIAS
+========================================================= */
+
 .categories{
     display:flex;
     gap:8px;
+
     overflow-x:auto;
+
     padding:4px 0 15px;
+
     scrollbar-width:none;
 }
 
@@ -143,11 +203,16 @@ header{
 
 .category-btn{
     flex:none;
+
     border:1px solid #ddd;
+
     background:#fff;
     color:#333;
+
     padding:10px 16px;
+
     border-radius:30px;
+
     font-weight:bold;
 }
 
@@ -157,10 +222,17 @@ header{
     border-color:#111;
 }
 
+
+/* =========================================================
+   TITULO CATEGORIA
+========================================================= */
+
 .category-title{
     display:flex;
+
     align-items:center;
     justify-content:space-between;
+
     margin:10px 0 15px;
 }
 
@@ -173,34 +245,51 @@ header{
     font-size:14px;
 }
 
+
+/* =========================================================
+   PRODUTOS
+========================================================= */
+
 .products{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:18px;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:12px;
 }
 
 .product{
     background:#fff;
+
     border-radius:14px;
+
     overflow:hidden;
-    box-shadow:0 2px 8px rgba(0,0,0,.08);
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.08);
+
     transition:.2s;
 }
 
 .product:hover{
     transform:translateY(-3px);
-    box-shadow:0 5px 16px rgba(0,0,0,.13);
+
+    box-shadow:
+        0 5px 16px rgba(0,0,0,.13);
 }
 
 .product-img{
     width:100%;
-    height:210px;
+    height:180px;
+
     object-fit:cover;
+
     background:#eee;
 }
 
 .product-content{
-    padding:14px;
+    padding:12px;
 }
 
 .product-category{
@@ -210,28 +299,40 @@ header{
 }
 
 .product-name{
-    font-size:17px;
+    font-size:16px;
+
     font-weight:bold;
-    min-height:42px;
+
+    min-height:40px;
+
+    line-height:1.25;
 }
 
 .product-description{
     color:#666;
-    font-size:13px;
+
+    font-size:12px;
+
     margin:7px 0;
-    min-height:34px;
+
+    min-height:30px;
 }
 
 .product-price{
-    font-size:22px;
+    font-size:19px;
+
     font-weight:bold;
+
     color:#111;
+
     margin:10px 0;
 }
 
 .product-stock{
-    font-size:12px;
+    font-size:11px;
+
     color:#188038;
+
     margin-bottom:10px;
 }
 
@@ -242,75 +343,148 @@ header{
 
 .btn{
     border:0;
+
     border-radius:8px;
+
     padding:11px;
+
     font-weight:bold;
 }
 
 .btn-primary{
     flex:1;
+
     background:#00c853;
+
     color:#fff;
+}
+
+.btn-primary:hover{
+    background:#00b34a;
 }
 
 .btn-secondary{
     background:#eee;
+
     color:#222;
 }
 
+.btn-danger{
+    background:#ffebee;
+
+    color:#d32f2f;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
 .empty{
     background:#fff;
+
     padding:40px;
+
     text-align:center;
+
     border-radius:12px;
+
     color:#777;
+
     grid-column:1/-1;
 }
 
+.loading{
+    text-align:center;
+
+    padding:30px;
+
+    color:#777;
+
+    grid-column:1/-1;
+}
+
+
+/* =========================================================
+   MODAIS
+========================================================= */
+
 .modal{
     display:none;
+
     position:fixed;
+
     inset:0;
+
     z-index:5000;
+
     background:rgba(0,0,0,.65);
+
     padding:15px;
+
     overflow:auto;
 }
 
 .modal.show{
     display:flex;
+
     align-items:center;
+
     justify-content:center;
 }
 
 .modal-box{
     width:min(520px,100%);
+
     max-height:94vh;
+
     overflow:auto;
+
     background:#fff;
+
     border-radius:16px;
+
     padding:22px;
+
     position:relative;
 }
 
 .close{
     position:absolute;
+
     right:15px;
     top:12px;
+
     border:0;
+
     background:#eee;
+
     width:35px;
     height:35px;
+
     border-radius:50%;
+
     font-size:20px;
+}
+
+.close:hover{
+    background:#ddd;
 }
 
 .modal-title{
     font-size:22px;
+
     font-weight:bold;
+
     margin-bottom:18px;
+
     padding-right:40px;
 }
+
+
+/* =========================================================
+   FORMULÁRIO
+========================================================= */
 
 .form-group{
     margin-bottom:12px;
@@ -318,8 +492,11 @@ header{
 
 .form-group label{
     display:block;
+
     font-size:13px;
+
     font-weight:bold;
+
     margin-bottom:5px;
 }
 
@@ -327,20 +504,40 @@ header{
 .form-group textarea,
 .form-group select{
     width:100%;
+
     padding:12px;
+
     border:1px solid #ddd;
+
     border-radius:8px;
+
     outline:none;
+
+    background:#fff;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus{
+    border-color:#00c853;
+}
+
+.form-group input[readonly]{
+    background:#f5f5f5;
+    color:#555;
 }
 
 .form-group textarea{
     min-height:90px;
+
     resize:vertical;
 }
 
 .modal-buttons{
     display:flex;
+
     gap:10px;
+
     margin-top:15px;
 }
 
@@ -348,17 +545,27 @@ header{
     flex:1;
 }
 
+
+/* =========================================================
+   CARRINHO
+========================================================= */
+
 .cart-item{
     display:flex;
+
     gap:12px;
+
     padding:12px 0;
+
     border-bottom:1px solid #eee;
 }
 
 .cart-item img{
     width:75px;
     height:75px;
+
     border-radius:8px;
+
     object-fit:cover;
 }
 
@@ -376,30 +583,55 @@ header{
 
 .remove-cart{
     border:0;
+
     background:#ffebee;
+
     color:#d32f2f;
+
     padding:7px 10px;
+
     border-radius:7px;
+
+    margin-top:8px;
 }
+
+
+/* =========================================================
+   TOTAL
+========================================================= */
 
 .total-box{
     margin-top:18px;
+
     padding:15px;
+
     background:#f5f5f5;
+
     border-radius:10px;
 }
 
 .total-line{
     display:flex;
+
     justify-content:space-between;
+
+    gap:10px;
+
     margin:5px 0;
 }
 
 .total-final{
     font-size:23px;
+
     font-weight:bold;
+
     margin-top:10px;
 }
+
+
+/* =========================================================
+   PIX
+========================================================= */
 
 .pix-box{
     text-align:center;
@@ -407,78 +639,126 @@ header{
 
 #qrcode{
     display:flex;
+
     justify-content:center;
+
     margin:20px 0;
 }
 
 .pix-code{
     width:100%;
+
     min-height:100px;
+
     padding:12px;
+
     border:1px solid #ddd;
+
     border-radius:8px;
+
     resize:none;
+
     font-size:12px;
 }
 
+
+/* =========================================================
+   SUCESSO
+========================================================= */
+
 .success{
     text-align:center;
+
     padding:20px 5px;
 }
 
 .success-icon{
     font-size:55px;
+
     margin-bottom:10px;
 }
 
+
+/* =========================================================
+   USUÁRIO
+========================================================= */
+
 .user-info{
     background:#f5f5f5;
+
     padding:14px;
+
     border-radius:10px;
+
     margin-bottom:15px;
 }
 
+
+/* =========================================================
+   TOAST
+========================================================= */
+
 .toast{
     position:fixed;
+
     left:50%;
     bottom:20px;
-    transform:translateX(-50%) translateY(100px);
+
+    transform:
+        translateX(-50%)
+        translateY(100px);
+
     background:#111;
+
     color:#fff;
+
     padding:13px 18px;
+
     border-radius:10px;
+
     z-index:9999;
+
     transition:.3s;
+
     opacity:0;
+
+    max-width:90%;
+
+    text-align:center;
 }
 
 .toast.show{
-    transform:translateX(-50%) translateY(0);
+    transform:
+        translateX(-50%)
+        translateY(0);
+
     opacity:1;
 }
 
-.loading{
-    text-align:center;
-    padding:30px;
-    color:#777;
-    grid-column:1/-1;
-}
+
+/* =========================================================
+   FOOTER
+========================================================= */
 
 footer{
     margin-top:40px;
+
     background:#111;
+
     color:#aaa;
+
     text-align:center;
+
     padding:25px;
 }
 
-@media(max-width:1000px){
-    .products{
-        grid-template-columns:repeat(3,1fr);
-    }
-}
+
+/* =========================================================
+   RESPONSIVO
+========================================================= */
 
 @media(max-width:700px){
+
     .header{
         flex-wrap:wrap;
     }
@@ -492,58 +772,9 @@ footer{
     }
 
     .products{
-        grid-template-columns:repeat(2,1fr);
-        gap:10px;
-    }
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
 
-    .product-img{
-        height:160px;
-    }
-
-    .product-content{
-        padding:10px;
-    }
-
-    .product-name{
-        font-size:15px;
-    }
-
-    .product-description{
-        font-size:12px;
-    }
-
-    .product-price{
-        font-size:19px;
-    }
-
-    .banner{
-        padding:22px;
-    }
-
-    .banner h1{
-        font-size:24px;
-    }
-}
-
-@media(max-width:380px){
-    .products{
-        grid-template-columns:1fr;
-    }
-
-    .product-img{
-        height:220px;
-    }
-}
-.products{
-    display:grid;
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:12px;
-}
-
-@media(max-width:700px){
-
-    .products{
-        grid-template-columns:repeat(2, minmax(0, 1fr));
         gap:10px;
     }
 
@@ -562,6 +793,7 @@ footer{
 
     .product-description{
         font-size:11px;
+
         min-height:30px;
     }
 
@@ -575,15 +807,45 @@ footer{
 
     .product-actions .btn{
         font-size:12px;
+
         padding:9px 5px;
     }
+
+    .banner{
+        padding:22px;
+    }
+
+    .banner h1{
+        font-size:24px;
+    }
 }
+
+@media(max-width:380px){
+
+    .products{
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+    .product-img{
+        height:140px;
+    }
+}
+
 </style>
+
 </head>
+
 
 <body>
 
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
 <header>
+
     <div class="header">
 
         <div class="logo">
@@ -591,251 +853,539 @@ footer{
         </div>
 
         <div class="header-actions">
-            <button class="header-btn" onclick="abrirConta()">
+
+            <button
+                class="header-btn"
+                onclick="abrirConta()"
+            >
                 👤 Conta
             </button>
 
-            <button class="header-btn" onclick="abrirCarrinho()">
+            <button
+                class="header-btn"
+                onclick="abrirCarrinho()"
+            >
                 🛒 Carrinho
-                <span id="cartCount" class="cart-count">0</span>
+
+                <span
+                    id="cartCount"
+                    class="cart-count"
+                >
+                    0
+                </span>
+
             </button>
+
         </div>
 
     </div>
+
 </header>
+
+
+<!-- =========================================================
+     CONTEÚDO
+========================================================= -->
 
 <main class="container">
 
+
     <div class="search-box">
+
         <input
             id="campoBusca"
             type="search"
             placeholder="🔎 Buscar produtos..."
             oninput="renderProdutos()"
         >
+
     </div>
+
 
     <section class="banner">
-        <h1>Encontre tudo em um só lugar</h1>
-        <p>Produtos de várias categorias com compra fácil e pagamento via Pix.</p>
+
+        <h1>
+            Encontre tudo em um só lugar
+        </h1>
+
+        <p>
+            Produtos de várias categorias com compra fácil e pagamento via Pix.
+        </p>
+
     </section>
 
-    <div id="categorias" class="categories"></div>
+
+    <div
+        id="categorias"
+        class="categories"
+    ></div>
+
 
     <div class="category-title">
-        <h2 id="tituloCategoria">Todos os produtos</h2>
-        <span id="contadorProdutos">0 produtos</span>
+
+        <h2 id="tituloCategoria">
+            Todos os produtos
+        </h2>
+
+        <span id="contadorProdutos">
+            0 produtos
+        </span>
+
     </div>
 
-    <section id="listaProdutos" class="products">
+
+    <section
+        id="listaProdutos"
+        class="products"
+    >
+
         <div class="loading">
             Carregando produtos...
         </div>
+
     </section>
 
 </main>
 
+
 <footer>
+
     SSA Marketplace © 2026
+
 </footer>
 
 
-<!-- MODAL CONTA -->
-<div id="modalConta" class="modal">
+
+<!-- =========================================================
+     MODAL CONTA
+========================================================= -->
+
+<div
+    id="modalConta"
+    class="modal"
+>
+
     <div class="modal-box">
 
-        <button class="close" onclick="fecharModal('modalConta')">×</button>
+        <button
+            class="close"
+            onclick="fecharModal('modalConta')"
+        >
+            ×
+        </button>
 
-        <div class="modal-title">Minha conta</div>
+        <div class="modal-title">
+            Minha conta
+        </div>
 
         <div id="contaConteudo"></div>
 
     </div>
+
 </div>
 
 
-<!-- MODAL LOGIN -->
-<div id="modalLogin" class="modal">
+
+<!-- =========================================================
+     MODAL LOGIN
+========================================================= -->
+
+<div
+    id="modalLogin"
+    class="modal"
+>
+
     <div class="modal-box">
 
-        <button class="close" onclick="fecharModal('modalLogin')">×</button>
+        <button
+            class="close"
+            onclick="fecharModal('modalLogin')"
+        >
+            ×
+        </button>
 
-        <div class="modal-title">Entrar</div>
-
-        <div class="form-group">
-            <label>E-mail</label>
-            <input id="loginEmail" type="email">
+        <div class="modal-title">
+            Entrar
         </div>
 
+
         <div class="form-group">
-            <label>Senha</label>
-            <input id="loginSenha" type="password">
+
+            <label>
+                E-mail
+            </label>
+
+            <input
+                id="loginEmail"
+                type="email"
+                placeholder="Seu e-mail"
+                autocomplete="email"
+            >
+
         </div>
+
+
+        <div class="form-group">
+
+            <label>
+                Senha
+            </label>
+
+            <input
+                id="loginSenha"
+                type="password"
+                placeholder="Sua senha"
+                autocomplete="current-password"
+            >
+
+        </div>
+
 
         <div class="modal-buttons">
-            <button class="btn btn-primary" onclick="login()">
-                Entrar
+
+            <button
+                class="btn btn-primary"
+                onclick="login()"
+            >
+                🔐 Entrar
             </button>
 
-            <button class="btn btn-secondary" onclick="abrirCadastro()">
+
+            <button
+                class="btn btn-secondary"
+                onclick="abrirCadastro()"
+            >
                 Criar conta
             </button>
+
         </div>
 
     </div>
+
 </div>
 
 
-<!-- MODAL CADASTRO -->
-<div id="modalCadastro" class="modal">
+
+<!-- =========================================================
+     MODAL CADASTRO
+========================================================= -->
+
+<div
+    id="modalCadastro"
+    class="modal"
+>
+
     <div class="modal-box">
 
-        <button class="close" onclick="fecharModal('modalCadastro')">×</button>
+        <button
+            class="close"
+            onclick="fecharModal('modalCadastro')"
+        >
+            ×
+        </button>
 
-        <div class="modal-title">Criar conta</div>
+
+        <div class="modal-title">
+            Criar conta
+        </div>
+
+
+        <!-- NOME -->
 
         <div class="form-group">
-    <label for="cadNome">Nome completo</label>
-    <input
-        type="text"
-        id="cadNome"
-        placeholder="Digite seu nome completo"
-        autocomplete="name"
-        required
-    >
+
+            <label for="cadNome">
+                Nome completo
+            </label>
+
+            <input
+                type="text"
+                id="cadNome"
+                placeholder="Digite seu nome completo"
+                autocomplete="name"
+                required
+            >
+
+        </div>
+
+
+        <!-- TELEFONE -->
+
+        <div class="form-group">
+
+            <label for="cadTelefone">
+                Telefone
+            </label>
+
+            <input
+                type="tel"
+                id="cadTelefone"
+                placeholder="(00) 00000-0000"
+                autocomplete="tel"
+                required
+            >
+
+        </div>
+
+
+        <!-- CEP -->
+
+        <div class="form-group">
+
+            <label for="cadCep">
+                CEP
+            </label>
+
+            <input
+                type="text"
+                id="cadCep"
+                placeholder="00000-000"
+                maxlength="9"
+                autocomplete="postal-code"
+                required
+            >
+
+        </div>
+
+
+        <!-- ENDEREÇO -->
+
+        <div class="form-group">
+
+            <label for="cadEndereco">
+                Endereço
+            </label>
+
+            <input
+                type="text"
+                id="cadEndereco"
+                placeholder="Preenchido automaticamente"
+                readonly
+            >
+
+        </div>
+
+
+        <!-- NÚMERO -->
+
+        <div class="form-group">
+
+            <label for="cadNumero">
+                Número
+            </label>
+
+            <input
+                type="text"
+                id="cadNumero"
+                placeholder="Número da residência"
+                required
+            >
+
+        </div>
+
+
+        <!-- BAIRRO -->
+
+        <div class="form-group">
+
+            <label for="cadBairro">
+                Bairro
+            </label>
+
+            <input
+                type="text"
+                id="cadBairro"
+                placeholder="Bairro"
+                readonly
+            >
+
+        </div>
+
+
+        <!-- CIDADE -->
+
+        <div class="form-group">
+
+            <label for="cadCidade">
+                Cidade
+            </label>
+
+            <input
+                type="text"
+                id="cadCidade"
+                placeholder="Cidade"
+                readonly
+            >
+
+        </div>
+
+
+        <!-- ESTADO -->
+
+        <div class="form-group">
+
+            <label for="cadEstado">
+                Estado
+            </label>
+
+            <input
+                type="text"
+                id="cadEstado"
+                placeholder="Estado"
+                readonly
+            >
+
+        </div>
+
+
+        <!-- EMAIL -->
+
+        <div class="form-group">
+
+            <label for="cadEmail">
+                E-mail
+            </label>
+
+            <input
+                type="email"
+                id="cadEmail"
+                placeholder="seuemail@email.com"
+                autocomplete="email"
+                required
+            >
+
+        </div>
+
+
+        <!-- SENHA -->
+
+        <div class="form-group">
+
+            <label for="cadSenha">
+                Senha
+            </label>
+
+            <input
+                type="password"
+                id="cadSenha"
+                placeholder="Crie uma senha"
+                autocomplete="new-password"
+                required
+            >
+
+        </div>
+
+
+        <!-- =================================================
+             BOTÕES DO CADASTRO
+        ================================================== -->
+
+        <div class="modal-buttons">
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                onclick="cadastrar()"
+            >
+                ✅ Criar minha conta
+            </button>
+
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="
+                    fecharModal('modalCadastro');
+                    abrirModal('modalLogin');
+                "
+            >
+                Voltar
+            </button>
+
+        </div>
+
+
+    </div>
+
 </div>
 
-<div class="form-group">
-    <label for="cadTelefone">Telefone</label>
-    <input
-        type="tel"
-        id="cadTelefone"
-        placeholder="(00) 00000-0000"
-        autocomplete="tel"
-        required
-    >
-</div>
-
-<div class="form-group">
-    <label for="cadCep">CEP</label>
-    <input
-        type="text"
-        id="cadCep"
-        placeholder="00000-000"
-        maxlength="9"
-        autocomplete="postal-code"
-        required
-    >
-</div>
-
-<div class="form-group">
-    <label for="cadEndereco">Endereço</label>
-    <input
-        type="text"
-        id="cadEndereco"
-        placeholder="Preenchido automaticamente"
-        readonly
-    >
-</div>
-
-<div class="form-group">
-    <label for="cadNumero">Número</label>
-    <input
-        type="text"
-        id="cadNumero"
-        placeholder="Número da residência"
-        required
-    >
-</div>
-
-<div class="form-group">
-    <label for="cadBairro">Bairro</label>
-    <input
-        type="text"
-        id="cadBairro"
-        placeholder="Bairro"
-        readonly
-    >
-</div>
-
-<div class="form-group">
-    <label for="cadCidade">Cidade</label>
-    <input
-        type="text"
-        id="cadCidade"
-        placeholder="Cidade"
-        readonly
-    >
-</div>
-
-<div class="form-group">
-    <label for="cadEstado">Estado</label>
-    <input
-        type="text"
-        id="cadEstado"
-        placeholder="Estado"
-        readonly
-    >
-</div>
-
-<div class="form-group">
-    <label for="cadEmail">E-mail</label>
-    <input
-        type="email"
-        id="cadEmail"
-        placeholder="seuemail@email.com"
-        autocomplete="email"
-        required
-    >
-</div>
-
-<div class="form-group">
-    <label for="cadSenha">Senha</label>
-    <input
-        type="password"
-        id="cadSenha"
-        placeholder="Crie uma senha"
-        autocomplete="new-password"
-        required
-    >
-</div>
 
 
-<!-- MODAL CARRINHO -->
-<div id="modalCarrinho" class="modal">
+<!-- =========================================================
+     MODAL CARRINHO
+========================================================= -->
+
+<div
+    id="modalCarrinho"
+    class="modal"
+>
+
     <div class="modal-box">
 
-        <button class="close" onclick="fecharModal('modalCarrinho')">×</button>
+        <button
+            class="close"
+            onclick="fecharModal('modalCarrinho')"
+        >
+            ×
+        </button>
 
-        <div class="modal-title">SSA carrinho</div>
+        <div class="modal-title">
+            Meu carrinho
+        </div>
 
         <div id="carrinhoConteudo"></div>
 
     </div>
+
 </div>
 
 
-<!-- MODAL CHECKOUT -->
-<div id="modalCheckout" class="modal">
+
+<!-- =========================================================
+     MODAL CHECKOUT
+========================================================= -->
+
+<div
+    id="modalCheckout"
+    class="modal"
+>
+
     <div class="modal-box">
 
-        <button class="close" onclick="fecharModal('modalCheckout')">×</button>
+        <button
+            class="close"
+            onclick="fecharModal('modalCheckout')"
+        >
+            ×
+        </button>
 
-        <div class="modal-title">Finalizar compra</div>
+        <div class="modal-title">
+            Finalizar compra
+        </div>
 
         <div id="checkoutConteudo"></div>
 
     </div>
+
 </div>
 
 
-<!-- MODAL PIX -->
-<div id="modalPix" class="modal">
+
+<!-- =========================================================
+     MODAL PIX
+========================================================= -->
+
+<div
+    id="modalPix"
+    class="modal"
+>
+
     <div class="modal-box">
 
         <div class="modal-title">
             Pagamento via Pix
         </div>
+
 
         <div class="pix-box">
 
@@ -843,13 +1393,16 @@ footer{
                 Escaneie o QR Code ou copie o código Pix.
             </p>
 
+
             <div id="qrcode"></div>
+
 
             <textarea
                 id="pixCopiaCola"
                 class="pix-code"
                 readonly
             ></textarea>
+
 
             <div class="modal-buttons">
 
@@ -859,6 +1412,7 @@ footer{
                 >
                     📋 Copiar Pix
                 </button>
+
 
                 <button
                     class="btn btn-secondary"
@@ -872,11 +1426,20 @@ footer{
         </div>
 
     </div>
+
 </div>
 
 
-<!-- MODAL SUCESSO -->
-<div id="modalSucesso" class="modal">
+
+<!-- =========================================================
+     MODAL SUCESSO
+========================================================= -->
+
+<div
+    id="modalSucesso"
+    class="modal"
+>
+
     <div class="modal-box">
 
         <div class="success">
@@ -885,15 +1448,28 @@ footer{
                 ✅
             </div>
 
-            <h2>Pedido criado!</h2>
 
-            <p style="margin-top:10px;color:#666">
+            <h2>
+                Pedido criado!
+            </h2>
+
+
+            <p
+                style="
+                    margin-top:10px;
+                    color:#666
+                "
+            >
                 Faça o pagamento pelo Pix para concluir sua compra.
             </p>
 
+
             <button
                 class="btn btn-primary"
-                style="width:100%;margin-top:20px"
+                style="
+                    width:100%;
+                    margin-top:20px
+                "
                 onclick="fecharModal('modalSucesso')"
             >
                 Continuar
@@ -902,11 +1478,21 @@ footer{
         </div>
 
     </div>
+
 </div>
 
 
-<div id="toast" class="toast"></div>
 
+<div
+    id="toast"
+    class="toast"
+></div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
 
 <script type="module">
 
@@ -948,33 +1534,41 @@ const firebaseConfig = {
     messagingSenderId: "655705511573",
     appId: "1:655705511573:web:3bb3728ca75c217374ed9c"
 };
+const app =
+    initializeApp(firebaseConfig);
 
 
-const app = initializeApp(firebaseConfig);
+const auth =
+    getAuth(app);
 
-const auth = getAuth(app);
 
-const db = getDatabase(app);
+const db =
+    getDatabase(app);
 
 
 /* =========================================================
    CONFIGURAÇÕES
 ========================================================= */
 
-const ADMIN_EMAIL = "carlosarts1980@gmail.com";
+const ADMIN_EMAIL =
+    "carlosarts1980@gmail.com";
 
-const COMISSAO = 0.10;
+const COMISSAO =
+    0.10;
 
 
 /* =========================================================
-   PIX DIRETO
+   PIX
 ========================================================= */
 
-const PIX_CHAVE = "02562631595";
+const PIX_CHAVE =
+    "02562631595";
 
-const PIX_NOME = "CARLOS DOS SANTOS REIS";
+const PIX_NOME =
+    "CARLOS DOS SANTOS REIS";
 
-const PIX_CIDADE = "SALVADOR";
+const PIX_CIDADE =
+    "SALVADOR";
 
 
 /* =========================================================
@@ -993,32 +1587,41 @@ let pedidoAtual = null;
 
 
 /* =========================================================
-   CATEGORIAS FIXAS
+   CATEGORIAS
 ========================================================= */
 
 const CATEGORIAS = [
+
     "Todos",
+
     "Eletrônicos",
+
     "Moda",
+
     "Acessórios",
+
     "Informática",
+
     "Casa",
+
     "Beleza",
+
     "Esportes",
+
     "Games",
+
     "Automotivo",
+
     "Pet"
+
 ];
 
 
 /* =========================================================
    PRODUTOS DEMO
-   TODAS AS CATEGORIAS POSSUEM PRODUTOS
 ========================================================= */
 
 const produtosFicticios = [
-
-    /* ELETRÔNICOS */
 
     {
         id:"demo001",
@@ -1072,9 +1675,6 @@ const produtosFicticios = [
         status:"aprovado"
     },
 
-
-    /* MODA */
-
     {
         id:"demo005",
         nome:"Tênis Esportivo",
@@ -1113,9 +1713,6 @@ const produtosFicticios = [
         vendedorNome:"Loja Demo",
         status:"aprovado"
     },
-
-
-    /* ACESSÓRIOS */
 
     {
         id:"demo008",
@@ -1156,9 +1753,6 @@ const produtosFicticios = [
         status:"aprovado"
     },
 
-
-    /* INFORMÁTICA */
-
     {
         id:"demo011",
         nome:"Teclado Mecânico RGB",
@@ -1192,14 +1786,11 @@ const produtosFicticios = [
         estoque:15,
         categoria:"Informática",
         imagem:"https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=800&q=80",
-        descricao:"Webcam Full HD para chamadas e transmissões.",
+        descricao:"Webcam Full HD para chamadas.",
         vendedorId:"vendedor_demo",
         vendedorNome:"Loja Demo",
         status:"aprovado"
     },
-
-
-    /* CASA */
 
     {
         id:"demo014",
@@ -1221,7 +1812,7 @@ const produtosFicticios = [
         estoque:14,
         categoria:"Casa",
         imagem:"https://images.unsplash.com/photo-1570222094114-d054a817e56b?auto=format&fit=crop&w=800&q=80",
-        descricao:"Liquidificador potente para sua cozinha.",
+        descricao:"Liquidificador potente.",
         vendedorId:"vendedor_demo",
         vendedorNome:"Loja Demo",
         status:"aprovado"
@@ -1239,9 +1830,6 @@ const produtosFicticios = [
         vendedorNome:"Loja Demo",
         status:"aprovado"
     },
-
-
-    /* BELEZA */
 
     {
         id:"demo017",
@@ -1282,9 +1870,6 @@ const produtosFicticios = [
         status:"aprovado"
     },
 
-
-    /* ESPORTES */
-
     {
         id:"demo020",
         nome:"Bola de Futebol",
@@ -1318,14 +1903,11 @@ const produtosFicticios = [
         estoque:35,
         categoria:"Esportes",
         imagem:"https://images.unsplash.com/photo-1598289431512-b97b0917affc?auto=format&fit=crop&w=800&q=80",
-        descricao:"Corda para exercícios e treinamento.",
+        descricao:"Corda para exercícios.",
         vendedorId:"vendedor_demo",
         vendedorNome:"Loja Demo",
         status:"aprovado"
     },
-
-
-    /* GAMES */
 
     {
         id:"demo023",
@@ -1366,9 +1948,6 @@ const produtosFicticios = [
         status:"aprovado"
     },
 
-
-    /* AUTOMOTIVO */
-
     {
         id:"demo026",
         nome:"Suporte de Celular para Carro",
@@ -1407,9 +1986,6 @@ const produtosFicticios = [
         vendedorNome:"Loja Demo",
         status:"aprovado"
     },
-
-
-    /* PET */
 
     {
         id:"demo029",
@@ -1454,7 +2030,7 @@ const produtosFicticios = [
 
 
 /* =========================================================
-   FUNÇÕES GERAIS
+   MOEDA
 ========================================================= */
 
 function moeda(valor){
@@ -1466,55 +2042,75 @@ function moeda(valor){
             currency:"BRL"
         }
     );
+
 }
 
+
+/* =========================================================
+   TOAST
+========================================================= */
 
 function mostrarToast(mensagem){
 
     const toast =
         document.getElementById("toast");
 
-    toast.textContent = mensagem;
+    toast.textContent =
+        mensagem;
 
     toast.classList.add("show");
 
-    setTimeout(()=>{
-        toast.classList.remove("show");
-    },2500);
+    setTimeout(
+        () => {
+            toast.classList.remove("show");
+        },
+        2500
+    );
+
 }
 
 
-window.fecharModal = function(id){
-
-    document
-        .getElementById(id)
-        .classList.remove("show");
-
-};
-
+/* =========================================================
+   MODAIS
+========================================================= */
 
 window.abrirModal = function(id){
 
-    const modal = document.getElementById(id);
+    const modal =
+        document.getElementById(id);
 
     if(!modal){
-        console.error("Modal não encontrado:", id);
+
+        console.error(
+            "Modal não encontrado:",
+            id
+        );
+
         return;
     }
 
     modal.classList.add("show");
+
 };
+
 
 window.fecharModal = function(id){
 
-    const modal = document.getElementById(id);
+    const modal =
+        document.getElementById(id);
 
     if(!modal){
-        console.error("Modal não encontrado:", id);
+
+        console.error(
+            "Modal não encontrado:",
+            id
+        );
+
         return;
     }
 
     modal.classList.remove("show");
+
 };
 
 
@@ -1527,45 +2123,69 @@ function renderCategorias(){
     const container =
         document.getElementById("categorias");
 
+    if(!container){
+        return;
+    }
+
     container.innerHTML = "";
 
-    CATEGORIAS.forEach(categoria => {
 
-        const botao =
-            document.createElement("button");
+    CATEGORIAS.forEach(
+        categoria => {
 
-        botao.className =
-            "category-btn " +
-            (categoria === categoriaAtual ? "active" : "");
+            const botao =
+                document.createElement("button");
 
-        const quantidade =
-            categoria === "Todos"
-            ? produtos.length
-            : produtos.filter(
-                p => p.categoria === categoria
-            ).length;
+            botao.className =
+                "category-btn " +
+                (
+                    categoria === categoriaAtual
+                    ? "active"
+                    : ""
+                );
 
-        botao.textContent =
-            categoria + " (" + quantidade + ")";
 
-        botao.onclick = () => {
+            const quantidade =
+                categoria === "Todos"
 
-            categoriaAtual = categoria;
+                ? produtos.length
 
-            renderCategorias();
+                : produtos.filter(
+                    p =>
+                        p.categoria === categoria
+                ).length;
 
-            renderProdutos();
 
-            window.scrollTo({
-                top:0,
-                behavior:"smooth"
-            });
+            botao.textContent =
+                categoria +
+                " (" +
+                quantidade +
+                ")";
 
-        };
 
-        container.appendChild(botao);
+            botao.onclick = () => {
 
-    });
+                categoriaAtual =
+                    categoria;
+
+                renderCategorias();
+
+                renderProdutos();
+
+                window.scrollTo({
+                    top:0,
+                    behavior:"smooth"
+                });
+
+            };
+
+
+            container.appendChild(
+                botao
+            );
+
+        }
+    );
 
 }
 
@@ -1577,57 +2197,86 @@ function renderCategorias(){
 window.renderProdutos = function(){
 
     const container =
-        document.getElementById("listaProdutos");
+        document.getElementById(
+            "listaProdutos"
+        );
+
+    if(!container){
+        return;
+    }
+
 
     const campoBusca =
-        document.getElementById("campoBusca");
+        document.getElementById(
+            "campoBusca"
+        );
+
 
     const busca =
         campoBusca
-        ? campoBusca.value.trim().toLowerCase()
+        ? campoBusca.value
+            .trim()
+            .toLowerCase()
         : "";
 
-    let lista = produtos.filter(produto => {
 
-        if(!produto){
-            return false;
-        }
+    const lista =
+        produtos.filter(
+            produto => {
 
-        if(produto.status === "bloqueado"){
-            return false;
-        }
+                if(!produto){
+                    return false;
+                }
 
-        const nome =
-            String(produto.nome || "")
-            .toLowerCase();
 
-        const categoria =
-            String(produto.categoria || "")
-            .toLowerCase();
+                if(
+                    produto.status ===
+                    "bloqueado"
+                ){
+                    return false;
+                }
 
-        const correspondeBusca =
-            !busca ||
-            nome.includes(busca) ||
-            categoria.includes(busca);
 
-        const correspondeCategoria =
-            categoriaAtual === "Todos" ||
-            produto.categoria === categoriaAtual;
+                const nome =
+                    String(
+                        produto.nome || ""
+                    )
+                    .toLowerCase();
 
-        return (
-            correspondeBusca &&
-            correspondeCategoria
+
+                const categoria =
+                    String(
+                        produto.categoria || ""
+                    )
+                    .toLowerCase();
+
+
+                const correspondeBusca =
+                    !busca ||
+                    nome.includes(busca) ||
+                    categoria.includes(busca);
+
+
+                const correspondeCategoria =
+                    categoriaAtual === "Todos" ||
+                    produto.categoria ===
+                        categoriaAtual;
+
+
+                return (
+                    correspondeBusca &&
+                    correspondeCategoria
+                );
+
+            }
         );
 
-    });
-
-
-    /* CONTADOR */
 
     const contador =
         document.getElementById(
             "contadorProdutos"
         );
+
 
     if(contador){
 
@@ -1642,31 +2291,28 @@ window.renderProdutos = function(){
     }
 
 
-    /* TÍTULO */
-
     const titulo =
         document.getElementById(
             "tituloCategoria"
         );
 
+
     if(titulo){
 
         titulo.textContent =
             categoriaAtual === "Todos"
+
             ? "Todos os produtos"
+
             : categoriaAtual;
 
     }
 
 
-    /* LIMPA */
-
     container.innerHTML = "";
 
 
-    /* NENHUM PRODUTO */
-
-    if(lista.length === 0){
+    if(!lista.length){
 
         container.innerHTML = `
 
@@ -1688,24 +2334,6 @@ window.renderProdutos = function(){
                     }
                 </p>
 
-                ${
-                    categoriaAtual !== "Todos"
-                    ? `
-                        <button
-                            class="btn btn-primary"
-                            style="margin-top:15px"
-                            onclick="
-                                categoriaAtual='Todos';
-                                renderCategorias();
-                                renderProdutos();
-                            "
-                        >
-                            Ver todos os produtos
-                        </button>
-                    `
-                    : ""
-                }
-
             </div>
 
         `;
@@ -1715,88 +2343,117 @@ window.renderProdutos = function(){
     }
 
 
-    /* MOSTRAR PRODUTOS */
+    lista.forEach(
+        produto => {
 
-    lista.forEach(produto => {
-
-        const card =
-            document.createElement("article");
-
-        card.className = "product";
-
-
-        const estoque =
-            Number(produto.estoque || 0);
+            const card =
+                document.createElement(
+                    "article"
+                );
 
 
-        card.innerHTML = `
+            card.className =
+                "product";
 
-            <img
-                class="product-img"
-                src="${produto.imagem || ""}"
-                alt="${produto.nome || "Produto"}"
-                loading="lazy"
-                onerror="
-                    this.src='https://via.placeholder.com/800x600?text=Produto'
-                "
-            >
 
-            <div class="product-content">
+            const estoque =
+                Number(
+                    produto.estoque || 0
+                );
 
-                <div class="product-category">
-                    ${produto.categoria || ""}
-                </div>
 
-                <div class="product-name">
-                    ${produto.nome || "Produto"}
-                </div>
+            const idSeguro =
+                String(produto.id)
+                .replace(
+                    /'/g,
+                    "\\'"
+                );
 
-                <div class="product-description">
-                    ${produto.descricao || ""}
-                </div>
 
-                <div class="product-price">
-                    ${moeda(produto.preco)}
-                </div>
+            card.innerHTML = `
 
-                <div class="product-stock">
-                    ${
-                        estoque > 0
-                        ? "✓ " + estoque + " disponíveis"
-                        : "Produto esgotado"
-                    }
-                </div>
+                <img
+                    class="product-img"
+                    src="${produto.imagem || ""}"
+                    alt="${produto.nome || "Produto"}"
+                    loading="lazy"
+                    onerror="
+                        this.src='https://via.placeholder.com/800x600?text=Produto'
+                    "
+                >
 
-                <div class="product-actions">
 
-                    <button
-                        class="btn btn-primary"
+                <div class="product-content">
+
+                    <div class="product-category">
+                        ${produto.categoria || ""}
+                    </div>
+
+
+                    <div class="product-name">
+                        ${produto.nome || "Produto"}
+                    </div>
+
+
+                    <div class="product-description">
+                        ${produto.descricao || ""}
+                    </div>
+
+
+                    <div class="product-price">
+                        ${moeda(produto.preco)}
+                    </div>
+
+
+                    <div class="product-stock">
+
                         ${
-                            estoque <= 0
-                            ? "disabled"
-                            : ""
+                            estoque > 0
+
+                            ? "✓ " +
+                              estoque +
+                              " disponíveis"
+
+                            : "Produto esgotado"
+
                         }
-                        onclick="
-                            adicionarCarrinho('${produto.id}')
-                        "
-                    >
-                        🛒 Comprar
-                    </button>
+
+                    </div>
+
+
+                    <div class="product-actions">
+
+                        <button
+                            class="btn btn-primary"
+                            ${
+                                estoque <= 0
+                                ? "disabled"
+                                : ""
+                            }
+                            onclick="
+                                adicionarCarrinho('${idSeguro}')
+                            "
+                        >
+                            🛒 Comprar
+                        </button>
+
+                    </div>
 
                 </div>
 
-            </div>
-
-        `;
+            `;
 
 
-        container.appendChild(card);
+            container.appendChild(card);
 
-    });
+        }
+    );
 
 };
+
+
 /* =========================================================
-   CARREGAR PRODUTOS DO FIREBASE
+   CARREGAR PRODUTOS
 ========================================================= */
 
 function carregarProdutos(){
@@ -1805,60 +2462,67 @@ function carregarProdutos(){
         [...produtosFicticios];
 
 
-    /* MOSTRA OS PRODUTOS IMEDIATAMENTE */
-
     renderCategorias();
 
     renderProdutos();
 
 
-    /* DEPOIS CARREGA PRODUTOS DO FIREBASE */
-
     const produtosRef =
-        ref(db,"produtos");
+        ref(
+            db,
+            "produtos"
+        );
 
 
     onValue(
         produtosRef,
+
         snapshot => {
 
             const dados =
                 snapshot.val();
 
 
-            const produtosFirebase = [];
+            const produtosFirebase =
+                [];
 
 
             if(dados){
 
                 Object.entries(dados)
-                .forEach(([id,produto]) => {
+                .forEach(
+                    ([id,produto]) => {
 
-                    if(!produto){
-                        return;
+                        if(!produto){
+                            return;
+                        }
+
+
+                        produtosFirebase.push({
+
+                            id,
+
+                            ...produto
+
+                        });
+
                     }
-
-
-                    produtosFirebase.push({
-                        id,
-                        ...produto
-                    });
-
-                });
+                );
 
             }
 
 
-            /*
-             * Remove somente IDs demo antigos
-             * e mantém os produtos reais do Firebase.
-             */
-
             produtos = [
+
                 ...produtosFicticios,
+
                 ...produtosFirebase.filter(
-                    p => !String(p.id).startsWith("demo")
+                    p =>
+                        !String(
+                            p.id
+                        ).startsWith("demo")
                 )
+
             ];
 
 
@@ -1867,17 +2531,13 @@ function carregarProdutos(){
             renderProdutos();
 
         },
+
         erro => {
 
             console.error(
                 "Erro ao carregar produtos:",
                 erro
             );
-
-            /*
-             * Mesmo se o Firebase falhar,
-             * os produtos demo continuam aparecendo.
-             */
 
             produtos =
                 [...produtosFicticios];
@@ -1898,10 +2558,18 @@ function carregarProdutos(){
 
 function atualizarCarrinho(){
 
-    document.getElementById(
-        "cartCount"
-    ).textContent =
-        carrinho.length;
+    const contador =
+        document.getElementById(
+            "cartCount"
+        );
+
+
+    if(contador){
+
+        contador.textContent =
+            carrinho.length;
+
+    }
 
 }
 
@@ -1910,7 +2578,9 @@ window.adicionarCarrinho = function(id){
 
     const produto =
         produtos.find(
-            p => String(p.id) === String(id)
+            p =>
+                String(p.id) ===
+                String(id)
         );
 
 
@@ -1924,7 +2594,9 @@ window.adicionarCarrinho = function(id){
     }
 
 
-    if(Number(produto.estoque || 0) <= 0){
+    if(
+        Number(produto.estoque || 0) <= 0
+    ){
 
         mostrarToast(
             "Produto sem estoque."
@@ -1935,12 +2607,16 @@ window.adicionarCarrinho = function(id){
 
 
     carrinho.push({
+
         ...produto,
+
         quantidade:1
+
     });
 
 
     atualizarCarrinho();
+
 
     mostrarToast(
         "Produto adicionado ao carrinho!"
@@ -1962,65 +2638,89 @@ window.abrirCarrinho = function(){
         container.innerHTML = `
 
             <div class="empty">
-                🛒
-                <h3>Seu carrinho está vazio</h3>
+
+                <div style="font-size:45px">
+                    🛒
+                </div>
+
+                <h3>
+                    Seu carrinho está vazio
+                </h3>
+
                 <p style="margin-top:8px">
                     Adicione algum produto para continuar.
                 </p>
+
             </div>
 
         `;
 
-        abrirModal("modalCarrinho");
+
+        abrirModal(
+            "modalCarrinho"
+        );
 
         return;
+
     }
 
 
     let html = "";
 
 
-    carrinho.forEach((produto,index)=>{
+    carrinho.forEach(
+        (produto,index) => {
 
-        html += `
+            html += `
 
-            <div class="cart-item">
+                <div class="cart-item">
 
-                <img
-                    src="${produto.imagem}"
-                    onerror="this.src='https://via.placeholder.com/100'"
-                >
-
-                <div class="cart-info">
-
-                    <div class="cart-name">
-                        ${produto.nome}
-                    </div>
-
-                    <div class="cart-price">
-                        ${moeda(produto.preco)}
-                    </div>
-
-                    <button
-                        class="remove-cart"
-                        onclick="removerCarrinho(${index})"
+                    <img
+                        src="${produto.imagem}"
+                        onerror="
+                            this.src='https://via.placeholder.com/100'
+                        "
                     >
-                        Remover
-                    </button>
+
+
+                    <div class="cart-info">
+
+                        <div class="cart-name">
+                            ${produto.nome}
+                        </div>
+
+
+                        <div class="cart-price">
+                            ${moeda(produto.preco)}
+                        </div>
+
+
+                        <button
+                            class="remove-cart"
+                            onclick="
+                                removerCarrinho(${index})
+                            "
+                        >
+                            Remover
+                        </button>
+
+                    </div>
 
                 </div>
 
-            </div>
+            `;
 
-        `;
-
-    });
+        }
+    );
 
 
     const total =
         carrinho.reduce(
             (soma,p) =>
-                soma + Number(p.preco || 0),
+                soma +
+                Number(
+                    p.preco || 0
+                ),
             0
         );
 
@@ -2030,18 +2730,39 @@ window.abrirCarrinho = function(){
         <div class="total-box">
 
             <div class="total-line">
-                <span>Produtos</span>
-                <strong>${carrinho.length}</strong>
+
+                <span>
+                    Produtos
+                </span>
+
+                <strong>
+                    ${carrinho.length}
+                </strong>
+
             </div>
 
-            <div class="total-line total-final">
-                <span>Total</span>
-                <span>${moeda(total)}</span>
+
+            <div
+                class="total-line total-final"
+            >
+
+                <span>
+                    Total
+                </span>
+
+                <span>
+                    ${moeda(total)}
+                </span>
+
             </div>
+
 
             <button
                 class="btn btn-primary"
-                style="width:100%;margin-top:15px"
+                style="
+                    width:100%;
+                    margin-top:15px
+                "
                 onclick="irParaCheckout()"
             >
                 Continuar para pagamento
@@ -2052,16 +2773,24 @@ window.abrirCarrinho = function(){
     `;
 
 
-    container.innerHTML = html;
+    container.innerHTML =
+        html;
 
-    abrirModal("modalCarrinho");
+
+    abrirModal(
+        "modalCarrinho"
+    );
 
 };
 
 
-window.removerCarrinho = function(index){
+window.removerCarrinho =
+function(index){
 
-    carrinho.splice(index,1);
+    carrinho.splice(
+        index,
+        1
+    );
 
     atualizarCarrinho();
 
@@ -2070,7 +2799,12 @@ window.removerCarrinho = function(index){
 };
 
 
-window.irParaCheckout = function(){
+/* =========================================================
+   CHECKOUT
+========================================================= */
+
+window.irParaCheckout =
+function(){
 
     if(!carrinho.length){
 
@@ -2079,30 +2813,41 @@ window.irParaCheckout = function(){
         );
 
         return;
+
     }
 
 
     if(!usuarioAtual){
 
-        fecharModal("modalCarrinho");
+        fecharModal(
+            "modalCarrinho"
+        );
 
-        abrirModal("modalLogin");
+        abrirModal(
+            "modalLogin"
+        );
 
         mostrarToast(
             "Entre na sua conta para continuar."
         );
 
         return;
+
     }
 
 
-    fecharModal("modalCarrinho");
+    fecharModal(
+        "modalCarrinho"
+    );
 
 
     const total =
         carrinho.reduce(
             (soma,p) =>
-                soma + Number(p.preco || 0),
+                soma +
+                Number(
+                    p.preco || 0
+                ),
             0
         );
 
@@ -2117,38 +2862,72 @@ window.irParaCheckout = function(){
                 Comprador
             </strong>
 
+
             <div style="margin-top:5px">
+
                 ${
                     usuarioAtual.displayName ||
                     usuarioAtual.email
                 }
+
             </div>
 
         </div>
 
-        <h3>Resumo do pedido</h3>
+
+        <h3>
+            Resumo do pedido
+        </h3>
+
 
         <div class="total-box">
 
-            ${carrinho.map(p => `
+            ${
 
-                <div class="total-line">
-                    <span>${p.nome}</span>
-                    <strong>${moeda(p.preco)}</strong>
-                </div>
+                carrinho.map(
+                    p => `
 
-            `).join("")}
+                        <div class="total-line">
 
-            <div class="total-line total-final">
-                <span>Total</span>
-                <span>${moeda(total)}</span>
+                            <span>
+                                ${p.nome}
+                            </span>
+
+                            <strong>
+                                ${moeda(p.preco)}
+                            </strong>
+
+                        </div>
+
+                    `
+                ).join("")
+
+            }
+
+
+            <div
+                class="total-line total-final"
+            >
+
+                <span>
+                    Total
+                </span>
+
+                <span>
+                    ${moeda(total)}
+                </span>
+
             </div>
 
         </div>
 
+
         <button
             class="btn btn-primary"
-            style="width:100%;margin-top:15px"
+            style="
+                width:100%;
+                margin-top:15px
+            "
             onclick="finalizarPedido()"
         >
             💠 Gerar Pix
@@ -2157,16 +2936,19 @@ window.irParaCheckout = function(){
     `;
 
 
-    abrirModal("modalCheckout");
+    abrirModal(
+        "modalCheckout"
+    );
 
 };
 
 
 /* =========================================================
-   FINALIZAR PEDIDO
+   PEDIDO
 ========================================================= */
 
-window.finalizarPedido = async function(){
+window.finalizarPedido =
+async function(){
 
     if(!usuarioAtual){
 
@@ -2175,6 +2957,7 @@ window.finalizarPedido = async function(){
         );
 
         return;
+
     }
 
 
@@ -2185,19 +2968,28 @@ window.finalizarPedido = async function(){
         );
 
         return;
+
     }
 
 
     const total =
         carrinho.reduce(
             (soma,p) =>
-                soma + Number(p.preco || 0),
+                soma +
+                Number(
+                    p.preco || 0
+                ),
             0
         );
 
 
     const pedidoRef =
-        push(ref(db,"pedidos"));
+        push(
+            ref(
+                db,
+                "pedidos"
+            )
+        );
 
 
     const pedidoId =
@@ -2206,9 +2998,11 @@ window.finalizarPedido = async function(){
 
     const pedido = {
 
-        id:pedidoId,
+        id:
+            pedidoId,
 
-        usuarioId:usuarioAtual.uid,
+        usuarioId:
+            usuarioAtual.uid,
 
         usuarioNome:
             usuarioAtual.displayName ||
@@ -2217,29 +3011,43 @@ window.finalizarPedido = async function(){
         usuarioEmail:
             usuarioAtual.email,
 
-        produtos:carrinho.map(p => ({
+        produtos:
+            carrinho.map(
+                p => ({
 
-            id:p.id,
+                    id:
+                        p.id,
 
-            nome:p.nome,
+                    nome:
+                        p.nome,
 
-            preco:Number(p.preco || 0),
+                    preco:
+                        Number(
+                            p.preco || 0
+                        ),
 
-            quantidade:1,
+                    quantidade:
+                        1,
 
-            vendedorId:
-                p.vendedorId || "",
+                    vendedorId:
+                        p.vendedorId || "",
 
-            vendedorNome:
-                p.vendedorNome || ""
+                    vendedorNome:
+                        p.vendedorNome || ""
 
-        })),
+                })
+            ),
 
-        total:Number(total.toFixed(2)),
+        total:
+            Number(
+                total.toFixed(2)
+            ),
 
-        pagamento:"pix",
+        pagamento:
+            "pix",
 
-        status:"aguardando_pagamento",
+        status:
+            "aguardando_pagamento",
 
         criadoEm:
             new Date().toISOString()
@@ -2255,21 +3063,31 @@ window.finalizarPedido = async function(){
         );
 
 
-        pedidoAtual = pedido;
+        pedidoAtual =
+            pedido;
 
 
-        fecharModal("modalCheckout");
+        fecharModal(
+            "modalCheckout"
+        );
 
 
-        gerarPix(total,pedidoId);
+        gerarPix(
+            total,
+            pedidoId
+        );
 
 
-        abrirModal("modalPix");
+        abrirModal(
+            "modalPix"
+        );
 
 
     }catch(error){
 
-        console.error(error);
+        console.error(
+            error
+        );
 
         mostrarToast(
             "Erro ao criar pedido."
@@ -2284,15 +3102,15 @@ window.finalizarPedido = async function(){
    PIX
 ========================================================= */
 
-function gerarPix(valor,pedidoId){
+function gerarPix(
+    valor,
+    pedidoId
+){
 
     const valorPix =
-        Number(valor).toFixed(2);
+        Number(valor)
+        .toFixed(2);
 
-
-    /*
-     * Payload Pix EMV básico.
-     */
 
     const payload =
         criarPayloadPix(
@@ -2310,7 +3128,8 @@ function gerarPix(valor,pedidoId){
         );
 
 
-    campo.value = payload;
+    campo.value =
+        payload;
 
 
     const qr =
@@ -2319,15 +3138,23 @@ function gerarPix(valor,pedidoId){
         );
 
 
-    qr.innerHTML = "";
+    qr.innerHTML =
+        "";
 
 
     new QRCode(
         qr,
         {
-            text:payload,
-            width:240,
-            height:240
+
+            text:
+                payload,
+
+            width:
+                240,
+
+            height:
+                240
+
         }
     );
 
@@ -2336,30 +3163,48 @@ function gerarPix(valor,pedidoId){
 
 function crc16(str){
 
-    let crc = 0xFFFF;
+    let crc =
+        0xFFFF;
 
 
-    for(let i=0;i<str.length;i++){
+    for(
+        let i=0;
+        i<str.length;
+        i++
+    ){
 
-        crc ^= str.charCodeAt(i) << 8;
+        crc ^=
+            str.charCodeAt(i)
+            << 8;
 
 
-        for(let j=0;j<8;j++){
+        for(
+            let j=0;
+            j<8;
+            j++
+        ){
 
-            if(crc & 0x8000){
+            if(
+                crc &
+                0x8000
+            ){
 
                 crc =
-                    (crc << 1) ^
+                    (
+                        crc << 1
+                    ) ^
                     0x1021;
 
             }else{
 
-                crc <<= 1;
+                crc <<=
+                    1;
 
             }
 
 
-            crc &= 0xFFFF;
+            crc &=
+                0xFFFF;
 
         }
 
@@ -2369,22 +3214,37 @@ function crc16(str){
     return crc
         .toString(16)
         .toUpperCase()
-        .padStart(4,"0");
+        .padStart(
+            4,
+            "0"
+        );
 
 }
 
 
-function campoPix(id,valor){
+function campoPix(
+    id,
+    valor
+){
 
     const tamanho =
-        String(valor).length
+        String(valor)
+        .length
         .toString()
-        .padStart(2,"0");
+        .padStart(
+            2,
+            "0"
+        );
+
 
     return (
+
         String(id) +
+
         tamanho +
+
         String(valor)
+
     );
 
 }
@@ -2399,21 +3259,36 @@ function criarPayloadPix(
 ){
 
     nome =
-        removerAcentos(nome)
-        .substring(0,25)
+        removerAcentos(
+            nome
+        )
+        .substring(
+            0,
+            25
+        )
         .toUpperCase();
 
+
     cidade =
-        removerAcentos(cidade)
-        .substring(0,15)
+        removerAcentos(
+            cidade
+        )
+        .substring(
+            0,
+            15
+        )
         .toUpperCase();
 
 
     const merchantAccount =
+
         campoPix(
             "00",
             "BR.GOV.BCB.PIX"
-        ) +
+        )
+
+        +
+
         campoPix(
             "01",
             chave
@@ -2477,15 +3352,26 @@ function criarPayloadPix(
 
 
     const txid =
-        String(identificador || "PEDIDO")
-        .replace(/[^a-zA-Z0-9]/g,"")
-        .substring(0,25) ||
+        String(
+            identificador ||
+            "PEDIDO"
+        )
+        .replace(
+            /[^a-zA-Z0-9]/g,
+            ""
+        )
+        .substring(
+            0,
+            25
+        )
+        ||
         "PEDIDO";
 
 
     payload +=
         campoPix(
             "62",
+
             campoPix(
                 "05",
                 txid
@@ -2494,25 +3380,39 @@ function criarPayloadPix(
 
 
     const semCRC =
-        payload + "6304";
+        payload +
+        "6304";
 
 
-    return semCRC +
-        crc16(semCRC);
+    return (
+
+        semCRC +
+
+        crc16(
+            semCRC
+        )
+
+    );
 
 }
 
 
-function removerAcentos(texto){
+function removerAcentos(
+    texto
+){
 
     return String(texto)
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g,"");
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        );
 
 }
 
 
-window.copiarPix = async function(){
+window.copiarPix =
+async function(){
 
     const campo =
         document.getElementById(
@@ -2522,19 +3422,25 @@ window.copiarPix = async function(){
 
     try{
 
-        await navigator.clipboard.writeText(
-            campo.value
-        );
+        await navigator
+            .clipboard
+            .writeText(
+                campo.value
+            );
+
 
         mostrarToast(
             "Código Pix copiado!"
         );
 
+
     }catch(error){
 
         campo.select();
 
-        document.execCommand("copy");
+        document.execCommand(
+            "copy"
+        );
 
         mostrarToast(
             "Código Pix copiado!"
@@ -2546,14 +3452,17 @@ window.copiarPix = async function(){
 
 
 /* =========================================================
-   LOGIN
+   CONTA
 ========================================================= */
 
-window.abrirConta = function(){
+window.abrirConta =
+function(){
 
     atualizarConta();
 
-    abrirModal("modalConta");
+    abrirModal(
+        "modalConta"
+    );
 
 };
 
@@ -2570,9 +3479,15 @@ function atualizarConta(){
 
         container.innerHTML = `
 
-            <p style="color:#666;margin-bottom:15px">
+            <p
+                style="
+                    color:#666;
+                    margin-bottom:15px
+                "
+            >
                 Entre na sua conta para comprar produtos.
             </p>
+
 
             <button
                 class="btn btn-primary"
@@ -2597,14 +3512,23 @@ function atualizarConta(){
         <div class="user-info">
 
             <strong>
-                ${usuarioAtual.displayName || "Cliente"}
+                ${
+                    usuarioAtual.displayName ||
+                    "Cliente"
+                }
             </strong>
 
+
             <div style="margin-top:6px">
-                ${usuarioAtual.email}
+
+                ${
+                    usuarioAtual.email
+                }
+
             </div>
 
         </div>
+
 
         <button
             class="btn btn-secondary"
@@ -2619,40 +3543,209 @@ function atualizarConta(){
 }
 
 
-window.abrirCadastro = function(){
+/* =========================================================
+   ABRIR CADASTRO
+========================================================= */
 
-    fecharModal("modalLogin");
+window.abrirCadastro =
+function(){
 
-    abrirModal("modalCadastro");
+    fecharModal(
+        "modalLogin"
+    );
+
+    abrirModal(
+        "modalCadastro"
+    );
 
 };
 
 
-window.cadastrar = async function(){
+/* =========================================================
+   CADASTRO COMPLETO
+========================================================= */
+
+window.cadastrar =
+async function(){
 
     const nome =
-        document.getElementById(
-            "cadNome"
-        ).value.trim();
+        document
+            .getElementById(
+                "cadNome"
+            )
+            .value
+            .trim();
+
+
+    const telefone =
+        document
+            .getElementById(
+                "cadTelefone"
+            )
+            .value
+            .trim();
+
+
+    const cep =
+        document
+            .getElementById(
+                "cadCep"
+            )
+            .value
+            .trim();
+
+
+    const endereco =
+        document
+            .getElementById(
+                "cadEndereco"
+            )
+            .value
+            .trim();
+
+
+    const numero =
+        document
+            .getElementById(
+                "cadNumero"
+            )
+            .value
+            .trim();
+
+
+    const bairro =
+        document
+            .getElementById(
+                "cadBairro"
+            )
+            .value
+            .trim();
+
+
+    const cidade =
+        document
+            .getElementById(
+                "cadCidade"
+            )
+            .value
+            .trim();
+
+
+    const estado =
+        document
+            .getElementById(
+                "cadEstado"
+            )
+            .value
+            .trim();
+
 
     const email =
-        document.getElementById(
-            "cadEmail"
-        ).value.trim();
+        document
+            .getElementById(
+                "cadEmail"
+            )
+            .value
+            .trim();
+
 
     const senha =
-        document.getElementById(
-            "cadSenha"
-        ).value;
+        document
+            .getElementById(
+                "cadSenha"
+            )
+            .value;
 
 
-    if(!nome || !email || !senha){
+    /* =====================================================
+       VALIDAÇÕES
+    ===================================================== */
+
+    if(!nome){
 
         mostrarToast(
-            "Preencha todos os campos."
+            "Digite seu nome completo."
         );
 
         return;
+
+    }
+
+
+    if(
+        nome.split(/\s+/).length < 2
+    ){
+
+        mostrarToast(
+            "Digite seu nome completo."
+        );
+
+        return;
+
+    }
+
+
+    if(!telefone){
+
+        mostrarToast(
+            "Digite seu telefone."
+        );
+
+        return;
+
+    }
+
+
+    const cepNumerico =
+        cep.replace(
+            /\D/g,
+            ""
+        );
+
+
+    if(
+        cepNumerico.length !== 8
+    ){
+
+        mostrarToast(
+            "Digite um CEP válido."
+        );
+
+        return;
+
+    }
+
+
+    if(!endereco){
+
+        mostrarToast(
+            "Consulte o CEP antes de continuar."
+        );
+
+        return;
+
+    }
+
+
+    if(!numero){
+
+        mostrarToast(
+            "Digite o número da residência."
+        );
+
+        return;
+
+    }
+
+
+    if(!email){
+
+        mostrarToast(
+            "Digite seu e-mail."
+        );
+
+        return;
+
     }
 
 
@@ -2663,12 +3756,37 @@ window.cadastrar = async function(){
         );
 
         return;
+
     }
+
+
+    /* =====================================================
+       DESABILITA BOTÃO DURANTE CADASTRO
+    ===================================================== */
+
+    const botoes =
+        document.querySelectorAll(
+            "#modalCadastro .modal-buttons button"
+        );
+
+
+    botoes.forEach(
+        botao => {
+
+            botao.disabled =
+                true;
+
+        }
+    );
 
 
     try{
 
-        const cred =
+        /* =================================================
+           CRIA USUÁRIO AUTH
+        ================================================= */
+
+        const resultado =
             await createUserWithEmailAndPassword(
                 auth,
                 email,
@@ -2676,29 +3794,164 @@ window.cadastrar = async function(){
             );
 
 
+        const user =
+            resultado.user;
+
+
+        /* =================================================
+           NOME DO FIREBASE AUTH
+        ================================================= */
+
         await updateProfile(
-            cred.user,
+            user,
             {
-                displayName:nome
+                displayName:
+                    nome
             }
         );
 
+
+        /* =================================================
+           OBJETO COMPLETO DO CLIENTE
+        ================================================= */
+
+        const cliente = {
+
+            uid:
+                user.uid,
+
+            nome:
+                nome,
+
+            telefone:
+                telefone,
+
+            email:
+                email,
+
+            endereco: {
+
+                cep:
+                    cep,
+
+                logradouro:
+                    endereco,
+
+                numero:
+                    numero,
+
+                bairro:
+                    bairro,
+
+                cidade:
+                    cidade,
+
+                estado:
+                    estado
+
+            },
+
+            criadoEm:
+                new Date().toISOString(),
+
+            status:
+                "ativo"
+
+        };
+
+
+        /* =================================================
+           SALVA EM CLIENTES
+        ================================================= */
 
         await set(
+
             ref(
                 db,
-                "usuarios/" + cred.user.uid
+                "clientes/" +
+                user.uid
             ),
-            {
-                nome,
-                email,
-                criadoEm:
-                    new Date().toISOString()
-            }
+
+            cliente
+
         );
 
 
-        fecharModal("modalCadastro");
+        /* =================================================
+           SALVA TAMBÉM EM USUARIOS
+        ================================================= */
+
+        await set(
+
+            ref(
+                db,
+                "usuarios/" +
+                user.uid
+            ),
+
+            cliente
+
+        );
+
+
+        /* =================================================
+           LIMPAR FORMULÁRIO
+        ================================================= */
+
+        document.getElementById(
+            "cadNome"
+        ).value = "";
+
+
+        document.getElementById(
+            "cadTelefone"
+        ).value = "";
+
+
+        document.getElementById(
+            "cadCep"
+        ).value = "";
+
+
+        document.getElementById(
+            "cadEndereco"
+        ).value = "";
+
+
+        document.getElementById(
+            "cadNumero"
+        ).value = "";
+
+
+        document.getElementById(
+            "cadBairro"
+        ).value = "";
+
+
+        document.getElementById(
+            "cadCidade"
+        ).value = "";
+
+
+        document.getElementById(
+            "cadEstado"
+        ).value = "";
+
+
+        document.getElementById(
+            "cadEmail"
+        ).value = "";
+
+
+        document.getElementById(
+            "cadSenha"
+        ).value = "";
+
+
+        fecharModal(
+            "modalCadastro"
+        );
+
 
         mostrarToast(
             "Conta criada com sucesso!"
@@ -2707,10 +3960,66 @@ window.cadastrar = async function(){
 
     }catch(error){
 
-        console.error(error);
+        console.error(
+            "Erro ao criar conta:",
+            error
+        );
 
-        mostrarToast(
-            traduzirErroFirebase(error)
+
+        const code =
+            error?.code || "";
+
+
+        if(
+            code.includes(
+                "auth/email-already-in-use"
+            )
+        ){
+
+            mostrarToast(
+                "Este e-mail já está cadastrado."
+            );
+
+
+        }else if(
+            code.includes(
+                "auth/invalid-email"
+            )
+        ){
+
+            mostrarToast(
+                "E-mail inválido."
+            );
+
+
+        }else if(
+            code.includes(
+                "auth/weak-password"
+            )
+        ){
+
+            mostrarToast(
+                "A senha precisa ter pelo menos 6 caracteres."
+            );
+
+
+        }else{
+
+            mostrarToast(
+                "Erro ao criar a conta."
+            );
+
+        }
+
+    }finally{
+
+        botoes.forEach(
+            botao => {
+
+                botao.disabled =
+                    false;
+
+            }
         );
 
     }
@@ -2718,17 +4027,28 @@ window.cadastrar = async function(){
 };
 
 
-window.login = async function(){
+/* =========================================================
+   LOGIN
+========================================================= */
+
+window.login =
+async function(){
 
     const email =
-        document.getElementById(
-            "loginEmail"
-        ).value.trim();
+        document
+            .getElementById(
+                "loginEmail"
+            )
+            .value
+            .trim();
+
 
     const senha =
-        document.getElementById(
-            "loginSenha"
-        ).value;
+        document
+            .getElementById(
+                "loginSenha"
+            )
+            .value;
 
 
     if(!email || !senha){
@@ -2738,6 +4058,7 @@ window.login = async function(){
         );
 
         return;
+
     }
 
 
@@ -2750,7 +4071,10 @@ window.login = async function(){
         );
 
 
-        fecharModal("modalLogin");
+        fecharModal(
+            "modalLogin"
+        );
+
 
         mostrarToast(
             "Login realizado!"
@@ -2759,10 +4083,15 @@ window.login = async function(){
 
     }catch(error){
 
-        console.error(error);
+        console.error(
+            error
+        );
+
 
         mostrarToast(
-            traduzirErroFirebase(error)
+            traduzirErroFirebase(
+                error
+            )
         );
 
     }
@@ -2770,28 +4099,48 @@ window.login = async function(){
 };
 
 
-window.sair = async function(){
+/* =========================================================
+   SAIR
+========================================================= */
+
+window.sair =
+async function(){
 
     try{
 
-        await signOut(auth);
+        await signOut(
+            auth
+        );
 
-        fecharModal("modalConta");
+
+        fecharModal(
+            "modalConta"
+        );
+
 
         mostrarToast(
             "Você saiu da conta."
         );
 
+
     }catch(error){
 
-        console.error(error);
+        console.error(
+            error
+        );
 
     }
 
 };
 
 
-function traduzirErroFirebase(error){
+/* =========================================================
+   TRADUZIR ERROS
+========================================================= */
+
+function traduzirErroFirebase(
+    error
+){
 
     const code =
         error?.code || "";
@@ -2802,7 +4151,10 @@ function traduzirErroFirebase(error){
             "auth/email-already-in-use"
         )
     ){
-        return "Este e-mail já está cadastrado.";
+
+        return
+            "Este e-mail já está cadastrado.";
+
     }
 
 
@@ -2810,11 +4162,15 @@ function traduzirErroFirebase(error){
         code.includes(
             "auth/invalid-credential"
         ) ||
+
         code.includes(
             "auth/wrong-password"
         )
     ){
-        return "E-mail ou senha incorretos.";
+
+        return
+            "E-mail ou senha incorretos.";
+
     }
 
 
@@ -2823,7 +4179,10 @@ function traduzirErroFirebase(error){
             "auth/user-not-found"
         )
     ){
-        return "Usuário não encontrado.";
+
+        return
+            "Usuário não encontrado.";
+
     }
 
 
@@ -2832,11 +4191,27 @@ function traduzirErroFirebase(error){
             "auth/invalid-email"
         )
     ){
-        return "E-mail inválido.";
+
+        return
+            "E-mail inválido.";
+
     }
 
 
-    return "Não foi possível concluir a operação.";
+    if(
+        code.includes(
+            "auth/too-many-requests"
+        )
+    ){
+
+        return
+            "Muitas tentativas. Tente novamente mais tarde.";
+
+    }
+
+
+    return
+        "Não foi possível concluir a operação.";
 
 }
 
@@ -2847,14 +4222,282 @@ function traduzirErroFirebase(error){
 
 onAuthStateChanged(
     auth,
+
     user => {
 
-        usuarioAtual = user || null;
+        usuarioAtual =
+            user || null;
+
 
         atualizarConta();
 
     }
+
 );
+
+
+/* =========================================================
+   CEP
+========================================================= */
+
+const campoCEP =
+    document.getElementById(
+        "cadCep"
+    );
+
+
+if(campoCEP){
+
+    campoCEP.addEventListener(
+        "input",
+
+        function(){
+
+            let cep =
+                this.value.replace(
+                    /\D/g,
+                    ""
+                );
+
+
+            if(
+                cep.length > 8
+            ){
+
+                cep =
+                    cep.substring(
+                        0,
+                        8
+                    );
+
+            }
+
+
+            if(
+                cep.length > 5
+            ){
+
+                this.value =
+                    cep.substring(
+                        0,
+                        5
+                    )
+                    +
+                    "-"
+                    +
+                    cep.substring(
+                        5
+                    );
+
+            }else{
+
+                this.value =
+                    cep;
+
+            }
+
+        }
+    );
+
+
+    campoCEP.addEventListener(
+        "blur",
+        buscarCEP
+    );
+
+}
+
+
+/* =========================================================
+   BUSCAR CEP
+========================================================= */
+
+async function buscarCEP(){
+
+    const campo =
+        document.getElementById(
+            "cadCep"
+        );
+
+
+    if(!campo){
+        return;
+    }
+
+
+    const cep =
+        campo.value.replace(
+            /\D/g,
+            ""
+        );
+
+
+    if(
+        cep.length !== 8
+    ){
+
+        return;
+
+    }
+
+
+    const endereco =
+        document.getElementById(
+            "cadEndereco"
+        );
+
+
+    const bairro =
+        document.getElementById(
+            "cadBairro"
+        );
+
+
+    const cidade =
+        document.getElementById(
+            "cadCidade"
+        );
+
+
+    const estado =
+        document.getElementById(
+            "cadEstado"
+        );
+
+
+    endereco.value =
+        "Buscando...";
+
+
+    bairro.value =
+        "";
+
+
+    cidade.value =
+        "";
+
+
+    estado.value =
+        "";
+
+
+    try{
+
+        const resposta =
+            await fetch(
+                `https://viacep.com.br/ws/${cep}/json/`
+            );
+
+
+        if(!resposta.ok){
+
+            throw new Error(
+                "Erro ao consultar CEP"
+            );
+
+        }
+
+
+        const dados =
+            await resposta.json();
+
+
+        if(dados.erro){
+
+            endereco.value =
+                "";
+
+
+            mostrarToast(
+                "CEP não encontrado."
+            );
+
+
+            return;
+
+        }
+
+
+        endereco.value =
+            dados.logradouro ||
+            "";
+
+
+        bairro.value =
+            dados.bairro ||
+            "";
+
+
+        cidade.value =
+            dados.localidade ||
+            "";
+
+
+        estado.value =
+            dados.uf ||
+            "";
+
+
+        document
+            .getElementById(
+                "cadNumero"
+            )
+            ?.focus();
+
+
+    }catch(erro){
+
+        console.error(
+            "Erro ao buscar CEP:",
+            erro
+        );
+
+
+        endereco.value =
+            "";
+
+
+        mostrarToast(
+            "Não foi possível consultar o CEP."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   FECHAR MODAIS AO CLICAR FORA
+========================================================= */
+
+document
+    .querySelectorAll(
+        ".modal"
+    )
+    .forEach(
+        modal => {
+
+            modal.addEventListener(
+                "click",
+
+                event => {
+
+                    if(
+                        event.target ===
+                        modal
+                    ){
+
+                        modal.classList.remove(
+                            "show"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
 
 
 /* =========================================================
@@ -2865,405 +4508,8 @@ carregarProdutos();
 
 atualizarCarrinho();
 
-
-/* =========================================================
-   FECHAR MODAIS CLICANDO FORA
-========================================================= */
-
-document
-    .querySelectorAll(".modal")
-    .forEach(modal => {
-
-        modal.addEventListener(
-            "click",
-            event => {
-
-                if(
-                    event.target === modal
-                ){
-
-                    modal.classList.remove(
-                        "show"
-                    );
-
-                }
-
-            }
-        );
-
-    });
-const campoCEP = document.getElementById("cadCep");
-
-if (campoCEP) {
-
-    campoCEP.addEventListener("input", function () {
-
-        let cep = this.value.replace(/\D/g, "");
-
-        if (cep.length > 8) {
-            cep = cep.substring(0, 8);
-        }
-
-        if (cep.length > 5) {
-            this.value =
-                cep.substring(0, 5) +
-                "-" +
-                cep.substring(5);
-        } else {
-            this.value = cep;
-        }
-
-    });
-
-    campoCEP.addEventListener("blur", buscarCEP);
-}
-
-
-async function buscarCEP() {
-
-    const campo = document.getElementById("cadCep");
-
-    if (!campo) return;
-
-    const cep = campo.value.replace(/\D/g, "");
-
-    if (cep.length !== 8) {
-        return;
-    }
-
-    const endereco = document.getElementById("cadEndereco");
-    const bairro = document.getElementById("cadBairro");
-    const cidade = document.getElementById("cadCidade");
-    const estado = document.getElementById("cadEstado");
-
-    endereco.value = "Buscando...";
-    bairro.value = "";
-    cidade.value = "";
-    estado.value = "";
-
-    try {
-
-        const resposta = await fetch(
-            `https://viacep.com.br/ws/${cep}/json/`
-        );
-
-        if (!resposta.ok) {
-            throw new Error("Erro ao consultar CEP");
-        }
-
-        const dados = await resposta.json();
-
-        if (dados.erro) {
-
-            endereco.value = "";
-
-            mostrarToast(
-                "CEP não encontrado."
-            );
-
-            return;
-        }
-
-        endereco.value = dados.logradouro || "";
-        bairro.value = dados.bairro || "";
-        cidade.value = dados.localidade || "";
-        estado.value = dados.uf || "";
-
-        document.getElementById("cadNumero")?.focus();
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao buscar CEP:",
-            erro
-        );
-
-        endereco.value = "";
-
-        mostrarToast(
-            "Não foi possível consultar o CEP."
-        );
-    }
-}
-window.cadastrar = async function () {
-
-    const nome =
-        document
-            .getElementById("cadNome")
-            .value
-            .trim();
-
-    const telefone =
-        document
-            .getElementById("cadTelefone")
-            .value
-            .trim();
-
-    const cep =
-        document
-            .getElementById("cadCep")
-            .value
-            .trim();
-
-    const endereco =
-        document
-            .getElementById("cadEndereco")
-            .value
-            .trim();
-
-    const numero =
-        document
-            .getElementById("cadNumero")
-            .value
-            .trim();
-
-    const bairro =
-        document
-            .getElementById("cadBairro")
-            .value
-            .trim();
-
-    const cidade =
-        document
-            .getElementById("cadCidade")
-            .value
-            .trim();
-
-    const estado =
-        document
-            .getElementById("cadEstado")
-            .value
-            .trim();
-
-    const email =
-        document
-            .getElementById("cadEmail")
-            .value
-            .trim();
-
-    const senha =
-        document
-            .getElementById("cadSenha")
-            .value;
-
-    if (!nome) {
-        mostrarToast("Digite seu nome completo.");
-        return;
-    }
-
-    if (nome.split(/\s+/).length < 2) {
-        mostrarToast("Digite seu nome completo.");
-        return;
-    }
-
-    if (!telefone) {
-        mostrarToast("Digite seu telefone.");
-        return;
-    }
-
-    if (cep.replace(/\D/g, "").length !== 8) {
-        mostrarToast("Digite um CEP válido.");
-        return;
-    }
-
-    if (!endereco) {
-        mostrarToast("Consulte o CEP antes de continuar.");
-        return;
-    }
-
-    if (!numero) {
-        mostrarToast("Digite o número da residência.");
-        return;
-    }
-
-    if (!email) {
-        mostrarToast("Digite seu e-mail.");
-        return;
-    }
-
-    if (senha.length < 6) {
-        mostrarToast(
-            "A senha precisa ter pelo menos 6 caracteres."
-        );
-        return;
-    }
-
-    try {
-
-        const resultado =
-            await createUserWithEmailAndPassword(
-                auth,
-                email,
-                senha
-            );
-
-        const user = resultado.user;
-
-        await updateProfile(user, {
-            displayName: nome
-        });
-
-        /*
-        ==========================================
-        DADOS DO CLIENTE
-        ==========================================
-        */
-
-        const cliente = {
-
-            uid: user.uid,
-
-            nome: nome,
-
-            telefone: telefone,
-
-            email: email,
-
-            endereco: {
-
-                cep: cep,
-
-                logradouro: endereco,
-
-                numero: numero,
-
-                bairro: bairro,
-
-                cidade: cidade,
-
-                estado: estado
-
-            },
-
-            criadoEm:
-                new Date().toISOString(),
-
-            status: "ativo"
-
-        };
-
-        /*
-        ==========================================
-        SALVAR NO FIREBASE
-        ==========================================
-        */
-
-        await set(
-            ref(
-                db,
-                "clientes/" + user.uid
-            ),
-            cliente
-        );
-
-        /*
-        ==========================================
-        TAMBÉM ATUALIZA JOGADOR/USUÁRIO,
-        CASO SEU SISTEMA JÁ USE ESSE CAMINHO
-        ==========================================
-        */
-
-        await update(
-            ref(
-                db,
-                "usuarios/" + user.uid
-            ),
-            cliente
-        );
-
-        mostrarToast(
-            "Conta criada com sucesso!"
-        );
-
-        document
-            .getElementById("cadNome")
-            .value = "";
-
-        document
-            .getElementById("cadTelefone")
-            .value = "";
-
-        document
-            .getElementById("cadCep")
-            .value = "";
-
-        document
-            .getElementById("cadEndereco")
-            .value = "";
-
-        document
-            .getElementById("cadNumero")
-            .value = "";
-
-        document
-            .getElementById("cadBairro")
-            .value = "";
-
-        document
-            .getElementById("cadCidade")
-            .value = "";
-
-        document
-            .getElementById("cadEstado")
-            .value = "";
-
-        document
-            .getElementById("cadEmail")
-            .value = "";
-
-        document
-            .getElementById("cadSenha")
-            .value = "";
-
-        fecharModal("modalCadastro");
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao criar conta:",
-            erro
-        );
-
-        if (
-            erro.code ===
-            "auth/email-already-in-use"
-        ) {
-
-            mostrarToast(
-                "Este e-mail já está cadastrado."
-            );
-
-        } else if (
-            erro.code ===
-            "auth/invalid-email"
-        ) {
-
-            mostrarToast(
-                "E-mail inválido."
-            );
-
-        } else if (
-            erro.code ===
-            "auth/weak-password"
-        ) {
-
-            mostrarToast(
-                "A senha é muito fraca."
-            );
-
-        } else {
-
-            mostrarToast(
-                "Erro ao criar a conta."
-            );
-
-        }
-
-    }
-
-};
-
 </script>
 
 </body>
+
 </html>
