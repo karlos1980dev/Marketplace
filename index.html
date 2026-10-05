@@ -1,0 +1,3269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Marketplace SSA</title>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f5f5f5;
+    color:#222;
+}
+
+button,input,select{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+header{
+    position:sticky;
+    top:0;
+    z-index:1000;
+    background:#111;
+    color:#fff;
+    padding:14px 18px;
+    box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+
+.header{
+    max-width:1250px;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+}
+
+.logo{
+    font-size:23px;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.logo span{
+    color:#00c853;
+}
+
+.header-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.header-btn{
+    background:#222;
+    color:#fff;
+    border:1px solid #444;
+    border-radius:8px;
+    padding:9px 12px;
+}
+
+.header-btn:hover{
+    background:#333;
+}
+
+.cart-count{
+    background:#00c853;
+    color:#fff;
+    border-radius:50%;
+    min-width:20px;
+    height:20px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:12px;
+    margin-left:4px;
+}
+
+.container{
+    width:min(1250px,94%);
+    margin:20px auto;
+}
+
+.search-box{
+    display:flex;
+    gap:10px;
+    margin-bottom:18px;
+}
+
+.search-box input{
+    width:100%;
+    padding:14px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    background:#fff;
+    outline:none;
+}
+
+.search-box input:focus{
+    border-color:#00c853;
+}
+
+.banner{
+    background:linear-gradient(135deg,#111,#333);
+    color:#fff;
+    border-radius:15px;
+    padding:28px;
+    margin-bottom:20px;
+}
+
+.banner h1{
+    font-size:30px;
+    margin-bottom:8px;
+}
+
+.banner p{
+    color:#ddd;
+}
+
+.categories{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding:4px 0 15px;
+    scrollbar-width:none;
+}
+
+.categories::-webkit-scrollbar{
+    display:none;
+}
+
+.category-btn{
+    flex:none;
+    border:1px solid #ddd;
+    background:#fff;
+    color:#333;
+    padding:10px 16px;
+    border-radius:30px;
+    font-weight:bold;
+}
+
+.category-btn.active{
+    background:#111;
+    color:#fff;
+    border-color:#111;
+}
+
+.category-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:10px 0 15px;
+}
+
+.category-title h2{
+    font-size:22px;
+}
+
+.category-title span{
+    color:#777;
+    font-size:14px;
+}
+
+.products{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+}
+
+.product{
+    background:#fff;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    transition:.2s;
+}
+
+.product:hover{
+    transform:translateY(-3px);
+    box-shadow:0 5px 16px rgba(0,0,0,.13);
+}
+
+.product-img{
+    width:100%;
+    height:210px;
+    object-fit:cover;
+    background:#eee;
+}
+
+.product-content{
+    padding:14px;
+}
+
+.product-category{
+    color:#777;
+    font-size:12px;
+    margin-bottom:5px;
+}
+
+.product-name{
+    font-size:17px;
+    font-weight:bold;
+    min-height:42px;
+}
+
+.product-description{
+    color:#666;
+    font-size:13px;
+    margin:7px 0;
+    min-height:34px;
+}
+
+.product-price{
+    font-size:22px;
+    font-weight:bold;
+    color:#111;
+    margin:10px 0;
+}
+
+.product-stock{
+    font-size:12px;
+    color:#188038;
+    margin-bottom:10px;
+}
+
+.product-actions{
+    display:flex;
+    gap:8px;
+}
+
+.btn{
+    border:0;
+    border-radius:8px;
+    padding:11px;
+    font-weight:bold;
+}
+
+.btn-primary{
+    flex:1;
+    background:#00c853;
+    color:#fff;
+}
+
+.btn-secondary{
+    background:#eee;
+    color:#222;
+}
+
+.empty{
+    background:#fff;
+    padding:40px;
+    text-align:center;
+    border-radius:12px;
+    color:#777;
+    grid-column:1/-1;
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:5000;
+    background:rgba(0,0,0,.65);
+    padding:15px;
+    overflow:auto;
+}
+
+.modal.show{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.modal-box{
+    width:min(520px,100%);
+    max-height:94vh;
+    overflow:auto;
+    background:#fff;
+    border-radius:16px;
+    padding:22px;
+    position:relative;
+}
+
+.close{
+    position:absolute;
+    right:15px;
+    top:12px;
+    border:0;
+    background:#eee;
+    width:35px;
+    height:35px;
+    border-radius:50%;
+    font-size:20px;
+}
+
+.modal-title{
+    font-size:22px;
+    font-weight:bold;
+    margin-bottom:18px;
+    padding-right:40px;
+}
+
+.form-group{
+    margin-bottom:12px;
+}
+
+.form-group label{
+    display:block;
+    font-size:13px;
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select{
+    width:100%;
+    padding:12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    outline:none;
+}
+
+.form-group textarea{
+    min-height:90px;
+    resize:vertical;
+}
+
+.modal-buttons{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+.modal-buttons button{
+    flex:1;
+}
+
+.cart-item{
+    display:flex;
+    gap:12px;
+    padding:12px 0;
+    border-bottom:1px solid #eee;
+}
+
+.cart-item img{
+    width:75px;
+    height:75px;
+    border-radius:8px;
+    object-fit:cover;
+}
+
+.cart-info{
+    flex:1;
+}
+
+.cart-name{
+    font-weight:bold;
+}
+
+.cart-price{
+    margin-top:5px;
+}
+
+.remove-cart{
+    border:0;
+    background:#ffebee;
+    color:#d32f2f;
+    padding:7px 10px;
+    border-radius:7px;
+}
+
+.total-box{
+    margin-top:18px;
+    padding:15px;
+    background:#f5f5f5;
+    border-radius:10px;
+}
+
+.total-line{
+    display:flex;
+    justify-content:space-between;
+    margin:5px 0;
+}
+
+.total-final{
+    font-size:23px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.pix-box{
+    text-align:center;
+}
+
+#qrcode{
+    display:flex;
+    justify-content:center;
+    margin:20px 0;
+}
+
+.pix-code{
+    width:100%;
+    min-height:100px;
+    padding:12px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    resize:none;
+    font-size:12px;
+}
+
+.success{
+    text-align:center;
+    padding:20px 5px;
+}
+
+.success-icon{
+    font-size:55px;
+    margin-bottom:10px;
+}
+
+.user-info{
+    background:#f5f5f5;
+    padding:14px;
+    border-radius:10px;
+    margin-bottom:15px;
+}
+
+.toast{
+    position:fixed;
+    left:50%;
+    bottom:20px;
+    transform:translateX(-50%) translateY(100px);
+    background:#111;
+    color:#fff;
+    padding:13px 18px;
+    border-radius:10px;
+    z-index:9999;
+    transition:.3s;
+    opacity:0;
+}
+
+.toast.show{
+    transform:translateX(-50%) translateY(0);
+    opacity:1;
+}
+
+.loading{
+    text-align:center;
+    padding:30px;
+    color:#777;
+    grid-column:1/-1;
+}
+
+footer{
+    margin-top:40px;
+    background:#111;
+    color:#aaa;
+    text-align:center;
+    padding:25px;
+}
+
+@media(max-width:1000px){
+    .products{
+        grid-template-columns:repeat(3,1fr);
+    }
+}
+
+@media(max-width:700px){
+    .header{
+        flex-wrap:wrap;
+    }
+
+    .logo{
+        font-size:20px;
+    }
+
+    .header-actions{
+        margin-left:auto;
+    }
+
+    .products{
+        grid-template-columns:repeat(2,1fr);
+        gap:10px;
+    }
+
+    .product-img{
+        height:160px;
+    }
+
+    .product-content{
+        padding:10px;
+    }
+
+    .product-name{
+        font-size:15px;
+    }
+
+    .product-description{
+        font-size:12px;
+    }
+
+    .product-price{
+        font-size:19px;
+    }
+
+    .banner{
+        padding:22px;
+    }
+
+    .banner h1{
+        font-size:24px;
+    }
+}
+
+@media(max-width:380px){
+    .products{
+        grid-template-columns:1fr;
+    }
+
+    .product-img{
+        height:220px;
+    }
+}
+.products{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:12px;
+}
+
+@media(max-width:700px){
+
+    .products{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:10px;
+    }
+
+    .product-img{
+        height:150px;
+    }
+
+    .product-content{
+        padding:10px;
+    }
+
+    .product-name{
+        font-size:14px;
+        line-height:1.25;
+    }
+
+    .product-description{
+        font-size:11px;
+        min-height:30px;
+    }
+
+    .product-price{
+        font-size:18px;
+    }
+
+    .product-stock{
+        font-size:11px;
+    }
+
+    .product-actions .btn{
+        font-size:12px;
+        padding:9px 5px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="header">
+
+        <div class="logo">
+            SSA<span>Marketplace</span>
+        </div>
+
+        <div class="header-actions">
+            <button class="header-btn" onclick="abrirConta()">
+                👤 Conta
+            </button>
+
+            <button class="header-btn" onclick="abrirCarrinho()">
+                🛒 Carrinho
+                <span id="cartCount" class="cart-count">0</span>
+            </button>
+        </div>
+
+    </div>
+</header>
+
+<main class="container">
+
+    <div class="search-box">
+        <input
+            id="campoBusca"
+            type="search"
+            placeholder="🔎 Buscar produtos..."
+            oninput="renderProdutos()"
+        >
+    </div>
+
+    <section class="banner">
+        <h1>Encontre tudo em um só lugar</h1>
+        <p>Produtos de várias categorias com compra fácil e pagamento via Pix.</p>
+    </section>
+
+    <div id="categorias" class="categories"></div>
+
+    <div class="category-title">
+        <h2 id="tituloCategoria">Todos os produtos</h2>
+        <span id="contadorProdutos">0 produtos</span>
+    </div>
+
+    <section id="listaProdutos" class="products">
+        <div class="loading">
+            Carregando produtos...
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    SSA Marketplace © 2026
+</footer>
+
+
+<!-- MODAL CONTA -->
+<div id="modalConta" class="modal">
+    <div class="modal-box">
+
+        <button class="close" onclick="fecharModal('modalConta')">×</button>
+
+        <div class="modal-title">Minha conta</div>
+
+        <div id="contaConteudo"></div>
+
+    </div>
+</div>
+
+
+<!-- MODAL LOGIN -->
+<div id="modalLogin" class="modal">
+    <div class="modal-box">
+
+        <button class="close" onclick="fecharModal('modalLogin')">×</button>
+
+        <div class="modal-title">Entrar</div>
+
+        <div class="form-group">
+            <label>E-mail</label>
+            <input id="loginEmail" type="email">
+        </div>
+
+        <div class="form-group">
+            <label>Senha</label>
+            <input id="loginSenha" type="password">
+        </div>
+
+        <div class="modal-buttons">
+            <button class="btn btn-primary" onclick="login()">
+                Entrar
+            </button>
+
+            <button class="btn btn-secondary" onclick="abrirCadastro()">
+                Criar conta
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- MODAL CADASTRO -->
+<div id="modalCadastro" class="modal">
+    <div class="modal-box">
+
+        <button class="close" onclick="fecharModal('modalCadastro')">×</button>
+
+        <div class="modal-title">Criar conta</div>
+
+        <div class="form-group">
+    <label for="cadNome">Nome completo</label>
+    <input
+        type="text"
+        id="cadNome"
+        placeholder="Digite seu nome completo"
+        autocomplete="name"
+        required
+    >
+</div>
+
+<div class="form-group">
+    <label for="cadTelefone">Telefone</label>
+    <input
+        type="tel"
+        id="cadTelefone"
+        placeholder="(00) 00000-0000"
+        autocomplete="tel"
+        required
+    >
+</div>
+
+<div class="form-group">
+    <label for="cadCep">CEP</label>
+    <input
+        type="text"
+        id="cadCep"
+        placeholder="00000-000"
+        maxlength="9"
+        autocomplete="postal-code"
+        required
+    >
+</div>
+
+<div class="form-group">
+    <label for="cadEndereco">Endereço</label>
+    <input
+        type="text"
+        id="cadEndereco"
+        placeholder="Preenchido automaticamente"
+        readonly
+    >
+</div>
+
+<div class="form-group">
+    <label for="cadNumero">Número</label>
+    <input
+        type="text"
+        id="cadNumero"
+        placeholder="Número da residência"
+        required
+    >
+</div>
+
+<div class="form-group">
+    <label for="cadBairro">Bairro</label>
+    <input
+        type="text"
+        id="cadBairro"
+        placeholder="Bairro"
+        readonly
+    >
+</div>
+
+<div class="form-group">
+    <label for="cadCidade">Cidade</label>
+    <input
+        type="text"
+        id="cadCidade"
+        placeholder="Cidade"
+        readonly
+    >
+</div>
+
+<div class="form-group">
+    <label for="cadEstado">Estado</label>
+    <input
+        type="text"
+        id="cadEstado"
+        placeholder="Estado"
+        readonly
+    >
+</div>
+
+<div class="form-group">
+    <label for="cadEmail">E-mail</label>
+    <input
+        type="email"
+        id="cadEmail"
+        placeholder="seuemail@email.com"
+        autocomplete="email"
+        required
+    >
+</div>
+
+<div class="form-group">
+    <label for="cadSenha">Senha</label>
+    <input
+        type="password"
+        id="cadSenha"
+        placeholder="Crie uma senha"
+        autocomplete="new-password"
+        required
+    >
+</div>
+
+
+<!-- MODAL CARRINHO -->
+<div id="modalCarrinho" class="modal">
+    <div class="modal-box">
+
+        <button class="close" onclick="fecharModal('modalCarrinho')">×</button>
+
+        <div class="modal-title">SSA carrinho</div>
+
+        <div id="carrinhoConteudo"></div>
+
+    </div>
+</div>
+
+
+<!-- MODAL CHECKOUT -->
+<div id="modalCheckout" class="modal">
+    <div class="modal-box">
+
+        <button class="close" onclick="fecharModal('modalCheckout')">×</button>
+
+        <div class="modal-title">Finalizar compra</div>
+
+        <div id="checkoutConteudo"></div>
+
+    </div>
+</div>
+
+
+<!-- MODAL PIX -->
+<div id="modalPix" class="modal">
+    <div class="modal-box">
+
+        <div class="modal-title">
+            Pagamento via Pix
+        </div>
+
+        <div class="pix-box">
+
+            <p>
+                Escaneie o QR Code ou copie o código Pix.
+            </p>
+
+            <div id="qrcode"></div>
+
+            <textarea
+                id="pixCopiaCola"
+                class="pix-code"
+                readonly
+            ></textarea>
+
+            <div class="modal-buttons">
+
+                <button
+                    class="btn btn-primary"
+                    onclick="copiarPix()"
+                >
+                    📋 Copiar Pix
+                </button>
+
+                <button
+                    class="btn btn-secondary"
+                    onclick="fecharModal('modalPix')"
+                >
+                    Fechar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- MODAL SUCESSO -->
+<div id="modalSucesso" class="modal">
+    <div class="modal-box">
+
+        <div class="success">
+
+            <div class="success-icon">
+                ✅
+            </div>
+
+            <h2>Pedido criado!</h2>
+
+            <p style="margin-top:10px;color:#666">
+                Faça o pagamento pelo Pix para concluir sua compra.
+            </p>
+
+            <button
+                class="btn btn-primary"
+                style="width:100%;margin-top:20px"
+                onclick="fecharModal('modalSucesso')"
+            >
+                Continuar
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+
+<div id="toast" class="toast"></div>
+
+
+<script type="module">
+
+/* =========================================================
+   FIREBASE
+========================================================= */
+
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut,
+    updateProfile
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+import {
+    getDatabase,
+    ref,
+    set,
+    get,
+    update,
+    remove,
+    onValue,
+    push
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
+
+const firebaseConfig = {
+    apiKey: "AIzaSyB1lFw3PKVYqezBmf-TlcWlIoH_dG2EwkY",
+    authDomain: "marketplace-af9c4.firebaseapp.com",
+    databaseURL: "https://marketplace-af9c4-default-rtdb.firebaseio.com/",
+    projectId: "marketplace-af9c4",
+    storageBucket: "marketplace-af9c4.firebasestorage.app",
+    messagingSenderId: "655705511573",
+    appId: "1:655705511573:web:3bb3728ca75c217374ed9c"
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getDatabase(app);
+
+
+/* =========================================================
+   CONFIGURAÇÕES
+========================================================= */
+
+const ADMIN_EMAIL = "carlosarts1980@gmail.com";
+
+const COMISSAO = 0.10;
+
+
+/* =========================================================
+   PIX DIRETO
+========================================================= */
+
+const PIX_CHAVE = "02562631595";
+
+const PIX_NOME = "CARLOS DOS SANTOS REIS";
+
+const PIX_CIDADE = "SALVADOR";
+
+
+/* =========================================================
+   ESTADO
+========================================================= */
+
+let usuarioAtual = null;
+
+let produtos = [];
+
+let categoriaAtual = "Todos";
+
+let carrinho = [];
+
+let pedidoAtual = null;
+
+
+/* =========================================================
+   CATEGORIAS FIXAS
+========================================================= */
+
+const CATEGORIAS = [
+    "Todos",
+    "Eletrônicos",
+    "Moda",
+    "Acessórios",
+    "Informática",
+    "Casa",
+    "Beleza",
+    "Esportes",
+    "Games",
+    "Automotivo",
+    "Pet"
+];
+
+
+/* =========================================================
+   PRODUTOS DEMO
+   TODAS AS CATEGORIAS POSSUEM PRODUTOS
+========================================================= */
+
+const produtosFicticios = [
+
+    /* ELETRÔNICOS */
+
+    {
+        id:"demo001",
+        nome:"Smartphone Galaxy A15",
+        preco:1299.90,
+        estoque:20,
+        categoria:"Eletrônicos",
+        imagem:"https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80",
+        descricao:"Smartphone moderno com excelente desempenho.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo002",
+        nome:"Fone Bluetooth Pro",
+        preco:149.90,
+        estoque:35,
+        categoria:"Eletrônicos",
+        imagem:"https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+        descricao:"Fone sem fio com som de alta qualidade.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo003",
+        nome:"Caixa de Som Bluetooth",
+        preco:199.90,
+        estoque:18,
+        categoria:"Eletrônicos",
+        imagem:"https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=800&q=80",
+        descricao:"Caixa de som portátil Bluetooth.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo004",
+        nome:"Smart TV 50 Polegadas",
+        preco:2399.90,
+        estoque:8,
+        categoria:"Eletrônicos",
+        imagem:"https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=80",
+        descricao:"Smart TV com tela grande e alta definição.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+
+    /* MODA */
+
+    {
+        id:"demo005",
+        nome:"Tênis Esportivo",
+        preco:189.90,
+        estoque:25,
+        categoria:"Moda",
+        imagem:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
+        descricao:"Tênis confortável para uso diário.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo006",
+        nome:"Óculos de Sol",
+        preco:89.90,
+        estoque:30,
+        categoria:"Moda",
+        imagem:"https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80",
+        descricao:"Óculos de sol moderno.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo007",
+        nome:"Camiseta Básica",
+        preco:49.90,
+        estoque:50,
+        categoria:"Moda",
+        imagem:"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80",
+        descricao:"Camiseta confortável para o dia a dia.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+
+    /* ACESSÓRIOS */
+
+    {
+        id:"demo008",
+        nome:"Relógio Digital Smart",
+        preco:159.90,
+        estoque:22,
+        categoria:"Acessórios",
+        imagem:"https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
+        descricao:"Relógio moderno para acompanhar sua rotina.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo009",
+        nome:"Mochila Executiva",
+        preco:129.90,
+        estoque:15,
+        categoria:"Acessórios",
+        imagem:"https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
+        descricao:"Mochila espaçosa para trabalho e estudos.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo010",
+        nome:"Carteira Masculina",
+        preco:59.90,
+        estoque:40,
+        categoria:"Acessórios",
+        imagem:"https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=800&q=80",
+        descricao:"Carteira compacta e resistente.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+
+    /* INFORMÁTICA */
+
+    {
+        id:"demo011",
+        nome:"Teclado Mecânico RGB",
+        preco:249.90,
+        estoque:18,
+        categoria:"Informática",
+        imagem:"https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80",
+        descricao:"Teclado mecânico com iluminação RGB.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo012",
+        nome:"Mouse Gamer RGB",
+        preco:99.90,
+        estoque:30,
+        categoria:"Informática",
+        imagem:"https://images.unsplash.com/photo-1527814050087-3793815479db?auto=format&fit=crop&w=800&q=80",
+        descricao:"Mouse gamer rápido e confortável.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo013",
+        nome:"Webcam Full HD",
+        preco:179.90,
+        estoque:15,
+        categoria:"Informática",
+        imagem:"https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?auto=format&fit=crop&w=800&q=80",
+        descricao:"Webcam Full HD para chamadas e transmissões.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+
+    /* CASA */
+
+    {
+        id:"demo014",
+        nome:"Câmera de Segurança Wi-Fi",
+        preco:219.90,
+        estoque:20,
+        categoria:"Casa",
+        imagem:"https://images.unsplash.com/photo-1557324232-b8917d3c3dcb?auto=format&fit=crop&w=800&q=80",
+        descricao:"Câmera inteligente para sua casa.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo015",
+        nome:"Liquidificador Turbo",
+        preco:139.90,
+        estoque:14,
+        categoria:"Casa",
+        imagem:"https://images.unsplash.com/photo-1570222094114-d054a817e56b?auto=format&fit=crop&w=800&q=80",
+        descricao:"Liquidificador potente para sua cozinha.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo016",
+        nome:"Cafeteira Elétrica",
+        preco:119.90,
+        estoque:18,
+        categoria:"Casa",
+        imagem:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80",
+        descricao:"Cafeteira prática para o dia a dia.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+
+    /* BELEZA */
+
+    {
+        id:"demo017",
+        nome:"Kit Cuidados para Pele",
+        preco:79.90,
+        estoque:20,
+        categoria:"Beleza",
+        imagem:"https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=800&q=80",
+        descricao:"Kit completo para cuidados diários.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo018",
+        nome:"Secador de Cabelo",
+        preco:129.90,
+        estoque:15,
+        categoria:"Beleza",
+        imagem:"https://images.unsplash.com/photo-1522338242992-e1a54906a8da?auto=format&fit=crop&w=800&q=80",
+        descricao:"Secador potente para uso diário.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo019",
+        nome:"Escova Secadora",
+        preco:169.90,
+        estoque:12,
+        categoria:"Beleza",
+        imagem:"https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80",
+        descricao:"Escova secadora prática.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+
+    /* ESPORTES */
+
+    {
+        id:"demo020",
+        nome:"Bola de Futebol",
+        preco:89.90,
+        estoque:30,
+        categoria:"Esportes",
+        imagem:"https://images.unsplash.com/photo-1614632537190-23e4146777db?auto=format&fit=crop&w=800&q=80",
+        descricao:"Bola para futebol e lazer.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo021",
+        nome:"Kit Halteres",
+        preco:199.90,
+        estoque:10,
+        categoria:"Esportes",
+        imagem:"https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=800&q=80",
+        descricao:"Kit para exercícios em casa.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo022",
+        nome:"Corda de Pular",
+        preco:39.90,
+        estoque:35,
+        categoria:"Esportes",
+        imagem:"https://images.unsplash.com/photo-1598289431512-b97b0917affc?auto=format&fit=crop&w=800&q=80",
+        descricao:"Corda para exercícios e treinamento.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+
+    /* GAMES */
+
+    {
+        id:"demo023",
+        nome:"Controle Gamer",
+        preco:179.90,
+        estoque:18,
+        categoria:"Games",
+        imagem:"https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?auto=format&fit=crop&w=800&q=80",
+        descricao:"Controle confortável para jogos.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo024",
+        nome:"Headset Gamer",
+        preco:229.90,
+        estoque:16,
+        categoria:"Games",
+        imagem:"https://images.unsplash.com/photo-1599669454699-248893623440?auto=format&fit=crop&w=800&q=80",
+        descricao:"Headset gamer com microfone.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo025",
+        nome:"Mousepad Gamer",
+        preco:69.90,
+        estoque:25,
+        categoria:"Games",
+        imagem:"https://images.unsplash.com/photo-1616628182508-42f2f4fefb4c?auto=format&fit=crop&w=800&q=80",
+        descricao:"Mousepad grande para jogos.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+
+    /* AUTOMOTIVO */
+
+    {
+        id:"demo026",
+        nome:"Suporte de Celular para Carro",
+        preco:49.90,
+        estoque:30,
+        categoria:"Automotivo",
+        imagem:"https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80",
+        descricao:"Suporte prático para celular.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo027",
+        nome:"Aspirador Automotivo",
+        preco:139.90,
+        estoque:12,
+        categoria:"Automotivo",
+        imagem:"https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=800&q=80",
+        descricao:"Aspirador compacto para limpeza do carro.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo028",
+        nome:"Kit Limpeza Automotiva",
+        preco:89.90,
+        estoque:20,
+        categoria:"Automotivo",
+        imagem:"https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&w=800&q=80",
+        descricao:"Kit para limpeza e conservação.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+
+    /* PET */
+
+    {
+        id:"demo029",
+        nome:"Cama para Cachorro",
+        preco:129.90,
+        estoque:15,
+        categoria:"Pet",
+        imagem:"https://images.unsplash.com/photo-1586671267731-da2cf3ceeb80?auto=format&fit=crop&w=800&q=80",
+        descricao:"Cama confortável para seu pet.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo030",
+        nome:"Brinquedo para Cachorro",
+        preco:39.90,
+        estoque:30,
+        categoria:"Pet",
+        imagem:"https://images.unsplash.com/photo-1535294435445-d7249524ef2e?auto=format&fit=crop&w=800&q=80",
+        descricao:"Brinquedo para diversão do seu pet.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    },
+
+    {
+        id:"demo031",
+        nome:"Comedouro para Pet",
+        preco:59.90,
+        estoque:25,
+        categoria:"Pet",
+        imagem:"https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=800&q=80",
+        descricao:"Comedouro resistente e fácil de limpar.",
+        vendedorId:"vendedor_demo",
+        vendedorNome:"Loja Demo",
+        status:"aprovado"
+    }
+
+];
+
+
+/* =========================================================
+   FUNÇÕES GERAIS
+========================================================= */
+
+function moeda(valor){
+
+    return Number(valor || 0).toLocaleString(
+        "pt-BR",
+        {
+            style:"currency",
+            currency:"BRL"
+        }
+    );
+}
+
+
+function mostrarToast(mensagem){
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = mensagem;
+
+    toast.classList.add("show");
+
+    setTimeout(()=>{
+        toast.classList.remove("show");
+    },2500);
+}
+
+
+window.fecharModal = function(id){
+
+    document
+        .getElementById(id)
+        .classList.remove("show");
+
+};
+
+
+window.abrirModal = function(id){
+
+    const modal = document.getElementById(id);
+
+    if(!modal){
+        console.error("Modal não encontrado:", id);
+        return;
+    }
+
+    modal.classList.add("show");
+};
+
+window.fecharModal = function(id){
+
+    const modal = document.getElementById(id);
+
+    if(!modal){
+        console.error("Modal não encontrado:", id);
+        return;
+    }
+
+    modal.classList.remove("show");
+};
+
+
+/* =========================================================
+   CATEGORIAS
+========================================================= */
+
+function renderCategorias(){
+
+    const container =
+        document.getElementById("categorias");
+
+    container.innerHTML = "";
+
+    CATEGORIAS.forEach(categoria => {
+
+        const botao =
+            document.createElement("button");
+
+        botao.className =
+            "category-btn " +
+            (categoria === categoriaAtual ? "active" : "");
+
+        const quantidade =
+            categoria === "Todos"
+            ? produtos.length
+            : produtos.filter(
+                p => p.categoria === categoria
+            ).length;
+
+        botao.textContent =
+            categoria + " (" + quantidade + ")";
+
+        botao.onclick = () => {
+
+            categoriaAtual = categoria;
+
+            renderCategorias();
+
+            renderProdutos();
+
+            window.scrollTo({
+                top:0,
+                behavior:"smooth"
+            });
+
+        };
+
+        container.appendChild(botao);
+
+    });
+
+}
+
+
+/* =========================================================
+   PRODUTOS
+========================================================= */
+
+window.renderProdutos = function(){
+
+    const container =
+        document.getElementById("listaProdutos");
+
+    const campoBusca =
+        document.getElementById("campoBusca");
+
+    const busca =
+        campoBusca
+        ? campoBusca.value.trim().toLowerCase()
+        : "";
+
+    let lista = produtos.filter(produto => {
+
+        if(!produto){
+            return false;
+        }
+
+        if(produto.status === "bloqueado"){
+            return false;
+        }
+
+        const nome =
+            String(produto.nome || "")
+            .toLowerCase();
+
+        const categoria =
+            String(produto.categoria || "")
+            .toLowerCase();
+
+        const correspondeBusca =
+            !busca ||
+            nome.includes(busca) ||
+            categoria.includes(busca);
+
+        const correspondeCategoria =
+            categoriaAtual === "Todos" ||
+            produto.categoria === categoriaAtual;
+
+        return (
+            correspondeBusca &&
+            correspondeCategoria
+        );
+
+    });
+
+
+    /* CONTADOR */
+
+    const contador =
+        document.getElementById(
+            "contadorProdutos"
+        );
+
+    if(contador){
+
+        contador.textContent =
+            lista.length +
+            (
+                lista.length === 1
+                ? " produto"
+                : " produtos"
+            );
+
+    }
+
+
+    /* TÍTULO */
+
+    const titulo =
+        document.getElementById(
+            "tituloCategoria"
+        );
+
+    if(titulo){
+
+        titulo.textContent =
+            categoriaAtual === "Todos"
+            ? "Todos os produtos"
+            : categoriaAtual;
+
+    }
+
+
+    /* LIMPA */
+
+    container.innerHTML = "";
+
+
+    /* NENHUM PRODUTO */
+
+    if(lista.length === 0){
+
+        container.innerHTML = `
+
+            <div class="empty">
+
+                <div style="font-size:45px">
+                    📦
+                </div>
+
+                <h3>
+                    Nenhum produto encontrado
+                </h3>
+
+                <p style="margin-top:8px">
+                    ${
+                        busca
+                        ? "Nenhum produto corresponde à sua busca."
+                        : "Esta categoria ainda não possui produtos."
+                    }
+                </p>
+
+                ${
+                    categoriaAtual !== "Todos"
+                    ? `
+                        <button
+                            class="btn btn-primary"
+                            style="margin-top:15px"
+                            onclick="
+                                categoriaAtual='Todos';
+                                renderCategorias();
+                                renderProdutos();
+                            "
+                        >
+                            Ver todos os produtos
+                        </button>
+                    `
+                    : ""
+                }
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /* MOSTRAR PRODUTOS */
+
+    lista.forEach(produto => {
+
+        const card =
+            document.createElement("article");
+
+        card.className = "product";
+
+
+        const estoque =
+            Number(produto.estoque || 0);
+
+
+        card.innerHTML = `
+
+            <img
+                class="product-img"
+                src="${produto.imagem || ""}"
+                alt="${produto.nome || "Produto"}"
+                loading="lazy"
+                onerror="
+                    this.src='https://via.placeholder.com/800x600?text=Produto'
+                "
+            >
+
+            <div class="product-content">
+
+                <div class="product-category">
+                    ${produto.categoria || ""}
+                </div>
+
+                <div class="product-name">
+                    ${produto.nome || "Produto"}
+                </div>
+
+                <div class="product-description">
+                    ${produto.descricao || ""}
+                </div>
+
+                <div class="product-price">
+                    ${moeda(produto.preco)}
+                </div>
+
+                <div class="product-stock">
+                    ${
+                        estoque > 0
+                        ? "✓ " + estoque + " disponíveis"
+                        : "Produto esgotado"
+                    }
+                </div>
+
+                <div class="product-actions">
+
+                    <button
+                        class="btn btn-primary"
+                        ${
+                            estoque <= 0
+                            ? "disabled"
+                            : ""
+                        }
+                        onclick="
+                            adicionarCarrinho('${produto.id}')
+                        "
+                    >
+                        🛒 Comprar
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        container.appendChild(card);
+
+    });
+
+};
+/* =========================================================
+   CARREGAR PRODUTOS DO FIREBASE
+========================================================= */
+
+function carregarProdutos(){
+
+    produtos =
+        [...produtosFicticios];
+
+
+    /* MOSTRA OS PRODUTOS IMEDIATAMENTE */
+
+    renderCategorias();
+
+    renderProdutos();
+
+
+    /* DEPOIS CARREGA PRODUTOS DO FIREBASE */
+
+    const produtosRef =
+        ref(db,"produtos");
+
+
+    onValue(
+        produtosRef,
+        snapshot => {
+
+            const dados =
+                snapshot.val();
+
+
+            const produtosFirebase = [];
+
+
+            if(dados){
+
+                Object.entries(dados)
+                .forEach(([id,produto]) => {
+
+                    if(!produto){
+                        return;
+                    }
+
+
+                    produtosFirebase.push({
+                        id,
+                        ...produto
+                    });
+
+                });
+
+            }
+
+
+            /*
+             * Remove somente IDs demo antigos
+             * e mantém os produtos reais do Firebase.
+             */
+
+            produtos = [
+                ...produtosFicticios,
+                ...produtosFirebase.filter(
+                    p => !String(p.id).startsWith("demo")
+                )
+            ];
+
+
+            renderCategorias();
+
+            renderProdutos();
+
+        },
+        erro => {
+
+            console.error(
+                "Erro ao carregar produtos:",
+                erro
+            );
+
+            /*
+             * Mesmo se o Firebase falhar,
+             * os produtos demo continuam aparecendo.
+             */
+
+            produtos =
+                [...produtosFicticios];
+
+            renderCategorias();
+
+            renderProdutos();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   CARRINHO
+========================================================= */
+
+function atualizarCarrinho(){
+
+    document.getElementById(
+        "cartCount"
+    ).textContent =
+        carrinho.length;
+
+}
+
+
+window.adicionarCarrinho = function(id){
+
+    const produto =
+        produtos.find(
+            p => String(p.id) === String(id)
+        );
+
+
+    if(!produto){
+
+        mostrarToast(
+            "Produto não encontrado."
+        );
+
+        return;
+    }
+
+
+    if(Number(produto.estoque || 0) <= 0){
+
+        mostrarToast(
+            "Produto sem estoque."
+        );
+
+        return;
+    }
+
+
+    carrinho.push({
+        ...produto,
+        quantidade:1
+    });
+
+
+    atualizarCarrinho();
+
+    mostrarToast(
+        "Produto adicionado ao carrinho!"
+    );
+
+};
+
+
+window.abrirCarrinho = function(){
+
+    const container =
+        document.getElementById(
+            "carrinhoConteudo"
+        );
+
+
+    if(!carrinho.length){
+
+        container.innerHTML = `
+
+            <div class="empty">
+                🛒
+                <h3>Seu carrinho está vazio</h3>
+                <p style="margin-top:8px">
+                    Adicione algum produto para continuar.
+                </p>
+            </div>
+
+        `;
+
+        abrirModal("modalCarrinho");
+
+        return;
+    }
+
+
+    let html = "";
+
+
+    carrinho.forEach((produto,index)=>{
+
+        html += `
+
+            <div class="cart-item">
+
+                <img
+                    src="${produto.imagem}"
+                    onerror="this.src='https://via.placeholder.com/100'"
+                >
+
+                <div class="cart-info">
+
+                    <div class="cart-name">
+                        ${produto.nome}
+                    </div>
+
+                    <div class="cart-price">
+                        ${moeda(produto.preco)}
+                    </div>
+
+                    <button
+                        class="remove-cart"
+                        onclick="removerCarrinho(${index})"
+                    >
+                        Remover
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+    });
+
+
+    const total =
+        carrinho.reduce(
+            (soma,p) =>
+                soma + Number(p.preco || 0),
+            0
+        );
+
+
+    html += `
+
+        <div class="total-box">
+
+            <div class="total-line">
+                <span>Produtos</span>
+                <strong>${carrinho.length}</strong>
+            </div>
+
+            <div class="total-line total-final">
+                <span>Total</span>
+                <span>${moeda(total)}</span>
+            </div>
+
+            <button
+                class="btn btn-primary"
+                style="width:100%;margin-top:15px"
+                onclick="irParaCheckout()"
+            >
+                Continuar para pagamento
+            </button>
+
+        </div>
+
+    `;
+
+
+    container.innerHTML = html;
+
+    abrirModal("modalCarrinho");
+
+};
+
+
+window.removerCarrinho = function(index){
+
+    carrinho.splice(index,1);
+
+    atualizarCarrinho();
+
+    abrirCarrinho();
+
+};
+
+
+window.irParaCheckout = function(){
+
+    if(!carrinho.length){
+
+        mostrarToast(
+            "Carrinho vazio."
+        );
+
+        return;
+    }
+
+
+    if(!usuarioAtual){
+
+        fecharModal("modalCarrinho");
+
+        abrirModal("modalLogin");
+
+        mostrarToast(
+            "Entre na sua conta para continuar."
+        );
+
+        return;
+    }
+
+
+    fecharModal("modalCarrinho");
+
+
+    const total =
+        carrinho.reduce(
+            (soma,p) =>
+                soma + Number(p.preco || 0),
+            0
+        );
+
+
+    document.getElementById(
+        "checkoutConteudo"
+    ).innerHTML = `
+
+        <div class="user-info">
+
+            <strong>
+                Comprador
+            </strong>
+
+            <div style="margin-top:5px">
+                ${
+                    usuarioAtual.displayName ||
+                    usuarioAtual.email
+                }
+            </div>
+
+        </div>
+
+        <h3>Resumo do pedido</h3>
+
+        <div class="total-box">
+
+            ${carrinho.map(p => `
+
+                <div class="total-line">
+                    <span>${p.nome}</span>
+                    <strong>${moeda(p.preco)}</strong>
+                </div>
+
+            `).join("")}
+
+            <div class="total-line total-final">
+                <span>Total</span>
+                <span>${moeda(total)}</span>
+            </div>
+
+        </div>
+
+        <button
+            class="btn btn-primary"
+            style="width:100%;margin-top:15px"
+            onclick="finalizarPedido()"
+        >
+            💠 Gerar Pix
+        </button>
+
+    `;
+
+
+    abrirModal("modalCheckout");
+
+};
+
+
+/* =========================================================
+   FINALIZAR PEDIDO
+========================================================= */
+
+window.finalizarPedido = async function(){
+
+    if(!usuarioAtual){
+
+        mostrarToast(
+            "Faça login primeiro."
+        );
+
+        return;
+    }
+
+
+    if(!carrinho.length){
+
+        mostrarToast(
+            "Carrinho vazio."
+        );
+
+        return;
+    }
+
+
+    const total =
+        carrinho.reduce(
+            (soma,p) =>
+                soma + Number(p.preco || 0),
+            0
+        );
+
+
+    const pedidoRef =
+        push(ref(db,"pedidos"));
+
+
+    const pedidoId =
+        pedidoRef.key;
+
+
+    const pedido = {
+
+        id:pedidoId,
+
+        usuarioId:usuarioAtual.uid,
+
+        usuarioNome:
+            usuarioAtual.displayName ||
+            usuarioAtual.email,
+
+        usuarioEmail:
+            usuarioAtual.email,
+
+        produtos:carrinho.map(p => ({
+
+            id:p.id,
+
+            nome:p.nome,
+
+            preco:Number(p.preco || 0),
+
+            quantidade:1,
+
+            vendedorId:
+                p.vendedorId || "",
+
+            vendedorNome:
+                p.vendedorNome || ""
+
+        })),
+
+        total:Number(total.toFixed(2)),
+
+        pagamento:"pix",
+
+        status:"aguardando_pagamento",
+
+        criadoEm:
+            new Date().toISOString()
+
+    };
+
+
+    try{
+
+        await set(
+            pedidoRef,
+            pedido
+        );
+
+
+        pedidoAtual = pedido;
+
+
+        fecharModal("modalCheckout");
+
+
+        gerarPix(total,pedidoId);
+
+
+        abrirModal("modalPix");
+
+
+    }catch(error){
+
+        console.error(error);
+
+        mostrarToast(
+            "Erro ao criar pedido."
+        );
+
+    }
+
+};
+
+
+/* =========================================================
+   PIX
+========================================================= */
+
+function gerarPix(valor,pedidoId){
+
+    const valorPix =
+        Number(valor).toFixed(2);
+
+
+    /*
+     * Payload Pix EMV básico.
+     */
+
+    const payload =
+        criarPayloadPix(
+            PIX_CHAVE,
+            PIX_NOME,
+            PIX_CIDADE,
+            valorPix,
+            pedidoId
+        );
+
+
+    const campo =
+        document.getElementById(
+            "pixCopiaCola"
+        );
+
+
+    campo.value = payload;
+
+
+    const qr =
+        document.getElementById(
+            "qrcode"
+        );
+
+
+    qr.innerHTML = "";
+
+
+    new QRCode(
+        qr,
+        {
+            text:payload,
+            width:240,
+            height:240
+        }
+    );
+
+}
+
+
+function crc16(str){
+
+    let crc = 0xFFFF;
+
+
+    for(let i=0;i<str.length;i++){
+
+        crc ^= str.charCodeAt(i) << 8;
+
+
+        for(let j=0;j<8;j++){
+
+            if(crc & 0x8000){
+
+                crc =
+                    (crc << 1) ^
+                    0x1021;
+
+            }else{
+
+                crc <<= 1;
+
+            }
+
+
+            crc &= 0xFFFF;
+
+        }
+
+    }
+
+
+    return crc
+        .toString(16)
+        .toUpperCase()
+        .padStart(4,"0");
+
+}
+
+
+function campoPix(id,valor){
+
+    const tamanho =
+        String(valor).length
+        .toString()
+        .padStart(2,"0");
+
+    return (
+        String(id) +
+        tamanho +
+        String(valor)
+    );
+
+}
+
+
+function criarPayloadPix(
+    chave,
+    nome,
+    cidade,
+    valor,
+    identificador
+){
+
+    nome =
+        removerAcentos(nome)
+        .substring(0,25)
+        .toUpperCase();
+
+    cidade =
+        removerAcentos(cidade)
+        .substring(0,15)
+        .toUpperCase();
+
+
+    const merchantAccount =
+        campoPix(
+            "00",
+            "BR.GOV.BCB.PIX"
+        ) +
+        campoPix(
+            "01",
+            chave
+        );
+
+
+    let payload =
+        campoPix(
+            "00",
+            "01"
+        );
+
+
+    payload +=
+        campoPix(
+            "26",
+            merchantAccount
+        );
+
+
+    payload +=
+        campoPix(
+            "52",
+            "0000"
+        );
+
+
+    payload +=
+        campoPix(
+            "53",
+            "986"
+        );
+
+
+    payload +=
+        campoPix(
+            "54",
+            valor
+        );
+
+
+    payload +=
+        campoPix(
+            "58",
+            "BR"
+        );
+
+
+    payload +=
+        campoPix(
+            "59",
+            nome
+        );
+
+
+    payload +=
+        campoPix(
+            "60",
+            cidade
+        );
+
+
+    const txid =
+        String(identificador || "PEDIDO")
+        .replace(/[^a-zA-Z0-9]/g,"")
+        .substring(0,25) ||
+        "PEDIDO";
+
+
+    payload +=
+        campoPix(
+            "62",
+            campoPix(
+                "05",
+                txid
+            )
+        );
+
+
+    const semCRC =
+        payload + "6304";
+
+
+    return semCRC +
+        crc16(semCRC);
+
+}
+
+
+function removerAcentos(texto){
+
+    return String(texto)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"");
+
+}
+
+
+window.copiarPix = async function(){
+
+    const campo =
+        document.getElementById(
+            "pixCopiaCola"
+        );
+
+
+    try{
+
+        await navigator.clipboard.writeText(
+            campo.value
+        );
+
+        mostrarToast(
+            "Código Pix copiado!"
+        );
+
+    }catch(error){
+
+        campo.select();
+
+        document.execCommand("copy");
+
+        mostrarToast(
+            "Código Pix copiado!"
+        );
+
+    }
+
+};
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+window.abrirConta = function(){
+
+    atualizarConta();
+
+    abrirModal("modalConta");
+
+};
+
+
+function atualizarConta(){
+
+    const container =
+        document.getElementById(
+            "contaConteudo"
+        );
+
+
+    if(!usuarioAtual){
+
+        container.innerHTML = `
+
+            <p style="color:#666;margin-bottom:15px">
+                Entre na sua conta para comprar produtos.
+            </p>
+
+            <button
+                class="btn btn-primary"
+                style="width:100%"
+                onclick="
+                    fecharModal('modalConta');
+                    abrirModal('modalLogin');
+                "
+            >
+                Entrar
+            </button>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML = `
+
+        <div class="user-info">
+
+            <strong>
+                ${usuarioAtual.displayName || "Cliente"}
+            </strong>
+
+            <div style="margin-top:6px">
+                ${usuarioAtual.email}
+            </div>
+
+        </div>
+
+        <button
+            class="btn btn-secondary"
+            style="width:100%"
+            onclick="sair()"
+        >
+            Sair da conta
+        </button>
+
+    `;
+
+}
+
+
+window.abrirCadastro = function(){
+
+    fecharModal("modalLogin");
+
+    abrirModal("modalCadastro");
+
+};
+
+
+window.cadastrar = async function(){
+
+    const nome =
+        document.getElementById(
+            "cadNome"
+        ).value.trim();
+
+    const email =
+        document.getElementById(
+            "cadEmail"
+        ).value.trim();
+
+    const senha =
+        document.getElementById(
+            "cadSenha"
+        ).value;
+
+
+    if(!nome || !email || !senha){
+
+        mostrarToast(
+            "Preencha todos os campos."
+        );
+
+        return;
+    }
+
+
+    if(senha.length < 6){
+
+        mostrarToast(
+            "A senha precisa ter pelo menos 6 caracteres."
+        );
+
+        return;
+    }
+
+
+    try{
+
+        const cred =
+            await createUserWithEmailAndPassword(
+                auth,
+                email,
+                senha
+            );
+
+
+        await updateProfile(
+            cred.user,
+            {
+                displayName:nome
+            }
+        );
+
+
+        await set(
+            ref(
+                db,
+                "usuarios/" + cred.user.uid
+            ),
+            {
+                nome,
+                email,
+                criadoEm:
+                    new Date().toISOString()
+            }
+        );
+
+
+        fecharModal("modalCadastro");
+
+        mostrarToast(
+            "Conta criada com sucesso!"
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        mostrarToast(
+            traduzirErroFirebase(error)
+        );
+
+    }
+
+};
+
+
+window.login = async function(){
+
+    const email =
+        document.getElementById(
+            "loginEmail"
+        ).value.trim();
+
+    const senha =
+        document.getElementById(
+            "loginSenha"
+        ).value;
+
+
+    if(!email || !senha){
+
+        mostrarToast(
+            "Digite e-mail e senha."
+        );
+
+        return;
+    }
+
+
+    try{
+
+        await signInWithEmailAndPassword(
+            auth,
+            email,
+            senha
+        );
+
+
+        fecharModal("modalLogin");
+
+        mostrarToast(
+            "Login realizado!"
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        mostrarToast(
+            traduzirErroFirebase(error)
+        );
+
+    }
+
+};
+
+
+window.sair = async function(){
+
+    try{
+
+        await signOut(auth);
+
+        fecharModal("modalConta");
+
+        mostrarToast(
+            "Você saiu da conta."
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+};
+
+
+function traduzirErroFirebase(error){
+
+    const code =
+        error?.code || "";
+
+
+    if(
+        code.includes(
+            "auth/email-already-in-use"
+        )
+    ){
+        return "Este e-mail já está cadastrado.";
+    }
+
+
+    if(
+        code.includes(
+            "auth/invalid-credential"
+        ) ||
+        code.includes(
+            "auth/wrong-password"
+        )
+    ){
+        return "E-mail ou senha incorretos.";
+    }
+
+
+    if(
+        code.includes(
+            "auth/user-not-found"
+        )
+    ){
+        return "Usuário não encontrado.";
+    }
+
+
+    if(
+        code.includes(
+            "auth/invalid-email"
+        )
+    ){
+        return "E-mail inválido.";
+    }
+
+
+    return "Não foi possível concluir a operação.";
+
+}
+
+
+/* =========================================================
+   AUTENTICAÇÃO
+========================================================= */
+
+onAuthStateChanged(
+    auth,
+    user => {
+
+        usuarioAtual = user || null;
+
+        atualizarConta();
+
+    }
+);
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
+
+carregarProdutos();
+
+atualizarCarrinho();
+
+
+/* =========================================================
+   FECHAR MODAIS CLICANDO FORA
+========================================================= */
+
+document
+    .querySelectorAll(".modal")
+    .forEach(modal => {
+
+        modal.addEventListener(
+            "click",
+            event => {
+
+                if(
+                    event.target === modal
+                ){
+
+                    modal.classList.remove(
+                        "show"
+                    );
+
+                }
+
+            }
+        );
+
+    });
+const campoCEP = document.getElementById("cadCep");
+
+if (campoCEP) {
+
+    campoCEP.addEventListener("input", function () {
+
+        let cep = this.value.replace(/\D/g, "");
+
+        if (cep.length > 8) {
+            cep = cep.substring(0, 8);
+        }
+
+        if (cep.length > 5) {
+            this.value =
+                cep.substring(0, 5) +
+                "-" +
+                cep.substring(5);
+        } else {
+            this.value = cep;
+        }
+
+    });
+
+    campoCEP.addEventListener("blur", buscarCEP);
+}
+
+
+async function buscarCEP() {
+
+    const campo = document.getElementById("cadCep");
+
+    if (!campo) return;
+
+    const cep = campo.value.replace(/\D/g, "");
+
+    if (cep.length !== 8) {
+        return;
+    }
+
+    const endereco = document.getElementById("cadEndereco");
+    const bairro = document.getElementById("cadBairro");
+    const cidade = document.getElementById("cadCidade");
+    const estado = document.getElementById("cadEstado");
+
+    endereco.value = "Buscando...";
+    bairro.value = "";
+    cidade.value = "";
+    estado.value = "";
+
+    try {
+
+        const resposta = await fetch(
+            `https://viacep.com.br/ws/${cep}/json/`
+        );
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao consultar CEP");
+        }
+
+        const dados = await resposta.json();
+
+        if (dados.erro) {
+
+            endereco.value = "";
+
+            mostrarToast(
+                "CEP não encontrado."
+            );
+
+            return;
+        }
+
+        endereco.value = dados.logradouro || "";
+        bairro.value = dados.bairro || "";
+        cidade.value = dados.localidade || "";
+        estado.value = dados.uf || "";
+
+        document.getElementById("cadNumero")?.focus();
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao buscar CEP:",
+            erro
+        );
+
+        endereco.value = "";
+
+        mostrarToast(
+            "Não foi possível consultar o CEP."
+        );
+    }
+}
+window.cadastrar = async function () {
+
+    const nome =
+        document
+            .getElementById("cadNome")
+            .value
+            .trim();
+
+    const telefone =
+        document
+            .getElementById("cadTelefone")
+            .value
+            .trim();
+
+    const cep =
+        document
+            .getElementById("cadCep")
+            .value
+            .trim();
+
+    const endereco =
+        document
+            .getElementById("cadEndereco")
+            .value
+            .trim();
+
+    const numero =
+        document
+            .getElementById("cadNumero")
+            .value
+            .trim();
+
+    const bairro =
+        document
+            .getElementById("cadBairro")
+            .value
+            .trim();
+
+    const cidade =
+        document
+            .getElementById("cadCidade")
+            .value
+            .trim();
+
+    const estado =
+        document
+            .getElementById("cadEstado")
+            .value
+            .trim();
+
+    const email =
+        document
+            .getElementById("cadEmail")
+            .value
+            .trim();
+
+    const senha =
+        document
+            .getElementById("cadSenha")
+            .value;
+
+    if (!nome) {
+        mostrarToast("Digite seu nome completo.");
+        return;
+    }
+
+    if (nome.split(/\s+/).length < 2) {
+        mostrarToast("Digite seu nome completo.");
+        return;
+    }
+
+    if (!telefone) {
+        mostrarToast("Digite seu telefone.");
+        return;
+    }
+
+    if (cep.replace(/\D/g, "").length !== 8) {
+        mostrarToast("Digite um CEP válido.");
+        return;
+    }
+
+    if (!endereco) {
+        mostrarToast("Consulte o CEP antes de continuar.");
+        return;
+    }
+
+    if (!numero) {
+        mostrarToast("Digite o número da residência.");
+        return;
+    }
+
+    if (!email) {
+        mostrarToast("Digite seu e-mail.");
+        return;
+    }
+
+    if (senha.length < 6) {
+        mostrarToast(
+            "A senha precisa ter pelo menos 6 caracteres."
+        );
+        return;
+    }
+
+    try {
+
+        const resultado =
+            await createUserWithEmailAndPassword(
+                auth,
+                email,
+                senha
+            );
+
+        const user = resultado.user;
+
+        await updateProfile(user, {
+            displayName: nome
+        });
+
+        /*
+        ==========================================
+        DADOS DO CLIENTE
+        ==========================================
+        */
+
+        const cliente = {
+
+            uid: user.uid,
+
+            nome: nome,
+
+            telefone: telefone,
+
+            email: email,
+
+            endereco: {
+
+                cep: cep,
+
+                logradouro: endereco,
+
+                numero: numero,
+
+                bairro: bairro,
+
+                cidade: cidade,
+
+                estado: estado
+
+            },
+
+            criadoEm:
+                new Date().toISOString(),
+
+            status: "ativo"
+
+        };
+
+        /*
+        ==========================================
+        SALVAR NO FIREBASE
+        ==========================================
+        */
+
+        await set(
+            ref(
+                db,
+                "clientes/" + user.uid
+            ),
+            cliente
+        );
+
+        /*
+        ==========================================
+        TAMBÉM ATUALIZA JOGADOR/USUÁRIO,
+        CASO SEU SISTEMA JÁ USE ESSE CAMINHO
+        ==========================================
+        */
+
+        await update(
+            ref(
+                db,
+                "usuarios/" + user.uid
+            ),
+            cliente
+        );
+
+        mostrarToast(
+            "Conta criada com sucesso!"
+        );
+
+        document
+            .getElementById("cadNome")
+            .value = "";
+
+        document
+            .getElementById("cadTelefone")
+            .value = "";
+
+        document
+            .getElementById("cadCep")
+            .value = "";
+
+        document
+            .getElementById("cadEndereco")
+            .value = "";
+
+        document
+            .getElementById("cadNumero")
+            .value = "";
+
+        document
+            .getElementById("cadBairro")
+            .value = "";
+
+        document
+            .getElementById("cadCidade")
+            .value = "";
+
+        document
+            .getElementById("cadEstado")
+            .value = "";
+
+        document
+            .getElementById("cadEmail")
+            .value = "";
+
+        document
+            .getElementById("cadSenha")
+            .value = "";
+
+        fecharModal("modalCadastro");
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao criar conta:",
+            erro
+        );
+
+        if (
+            erro.code ===
+            "auth/email-already-in-use"
+        ) {
+
+            mostrarToast(
+                "Este e-mail já está cadastrado."
+            );
+
+        } else if (
+            erro.code ===
+            "auth/invalid-email"
+        ) {
+
+            mostrarToast(
+                "E-mail inválido."
+            );
+
+        } else if (
+            erro.code ===
+            "auth/weak-password"
+        ) {
+
+            mostrarToast(
+                "A senha é muito fraca."
+            );
+
+        } else {
+
+            mostrarToast(
+                "Erro ao criar a conta."
+            );
+
+        }
+
+    }
+
+};
+
+</script>
+
+</body>
+</html>
