@@ -361,6 +361,8 @@ document.getElementById("btnCopiar")
     }
 });
 /* COMPARTILHAR PIX PELO WHATSAPP */
+
+/* COMPARTILHAR SOMENTE O CÓDIGO PIX */
 document.getElementById("btnWhatsApp")
 .addEventListener("click", function() {
 
@@ -369,31 +371,12 @@ document.getElementById("btnWhatsApp")
         return;
     }
 
-    const valor = Number(campoValor.value);
-
-    const valorFormatado = valor.toLocaleString(
-        "pt-BR",
-        {
-            style: "currency",
-            currency: "BRL"
-        }
-    );
-
-    const texto =
-        "Olá! Seguem os dados para pagamento via Pix.\n\n" +
-        "💰 Valor: " + valorFormatado + "\n\n" +
-        "👤 Recebedor: " + PIX_NOME + "\n\n" +
-        
-        "📋 PIX COPIA E COLA:\n\n" +
-        codigoPix.value + "\n\n" +
-        "Copie o código acima e cole na opção Pix Copia e Cola do seu banco.";
-
-    const url =
-        "https://wa.me/?text=" +
-        encodeURIComponent(texto);
+    const url = "https://wa.me/?text=" +
+        encodeURIComponent(codigoPix.value);
 
     window.open(url, "_blank");
 });
+
 </script>
 
 </body>
