@@ -1,0 +1,644 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#075e54">
+<title>WhatsApp - Lista de Envios</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f1f5f9;color:#17202a;font-family:Arial,sans-serif}
+header{background:#075e54;color:white;text-align:center;padding:20px 12px}
+header h1{margin:0 0 8px;font-size:23px}
+main{max-width:700px;margin:auto;padding:12px}
+.card{background:white;padding:16px;margin:12px 0;border-radius:14px;box-shadow:0 2px 8px #0001}
+h2{font-size:18px;margin:0 0 12px}
+p{overflow-wrap:anywhere}
+input,textarea,button{width:100%;font:inherit;font-size:15px;padding:12px;margin:5px 0;border-radius:9px}
+input,textarea{border:1px solid #cbd5e1;background:white;color:#17202a}
+textarea{min-height:90px;resize:vertical}
+button{border:0;background:#087f5b;color:white;font-weight:bold;cursor:pointer}
+button:active{opacity:.8}
+.blue{background:#2563eb}
+.gray{background:#64748b}
+.red{background:#dc2626}
+.orange{background:#c26a08}
+.small{font-size:13px;color:#64748b;line-height:1.5}
+.contact{padding:12px;border:1px solid #dbe2ea;border-radius:10px;margin:10px 0;overflow-wrap:anywhere}
+.contact.sent{background:#f0fdf4;border-color:#16a34a}
+.contact strong{font-size:16px}
+.status{font-size:13px;font-weight:bold}
+.row{display:flex;gap:7px}
+.row button{flex:1;min-width:0;font-size:13px;padding:11px 5px}
+.counter{background:#e6f4ef;padding:12px;border-radius:9px;line-height:1.6}
+hr{border:0;border-top:1px solid #e2e8f0;margin:18px 0}
+label{font-size:14px;font-weight:bold;display:block;margin-top:8px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📲 WhatsApp em Lista</h1>
+  <div>Contatos • Mensagens • Confirmação de envio</div>
+</header>
+
+<main>
+
+<section class="card">
+  <h2>📇 1. Adicionar contatos</h2>
+
+  <button type="button" onclick="selecionarAgenda()" class="blue">
+    📱 Selecionar contatos da agenda do celular
+  </button>
+
+  <p class="small">
+    O seletor depende do navegador e geralmente precisa de HTTPS.
+    Ele acessa os contatos que você autorizar da agenda do aparelho,
+    não lê diretamente a lista interna do WhatsApp.
+  </p>
+
+  <button type="button" onclick="document.getElementById('arquivoContatos').click()" class="gray">
+    📂 Importar contatos CSV ou VCF
+  </button>
+
+  <input id="arquivoContatos" type="file" accept=".csv,.vcf,.txt" hidden>
+
+  <p class="small">
+    Para importar contatos do Android, exporte-os da agenda em formato
+    VCF. Também é possível importar um CSV com nome, telefone e mensagem.
+  </p>
+
+  <hr>
+
+  <h2>Adicionar manualmente</h2>
+
+  <label for="nome">Nome</label>
+  <input id="nome" placeholder="Nome do contato">
+
+  <label for="telefone">WhatsApp com DDD</label>
+  <input id="telefone" type="tel" placeholder="Ex.: 11999999999">
+
+  <label for="mensagemIndividual">Mensagem individual (opcional)</label>
+  <textarea id="mensagemIndividual" placeholder="Mensagem exclusiva deste contato"></textarea>
+
+  <button onclick="adicionarContato()">➕ Adicionar contato</button>
+</section>
+
+<section class="card">
+  <h2>📢 2. Mensagem padrão para todos</h2>
+
+  <textarea id="mensagemPadrao" placeholder="Digite aqui a mensagem que deseja enviar a todos"></textarea>
+
+  <button class="blue" onclick="aplicarPadrao()">
+    Aplicar mensagem padrão a todos
+  </button>
+
+  <button onclick="iniciarPadrao()">
+    📲 Enviar mensagem padrão para todos
+  </button>
+
+  <p class="small">
+    Aplicar a mensagem padrão substitui as mensagens individuais.
+    Os envios são feitos um por vez e precisam ser confirmados dentro
+    do WhatsApp.
+  </p>
+</section>
+
+<section class="card">
+  <h2>✉️ 3. Lista de envios</h2>
+
+  <div class="counter" id="resumo"></div>
+
+  <button onclick="proximoEnvio()">▶ Abrir próximo pendente</button>
+
+  <div id="lista"></div>
+
+  <hr>
+
+  <button class="gray" onclick="exportarCSV()">📥 Exportar lista</button>
+  <button class="red" onclick="limparLista()">Apagar todos os contatos</button>
+</section>
+
+</main>
+
+<script>
+const CHAVE = "listaWhatsAppCompleta_v2";
+
+let contatos = carregar();
+let filaPadrao = false;
+
+function carregar(){
+  try {
+    const dados = JSON.parse(localStorage.getItem(CHAVE) || "[]");
+    return Array.isArray(dados) ? dados : [];
+  } catch(e) {
+    return [];
+  }
+}
+
+function salvar(){
+  try {
+    localStorage.setItem(CHAVE, JSON.stringify(contatos));
+    renderizar();
+  } catch(e) {
+    alert("Não foi possível salvar. Verifique o espaço do navegador.");
+  }
+}
+
+function normalizarTelefone(valor){
+  let n = String(valor || "").replace(/\D/g, "");
+
+  // Formato internacional já com código do Brasil.
+  if(n.startsWith("55") && (n.length === 12 || n.length === 13)){
+    return n;
+  }
+
+  // Número brasileiro com DDD.
+  if(n.length === 10 || n.length === 11){
+    return "55" + n;
+  }
+
+  return "";
+}
+
+function adicionarContato(){
+  const nome = document.getElementById("nome").value.trim();
+  const telefone = normalizarTelefone(
+    document.getElementById("telefone").value
+  );
+  const mensagem = document.getElementById("mensagemIndividual").value.trim();
+
+  if(!nome || !telefone){
+    alert("Informe o nome e um número válido com DDD.");
+    return;
+  }
+
+  if(contatos.length >= 20){
+    alert("O limite desta lista é 20 contatos.");
+    return;
+  }
+
+  if(contatos.some(c => c.telefone === telefone)){
+    alert("Este número já está na lista.");
+    return;
+  }
+
+  contatos.push({
+    id: criarId(),
+    nome,
+    telefone,
+    mensagem,
+    enviado: false
+  });
+
+  document.getElementById("nome").value = "";
+  document.getElementById("telefone").value = "";
+  document.getElementById("mensagemIndividual").value = "";
+
+  salvar();
+}
+
+function criarId(){
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
+}
+
+// API Contact Picker: disponível somente em alguns navegadores.
+async function selecionarAgenda(){
+  if(!window.isSecureContext){
+    alert(
+      "Para experimentar a agenda, abra o site por HTTPS. " +
+      "Arquivos HTML abertos diretamente no celular podem não oferecer esse recurso. " +
+      "Se não funcionar, importe um arquivo VCF da agenda."
+    );
+    return;
+  }
+
+  if(!("contacts" in navigator) ||
+     typeof navigator.contacts.select !== "function"){
+    alert(
+      "Seu navegador não oferece o seletor de contatos. " +
+      "Use Importar contatos CSV ou VCF para adicionar os contatos da agenda."
+    );
+    return;
+  }
+
+  try{
+    const escolhidos = await navigator.contacts.select(
+      ["name", "tel"], {multiple:true}
+    );
+
+    for(const item of escolhidos){
+      if(contatos.length >= 20) break;
+
+      const nome = item.name?.[0] || "Contato";
+      const telefone = normalizarTelefone(item.tel?.[0] || "");
+
+      if(!telefone || contatos.some(c => c.telefone === telefone)){
+        continue;
+      }
+
+      const mensagem = prompt(
+        "Mensagem individual para " + nome +
+        " (deixe vazia para usar a mensagem padrão):", ""
+      );
+
+      if(mensagem === null) continue;
+
+      contatos.push({
+        id: criarId(),
+        nome,
+        telefone,
+        mensagem: mensagem.trim(),
+        enviado: false
+      });
+    }
+
+    salvar();
+  } catch(e){
+    alert("A seleção foi cancelada ou não pôde ser concluída.");
+  }
+}
+
+// Lê linhas CSV, incluindo campos entre aspas.
+function lerCSV(texto){
+  const linhas = [];
+  let linha = [];
+  let campo = "";
+  let aspas = false;
+
+  for(let i=0; i<texto.length; i++){
+    const ch = texto[i];
+
+    if(ch === '"'){
+      if(aspas && texto[i+1] === '"'){
+        campo += '"';
+        i++;
+      } else {
+        aspas = !aspas;
+      }
+    } else if(ch === "," && !aspas){
+      linha.push(campo);
+      campo = "";
+    } else if((ch === "\n" || ch === "\r") && !aspas){
+      if(ch === "\r" && texto[i+1] === "\n") i++;
+      linha.push(campo);
+
+      if(linha.some(v => v.trim())) linhas.push(linha);
+
+      linha = [];
+      campo = "";
+    } else {
+      campo += ch;
+    }
+  }
+
+  linha.push(campo);
+  if(linha.some(v => v.trim())) linhas.push(linha);
+
+  return linhas;
+}
+
+function lerVCF(texto){
+  const blocos = texto.split(/END:VCARD/i);
+  const resultado = [];
+
+  for(const bloco of blocos){
+    if(!/BEGIN:VCARD/i.test(bloco)) continue;
+
+    const linhas = bloco.replace(/\r?\n[ \t]/g, "").split(/\r?\n/);
+    let nome = "";
+    const telefones = [];
+
+    for(const linha of linhas){
+      const pos = linha.indexOf(":");
+      if(pos < 0) continue;
+
+      const chave = linha.slice(0,pos).toUpperCase();
+      const valor = linha.slice(pos+1).trim();
+
+      if(chave.startsWith("FN")){
+        nome = valor;
+      } else if(chave.startsWith("N") && !nome){
+        const partes = valor.split(";");
+        nome = [...partes].reverse().filter(Boolean).join(" ");
+      }
+
+      if(chave.startsWith("TEL")){
+        telefones.push(valor);
+      }
+    }
+
+    for(const tel of telefones){
+      resultado.push({
+        nome: nome || "Contato",
+        telefone: tel,
+        mensagem: ""
+      });
+    }
+  }
+
+  return resultado;
+}
+
+document.getElementById("arquivoContatos").addEventListener("change", async function(){
+  const arquivo = this.files[0];
+  if(!arquivo) return;
+
+  try{
+    const texto = await arquivo.text();
+    let novos = [];
+
+    if(/\.vcf$/i.test(arquivo.name)){
+      novos = lerVCF(texto);
+    } else {
+      const linhas = lerCSV(texto);
+
+      if(!linhas.length){
+        alert("Arquivo vazio.");
+        return;
+      }
+
+      const cabecalho = linhas[0].map(v =>
+        v.trim().toLowerCase().normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+      );
+
+      const idxNome = cabecalho.indexOf("nome");
+      const idxTel = cabecalho.indexOf("telefone");
+      const idxMsg = cabecalho.indexOf("mensagem");
+
+      if(idxNome < 0 || idxTel < 0){
+        alert("CSV precisa ter cabeçalho nome,telefone. A coluna mensagem é opcional.");
+        return;
+      }
+
+      novos = linhas.slice(1).map(l => ({
+        nome: (l[idxNome] || "").trim(),
+        telefone: l[idxTel] || "",
+        mensagem: idxMsg >= 0 ? (l[idxMsg] || "").trim() : ""
+      }));
+    }
+
+    let adicionados = 0;
+
+    for(const n of novos){
+      if(contatos.length >= 20) break;
+
+      const telefone = normalizarTelefone(n.telefone);
+      if(!n.nome || !telefone) continue;
+
+      if(contatos.some(c => c.telefone === telefone)) continue;
+
+      contatos.push({
+        id: criarId(),
+        nome: n.nome,
+        telefone,
+        mensagem: n.mensagem || "",
+        enviado: false
+      });
+
+      adicionados++;
+    }
+
+    salvar();
+    alert(adicionados + " contatos importados.");
+  } catch(e){
+    alert("Não foi possível ler o arquivo. Confira se ele está em formato CSV ou VCF.");
+  } finally {
+    this.value = "";
+  }
+});
+
+function aplicarPadrao(){
+  const mensagem = document.getElementById("mensagemPadrao").value.trim();
+
+  if(!mensagem){
+    alert("Digite a mensagem padrão primeiro.");
+    return;
+  }
+
+  if(!contatos.length){
+    alert("Adicione contatos primeiro.");
+    return;
+  }
+
+  if(!confirm("Substituir as mensagens individuais de todos os contatos?")) return;
+
+  contatos.forEach(c => {
+    c.mensagem = mensagem;
+    c.enviado = false;
+  });
+
+  filaPadrao = true;
+  salvar();
+  alert("Mensagem padrão aplicada a todos os contatos.");
+}
+
+function iniciarPadrao(){
+  const mensagem = document.getElementById("mensagemPadrao").value.trim();
+
+  if(!mensagem){
+    alert("Digite a mensagem padrão primeiro.");
+    return;
+  }
+
+  if(!contatos.length){
+    alert("Adicione contatos primeiro.");
+    return;
+  }
+
+  if(!confirm("Preparar a mensagem padrão para os " + contatos.length + " contatos?")) return;
+
+  contatos.forEach(c => {
+    c.mensagem = mensagem;
+    c.enviado = false;
+  });
+
+  filaPadrao = true;
+  salvar();
+  abrirWhatsApp(contatos.find(c => !c.enviado)?.id);
+}
+
+function abrirWhatsApp(id){
+  const c = contatos.find(x => x.id === id);
+  if(!c) {
+    alert("Não há contato pendente.");
+    return;
+  }
+
+  const mensagem = c.mensagem ||
+    document.getElementById("mensagemPadrao").value.trim();
+
+  if(!mensagem){
+    alert("Este contato não tem mensagem. Digite uma mensagem individual ou uma mensagem padrão.");
+    return;
+  }
+
+  const url = "https://wa.me/" + c.telefone +
+    "?text=" + encodeURIComponent(mensagem);
+
+  window.open(url, "_blank");
+}
+
+function proximoEnvio(){
+  const c = contatos.find(x => !x.enviado);
+
+  if(!c){
+    alert("Não há contatos pendentes.");
+    return;
+  }
+
+  abrirWhatsApp(c.id);
+}
+
+function confirmarEnvio(id){
+  const c = contatos.find(x => x.id === id);
+  if(!c) return;
+
+  if(!confirm("Você enviou a mensagem dentro do WhatsApp?")) return;
+
+  c.enviado = true;
+  salvar();
+}
+
+function editarContato(id){
+  const c = contatos.find(x => x.id === id);
+  if(!c) return;
+
+  const nome = prompt("Nome:", c.nome);
+  if(nome === null) return;
+
+  const tel = prompt("Telefone com DDD:", c.telefone);
+  if(tel === null) return;
+
+  const msg = prompt("Mensagem individual:", c.mensagem);
+  if(msg === null) return;
+
+  const telefone = normalizarTelefone(tel);
+
+  if(!telefone){
+    alert("Telefone inválido.");
+    return;
+  }
+
+  if(contatos.some(x => x.id !== id && x.telefone === telefone)){
+    alert("Este número já está cadastrado.");
+    return;
+  }
+
+  c.nome = nome.trim();
+  c.telefone = telefone;
+  c.mensagem = msg.trim();
+  c.enviado = false;
+
+  salvar();
+}
+
+function excluirContato(id){
+  if(!confirm("Excluir este contato?")) return;
+  contatos = contatos.filter(c => c.id !== id);
+  salvar();
+}
+
+function renderizar(){
+  const lista = document.getElementById("lista");
+  const enviados = contatos.filter(c => c.enviado).length;
+
+  document.getElementById("resumo").textContent =
+    "Contatos: " + contatos.length + "/20 | " +
+    "Confirmados: " + enviados + " | " +
+    "Pendentes: " + (contatos.length - enviados);
+
+  lista.replaceChildren();
+
+  contatos.forEach((c,i) => {
+    const div = document.createElement("div");
+    div.className = "contact" + (c.enviado ? " sent" : "");
+
+    const titulo = document.createElement("strong");
+    titulo.textContent = (i+1) + ". " + c.nome;
+
+    const telefone = document.createElement("p");
+    telefone.textContent = "+" + c.telefone;
+
+    const mensagem = document.createElement("p");
+    mensagem.textContent = c.mensagem || "(Usará a mensagem padrão, se preenchida)";
+
+    const status = document.createElement("p");
+    status.className = "status";
+    status.textContent = c.enviado
+      ? "✅ Marcado como enviado"
+      : "⏳ Pendente";
+
+    div.append(titulo, telefone, mensagem, status);
+
+    const abrir = document.createElement("button");
+    abrir.textContent = "📲 Abrir WhatsApp";
+    abrir.onclick = () => abrirWhatsApp(c.id);
+    div.append(abrir);
+
+    const confirmar = document.createElement("button");
+    confirmar.textContent = "✓ Confirmar envio";
+    confirmar.className = "blue";
+    confirmar.onclick = () => confirmarEnvio(c.id);
+
+    if(!c.enviado) div.append(confirmar);
+
+    const linha = document.createElement("div");
+    linha.className = "row";
+
+    const editar = document.createElement("button");
+    editar.textContent = "Editar";
+    editar.className = "gray";
+    editar.onclick = () => editarContato(c.id);
+
+    const excluir = document.createElement("button");
+    excluir.textContent = "Excluir";
+    excluir.className = "red";
+    excluir.onclick = () => excluirContato(c.id);
+
+    linha.append(editar, excluir);
+    div.append(linha);
+    lista.append(div);
+  });
+}
+
+function exportarCSV(){
+  const linhas = [
+    ["nome","telefone","mensagem","enviado"],
+    ...contatos.map(c => [
+      c.nome,c.telefone,c.mensagem,c.enviado ? "sim" : "nao"
+    ])
+  ];
+
+  const csv = linhas.map(l => l.map(v =>
+    '"' + String(v).replace(/"/g,'""') + '"'
+  ).join(",")).join("\r\n");
+
+  const url = URL.createObjectURL(
+    new Blob(["\uFEFF" + csv], {type:"text/csv;charset=utf-8"})
+  );
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "contatos-whatsapp.csv";
+  a.click();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function limparLista(){
+  if(!confirm("Apagar todos os contatos? Esta ação não pode ser desfeita.")) return;
+  contatos = [];
+  filaPadrao = false;
+  salvar();
+}
+
+renderizar();
+</script>
+
+</body>
+</html>
