@@ -832,12 +832,343 @@ footer{
     }
 }
 
+
+/* =========================================================
+   MODAL DE BOAS-VINDAS SSA MARKETPLACE
+========================================================= */
+
+#welcomeModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.78);
+    padding: 16px;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+}
+
+#welcomeModal.show {
+    display: flex;
+}
+
+.welcome-box {
+    width: min(460px, 100%);
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 50px rgba(0,0,0,.3);
+    animation: welcomeAppear .3s ease;
+}
+
+@keyframes welcomeAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.welcome-header {
+    background: linear-gradient(135deg, #111, #252525);
+    color: #fff;
+    text-align: center;
+    padding: 28px 20px;
+}
+
+.welcome-logo {
+    font-size: 25px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.welcome-logo span {
+    color: #00c853;
+}
+
+.welcome-header h2 {
+    font-size: 25px;
+    margin-bottom: 9px;
+}
+
+.welcome-header p {
+    color: #ddd;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+.welcome-content {
+    padding: 22px;
+}
+
+.welcome-benefit {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 17px;
+}
+
+.welcome-icon {
+    font-size: 25px;
+    flex-shrink: 0;
+}
+
+.welcome-benefit strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 15px;
+}
+
+.welcome-benefit p {
+    color: #666;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.welcome-highlight {
+    background: #e8f9ee;
+    border: 1px solid #b7ebc6;
+    border-radius: 12px;
+    padding: 13px;
+    margin: 18px 0;
+    text-align: center;
+}
+
+.welcome-highlight strong {
+    color: #137333;
+    font-size: 16px;
+}
+
+.welcome-highlight p {
+    color: #356b46;
+    font-size: 12px;
+    margin-top: 5px;
+    line-height: 1.5;
+}
+
+.welcome-cep {
+    margin-top: 18px;
+}
+
+.welcome-cep label {
+    display: block;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.welcome-cep input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 17px;
+    outline: none;
+}
+
+.welcome-cep input:focus {
+    border-color: #00c853;
+}
+
+#welcomeEndereco {
+    margin-top: 9px;
+    color: #555;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.welcome-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.welcome-actions button {
+    width: 100%;
+    padding: 14px;
+    border: 0;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+#welcomeContinuar {
+    background: #00c853;
+    color: #fff;
+}
+
+#welcomeContinuar:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
+
+#welcomePular {
+    background: #f1f1f1;
+    color: #333;
+}
+
+@media(max-width:380px) {
+    .welcome-content {
+        padding: 17px;
+    }
+
+    .welcome-header {
+        padding: 23px 15px;
+    }
+
+    .welcome-header h2 {
+        font-size: 22px;
+    }
+}
+
+/* BOTÃO CONSULTAR CEP — AZUL */
+#welcomeContinuar {
+    background: #007bff;
+    color: #ffffff;
+    border: none;
+    transition: background 0.2s ease;
+}
+
+#welcomeContinuar:hover {
+    background: #0056b3;
+}
+
+#welcomeContinuar:active {
+    background: #004494;
+}
+
+/* BOTÃO DESABILITADO */
+#welcomeContinuar:disabled {
+    background: #9ec5fe;
+    color: #ffffff;
+    cursor: not-allowed;
+}
+
+/* BOTÃO CONSULTAR, SE EXISTIR SEPARADO */
+#welcomeConsultar {
+    background: #007bff;
+    color: #ffffff;
+    border: none;
+}
+
+#welcomeConsultar:hover {
+    background: #0056b3;
+}
+
 </style>
 
 </head>
 
 
 <body>
+
+<!-- MODAL DE BOAS-VINDAS SSA MARKETPLACE -->
+
+<div id="welcomeModal" role="dialog" aria-modal="true"
+     aria-labelledby="welcomeTitulo">
+
+    <div class="welcome-box">
+
+        <div class="welcome-header">
+
+            <div class="welcome-logo">
+                SSA<span>Marketplace</span>
+            </div>
+
+            <h2 id="welcomeTitulo">
+                👋 Seja bem-vindo!
+            </h2>
+
+            <p>
+                Seu novo jeito de comprar com economia
+                e receber sem sair de casa.
+            </p>
+
+        </div>
+
+        <div class="welcome-content">
+
+            <div class="welcome-benefit">
+                <div class="welcome-icon">💰</div>
+                <div>
+                    <strong>Preços para economizar</strong>
+                    <p>
+                        Nossa proposta é oferecer preços
+                        mais baixos que os encontrados em
+                        Feira de Santana, Facebook Marketplace,
+                        Shopee e Mercado Livre.
+                    </p>
+                </div>
+            </div>
+
+            <div class="welcome-benefit">
+                <div class="welcome-icon">🏍️</div>
+                <div>
+                    <strong>Receba em até 3 horas</strong>
+                    <p>
+                        Entrega no mesmo dia por moto Uber,
+                        sujeita à disponibilidade, distância,
+                        horário e confirmação do serviço.
+                    </p>
+                </div>
+            </div>
+
+            <div class="welcome-highlight">
+                <strong>📦 Consulte a entrega para sua região</strong>
+                <p>
+                    Digite seu CEP para consultar seu endereço
+                    e verificar a disponibilidade de entrega.
+                </p>
+            </div>
+
+            <div class="welcome-cep">
+
+                <label for="welcomeCep">
+                    📍 Digite seu CEP
+                </label>
+
+                <input
+                    id="welcomeCep"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="9"
+                    placeholder="00000-000"
+                    autocomplete="postal-code"
+                >
+
+                <div id="welcomeEndereco" aria-live="polite"></div>
+
+            </div>
+
+            <div class="welcome-actions">
+
+                <button
+                    id="welcomeContinuar"
+                    type="button"
+                    disabled
+                >
+                    Consultar CEP para continuar
+                </button>
+
+                <button
+                    id="welcomePular"
+                    type="button"
+                >
+                    Continuar sem consultar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 
 <!-- =========================================================
@@ -4498,6 +4829,291 @@ document
 
         }
     );
+
+/* 
+/* =========================================================
+   BOAS-VINDAS E CONSULTA DE CEP
+   SSA MARKETPLACE — ENTREGA EM SALVADOR - BA
+========================================================= */
+
+const welcomeModal =
+    document.getElementById("welcomeModal");
+
+const welcomeCep =
+    document.getElementById("welcomeCep");
+
+const welcomeEndereco =
+    document.getElementById("welcomeEndereco");
+
+const welcomeContinuar =
+    document.getElementById("welcomeContinuar");
+
+const welcomePular =
+    document.getElementById("welcomePular");
+
+let welcomeCepValido = false;
+let welcomeConsultaEmAndamento = false;
+let welcomeEnderecoDados = null;
+
+
+/* VERIFICAR SE OS ELEMENTOS EXISTEM */
+
+if (
+    welcomeModal &&
+    welcomeCep &&
+    welcomeEndereco &&
+    welcomeContinuar
+) {
+
+    /* ABRIR NA ENTRADA DO SITE */
+
+    try {
+        if (sessionStorage.getItem("ssaWelcomeVisto") !== "1") {
+            welcomeModal.classList.add("show");
+        }
+    } catch (error) {
+        welcomeModal.classList.add("show");
+    }
+
+
+    /* FORMATAR CEP */
+
+    welcomeCep.addEventListener("input", function () {
+        const cep = this.value
+            .replace(/\D/g, "")
+            .slice(0, 8);
+
+        this.value = cep.length > 5
+            ? cep.slice(0, 5) + "-" + cep.slice(5)
+            : cep;
+
+        welcomeCepValido = false;
+        welcomeEnderecoDados = null;
+
+        welcomeContinuar.disabled = true;
+        welcomeContinuar.textContent =
+            "Consultar CEP para continuar";
+
+        welcomeEndereco.textContent = "";
+    });
+
+
+    /* CONSULTAR CEP PELO VIACEP */
+
+    async function consultarCepBoasVindas() {
+        const cep = welcomeCep.value.replace(/\D/g, "");
+
+        if (cep.length !== 8) {
+            welcomeCepValido = false;
+            welcomeEndereco.textContent =
+                "Digite um CEP válido com 8 números.";
+
+            welcomeCep.focus();
+            return;
+        }
+
+        if (welcomeConsultaEmAndamento) return;
+
+        welcomeConsultaEmAndamento = true;
+        welcomeCepValido = false;
+        welcomeEnderecoDados = null;
+
+        welcomeContinuar.disabled = true;
+        welcomeContinuar.textContent = "Consultando CEP...";
+        welcomeEndereco.textContent = "Buscando endereço...";
+
+        try {
+            const resposta = await fetch(
+                `https://viacep.com.br/ws/${cep}/json/`
+            );
+
+            if (!resposta.ok) {
+                throw new Error("Falha na consulta");
+            }
+
+            const dados = await resposta.json();
+
+            if (dados.erro) {
+                throw new Error("CEP não encontrado");
+            }
+
+            /* VALIDAR CIDADE E ESTADO */
+
+            const cidade = String(dados.localidade || "")
+                .trim()
+                .toLocaleLowerCase("pt-BR");
+
+            const estado = String(dados.uf || "")
+                .trim()
+                .toUpperCase();
+
+            if (cidade !== "salvador" || estado !== "BA") {
+                welcomeEnderecoDados = null;
+                welcomeCepValido = false;
+
+                welcomeEndereco.textContent =
+                    "No momento, entregamos somente na região de Salvador - BA. " +
+                    "O CEP consultado pertence a " +
+                    `${dados.localidade || "outra cidade"}/${estado || "UF não informada"}.`;
+
+                welcomeContinuar.disabled = true;
+                welcomeContinuar.textContent =
+                    "CEP fora da região atendida";
+
+                return;
+            }
+
+            /* SALVAR ENDEREÇO VALIDADO */
+
+            welcomeEnderecoDados = dados;
+            welcomeCepValido = true;
+
+            welcomeEndereco.textContent =
+                `${dados.logradouro || "Logradouro não informado"}` +
+                `${dados.bairro ? ", " + dados.bairro : ""}` +
+                ` — ${dados.localidade}/${dados.uf}. ` +
+                "CEP de Salvador localizado! A entrega depende da disponibilidade.";
+
+            welcomeContinuar.disabled = false;
+            welcomeContinuar.textContent =
+                "✅ Continuar comprando";
+
+        } catch (error) {
+            welcomeCepValido = false;
+            welcomeEnderecoDados = null;
+
+            welcomeEndereco.textContent =
+                error.message === "CEP não encontrado"
+                    ? "CEP não encontrado. Confira os números."
+                    : "Não foi possível consultar. Verifique sua conexão e tente novamente.";
+
+            welcomeContinuar.disabled = true;
+            welcomeContinuar.textContent =
+                "Consultar CEP para continuar";
+
+        } finally {
+            welcomeConsultaEmAndamento = false;
+        }
+    }
+
+
+    /* CONSULTAR AO SAIR DO CAMPO */
+
+    welcomeCep.addEventListener("blur", () => {
+        if (
+            welcomeCep.value.replace(/\D/g, "").length === 8 &&
+            !welcomeCepValido
+        ) {
+            consultarCepBoasVindas();
+        }
+    });
+
+
+    /* BOTÃO CONSULTAR OU CONTINUAR */
+
+    welcomeContinuar.addEventListener("click", async () => {
+
+        if (welcomeConsultaEmAndamento) return;
+
+        if (!welcomeCepValido || !welcomeEnderecoDados) {
+            await consultarCepBoasVindas();
+            return;
+        }
+
+        /* CONFERIR NOVAMENTE O ENDEREÇO */
+
+        const cidade = String(
+            welcomeEnderecoDados.localidade || ""
+        ).trim().toLocaleLowerCase("pt-BR");
+
+        const estado = String(
+            welcomeEnderecoDados.uf || ""
+        ).trim().toUpperCase();
+
+        if (cidade !== "salvador" || estado !== "BA") {
+            welcomeCepValido = false;
+
+            welcomeEndereco.textContent =
+                "Entrega disponível somente na região de Salvador - BA.";
+
+            welcomeContinuar.disabled = true;
+            return;
+        }
+
+        /* GUARDAR CEP E ENDEREÇO NA SESSÃO */
+
+        const cepFormatado = welcomeCep.value;
+
+        try {
+            sessionStorage.setItem("ssaCep", cepFormatado);
+
+            sessionStorage.setItem(
+                "ssaEndereco",
+                JSON.stringify(welcomeEnderecoDados)
+            );
+
+            sessionStorage.setItem("ssaWelcomeVisto", "1");
+        } catch (error) {
+            console.warn("Não foi possível guardar a sessão.");
+        }
+
+        /* PREENCHER CADASTRO, SE OS CAMPOS EXISTIREM */
+
+        const preencherCampo = (id, valor) => {
+            const campo = document.getElementById(id);
+
+            if (campo) {
+                campo.value = valor || "";
+
+                campo.dispatchEvent(
+                    new Event("input", { bubbles: true })
+                );
+
+                campo.dispatchEvent(
+                    new Event("change", { bubbles: true })
+                );
+            }
+        };
+
+        preencherCampo("cadCep", cepFormatado);
+        preencherCampo(
+            "cadEndereco",
+            welcomeEnderecoDados.logradouro
+        );
+        preencherCampo(
+            "cadBairro",
+            welcomeEnderecoDados.bairro
+        );
+        preencherCampo(
+            "cadCidade",
+            welcomeEnderecoDados.localidade
+        );
+        preencherCampo(
+            "cadEstado",
+            welcomeEnderecoDados.uf
+        );
+
+        /* FECHAR MODAL */
+
+        welcomeModal.classList.remove("show");
+    });
+
+
+    /* PULAR — OPCIONAL */
+
+    if (welcomePular) {
+        welcomePular.addEventListener("click", () => {
+            try {
+                sessionStorage.setItem("ssaWelcomeVisto", "1");
+            } catch (error) {
+                console.warn("Não foi possível guardar a sessão.");
+            }
+
+            welcomeModal.classList.remove("show");
+        });
+    }
+}
+
 
 
 /* =========================================================
