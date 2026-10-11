@@ -1060,6 +1060,87 @@ footer{
     background: #0056b3;
 }
 
+/* DETALHES DO PRODUTO */
+.detalhe-produto-modal {
+    position: relative;
+    width: min(440px, calc(100vw - 24px));
+    max-width: 100%;
+    max-height: 90dvh;
+    overflow-y: auto;
+    padding: 0;
+    border-radius: 18px;
+    background: #fff;
+}
+
+.detalhe-fechar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 50%;
+    background: #202522;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.detalhe-imagem {
+    display: block;
+    width: 100%;
+    height: min(42vh, 320px);
+    object-fit: contain;
+    background: #f5f6f5;
+}
+
+.detalhe-corpo {
+    padding: 20px;
+}
+
+.detalhe-corpo h2 {
+    margin: 8px 0;
+    overflow-wrap: anywhere;
+}
+
+.detalhe-corpo p {
+    line-height: 1.5;
+}
+
+#detalhePreco {
+    margin: 14px 0;
+    font-size: 25px;
+    font-weight: 800;
+    color: #059669;
+}
+
+#detalheComprar {
+    width: 100%;
+    min-height: 48px;
+    margin-top: 14px;
+}
+
+.product-img {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .2s ease;
+}
+
+.product-img:active {
+    transform: scale(.97);
+}
+
+@media (max-width: 360px) {
+    .detalhe-corpo {
+        padding: 14px;
+    }
+
+    .detalhe-imagem {
+        height: 36vh;
+    }
+}
+
 </style>
 
 </head>
@@ -1819,6 +1900,41 @@ footer{
     class="toast"
 ></div>
 
+
+<!-- MODAL DE DETALHES DO PRODUTO -->
+<div id="modalDetalheProduto" class="modal">
+    <div class="modal-content detalhe-produto-modal">
+        <button
+            type="button"
+            class="detalhe-fechar"
+            onclick="fecharModal('modalDetalheProduto')"
+            aria-label="Fechar detalhes"
+        >✕</button>
+
+        <img
+            id="detalheImagem"
+            class="detalhe-imagem"
+            src=""
+            alt="Produto selecionado"
+        >
+
+        <div class="detalhe-corpo">
+            <div id="detalheCategoria" class="product-category"></div>
+            <h2 id="detalheNome"></h2>
+            <p id="detalheDescricao"></p>
+            <div id="detalhePreco" class="product-price"></div>
+            <p id="detalheEstoque" class="product-stock"></p>
+
+            <button
+                id="detalheComprar"
+                class="btn btn-primary"
+                type="button"
+            >
+                🛒 Adicionar ao carrinho
+            </button>
+        </div>
+    </div>
+</div>
 
 
 <!-- =========================================================
@@ -2765,7 +2881,7 @@ window.renderProdutos = function(){
                                 adicionarCarrinho('${idSeguro}')
                             "
                         >
-                            🛒 Comprar
+                            🛒 Adicionar
                         </button>
 
                     </div>
@@ -5103,6 +5219,101 @@ if (
     }
 }
 
+
+/* =========================================
+   ABRIR DETALHES AO TOCAR NA FOTO
+========================================= */
+
+window.abrirDetalhesProduto = function(id) {
+    const produto = produtos.find(
+        p => String(p.id) === String(id)
+    );
+
+    if (!produto) {
+        mostrarToast("Produto não encontrado.");
+        return;
+    }
+
+    const estoque = Number(produto.estoque || 0);
+
+    document.getElementById("detalheImagem").src =
+        produto.imagem || "";
+
+    document.getElementById("detalheImagem").alt =
+        produto.nome || "Produto";
+
+    document.getElementById("detalheCategoria").textContent =
+        produto.categoria || "";
+
+    document.getElementById("detalheNome").textContent =
+        produto.nome || "Produto";
+
+    document.getElementById("detalheDescricao").textContent =
+        produto.descricao || "Sem descrição disponível.";
+
+    document.getElementById("detalhePreco").textContent =
+        moeda(produto.preco);
+
+    document.getElementById("detalheEstoque").textContent =
+        estoque > 0
+            ? `✓ ${estoque} disponíveis`
+            : "Produto esgotado";
+
+    const botao = document.getElementById("detalheComprar");
+
+    botao.disabled = estoque <= 0;
+    botao.textContent = estoque > 0
+        ? "🛒 Adicionar ao carrinho"
+        : "Produto esgotado";
+
+    botao.onclick = function() {
+        window.adicionarCarrinho(produto.id);
+        window.fecharModal("modalDetalheProduto");
+    };
+
+    window.abrirModal("modalDetalheProduto");
+};
+
+
+/* TOQUE NA IMAGEM DO CARD */
+document.addEventListener("click", function(event) {
+    const imagem = event.target.closest(".product-img");
+
+    if (!imagem) return;
+
+    const card = imagem.closest(".product");
+
+    if (!card) return;
+
+    const indice = Array.from(card.parentElement.children)
+        .indexOf(card);
+
+    const cardsVisiveis = produtos.filter(produto => {
+        if (!produto || produto.status === "bloqueado") {
+            return false;
+        }
+
+        const campoBusca = document.getElementById("campoBusca");
+        const busca = campoBusca
+            ? campoBusca.value.trim().toLowerCase()
+            : "";
+
+        const nome = String(produto.nome || "").toLowerCase();
+        const categoria = String(produto.categoria || "").toLowerCase();
+
+        return (
+            (!busca || nome.includes(busca) || categoria.includes(busca)) &&
+            (categoriaAtual === "Todos" ||
+                produto.categoria === categoriaAtual)
+        );
+    });
+
+    const produto = cardsVisiveis[indice];
+
+    if (produto) {
+        window.abrirDetalhesProduto(produto.id);
+    }
+});
 
 
 /* =========================================================
