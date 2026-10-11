@@ -1140,7 +1140,132 @@ footer{
         height: 36vh;
     }
 }
+.minha-compra-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 14px;
+    background: #fff;
+}
 
+.minha-compra-topo,
+.minha-compra-item,
+.minha-compra-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.minha-compra-topo {
+    flex-wrap: wrap;
+}
+
+.minha-compra-status {
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 20px;
+    padding: 5px 9px;
+    font-size: 12px;
+    text-transform: capitalize;
+}
+
+.minha-compra-data,
+.minha-compra-pagamento {
+    color: #666;
+    font-size: 13px;
+    margin: 10px 0;
+}
+
+.minha-compra-itens {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.minha-compra-item {
+    margin: 7px 0;
+    font-size: 14px;
+}
+
+.minha-compra-total {
+    margin-top: 12px;
+    font-size: 17px;
+}
+
+/* CORRIGIR O MODAL MINHAS COMPRAS */
+
+#modalMinhasCompras .modal-content {
+    position: relative;
+    box-sizing: border-box;
+    width: calc(100% - 24px);
+    max-width: 500px;
+    max-height: 85vh;
+    max-height: 85dvh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px 16px 20px;
+    border-radius: 16px;
+}
+
+/* BOTÃO X DENTRO DO MODAL */
+
+#modalMinhasCompras .modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #222;
+    font-size: 21px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* ESPAÇO PARA O TÍTULO NÃO BATER NO X */
+
+#modalMinhasCompras h2 {
+    padding-right: 35px;
+    overflow-wrap: anywhere;
+}
+
+#minhasComprasConteudo {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.cabecalho-acoes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.cabecalho-acoes button {
+    min-height: 40px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+@media (max-width: 480px) {
+    .cabecalho-acoes {
+        gap: 5px;
+    }
+
+    .cabecalho-acoes button {
+        padding: 8px;
+        font-size: 12px;
+    }
+}
 </style>
 
 </head>
@@ -1289,7 +1414,7 @@ footer{
             </button>
 
         </div>
-
+<button class="btn btn-primary" onclick="abrirMinhasCompras()"> 🛍️ Minhas Compras </button> 
     </div>
 
 </header>
@@ -1936,6 +2061,7 @@ footer{
     </div>
 </div>
 
+<div id="modalMinhasCompras" class="modal"> <div class="modal-content"> <button class="modal-close" onclick="fecharModal('modalMinhasCompras')"> ✕ </button> <h2>🛍️ Minhas Compras</h2> <p>Consulte seus pedidos e pagamentos.</p> <div id="minhasComprasConteudo"> Carregando pedidos... </div> </div> </div> 
 
 <!-- =========================================================
      JAVASCRIPT
@@ -2897,7 +3023,7 @@ window.renderProdutos = function(){
     );
 
 };
-
+/* ========================================================= MINHAS COMPRAS ========================================================= */ window.abrirMinhasCompras = async function () { const container = document.getElementById( "minhasComprasConteudo" ); if (!usuarioAtual) { mostrarToast("Entre na sua conta para ver suas compras."); abrirModal("modalLogin"); return; } abrirModal("modalMinhasCompras"); container.innerHTML = "<p>Carregando seus pedidos...</p>"; try { const pedidosRef = ref(db, "pedidos"); const snapshot = await get(pedidosRef); const dados = snapshot.val() || {}; const meusPedidos = Object.entries(dados) .map(([id, pedido]) => ({ ...pedido, id })) .filter(pedido => pedido.usuarioId === usuarioAtual.uid ) .sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0) ); if (!meusPedidos.length) { container.innerHTML = ` <div class="empty"> <div style="font-size:45px">📦</div> <h3>Você ainda não fez compras</h3> <p>Seus pedidos aparecerão aqui.</p> </div> `; return; } container.innerHTML = meusPedidos.map(pedido => { const produtosPedido = Array.isArray(pedido.produtos) ? pedido.produtos : []; const data = pedido.criadoEm ? new Date(pedido.criadoEm).toLocaleString("pt-BR") : "Data não informada"; const status = String(pedido.status || "em processamento") .replaceAll("_", " "); const itens = produtosPedido.map(produto => ` <div class="minha-compra-item"> <span> ${escaparHTML(produto.nome || "Produto")} × ${Number(produto.quantidade || 1)} </span> <strong>${moeda( Number(produto.preco || 0) * Number(produto.quantidade || 1) )}</strong> </div> `).join(""); return ` <article class="minha-compra-card"> <div class="minha-compra-topo"> <strong>Pedido #${escaparHTML(pedido.id)}</strong> <span class="minha-compra-status"> ${escaparHTML(status)} </span> </div> <p class="minha-compra-data">${escaparHTML(data)}</p> <div class="minha-compra-itens"> ${itens} </div> <div class="minha-compra-total"> <span>Total</span> <strong>${moeda(pedido.total)}</strong> </div> <p class="minha-compra-pagamento"> Pagamento: ${escaparHTML(pedido.pagamento || "Não informado")} </p> </article> `; }).join(""); } catch (erro) { console.error("Erro ao carregar compras:", erro); container.innerHTML = ` <p>Não foi possível carregar suas compras. Tente novamente.</p> `; } }; /* PROTEGE O HTML DOS DADOS EXIBIDOS */ function escaparHTML(valor) { return String(valor ?? "").replace(/[&<>"']/g, caractere => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[caractere]); } 
 
 /* =========================================================
    CARREGAR PRODUTOS
