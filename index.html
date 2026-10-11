@@ -2787,99 +2787,41 @@ window.renderProdutos = function(){
    CARREGAR PRODUTOS
 ========================================================= */
 
-function carregarProdutos(){
-
-    produtos =
-        [...produtosFicticios];
 
 
-    renderCategorias();
+function carregarProdutos() {
+    const produtosRef = ref(db, "produtos");
 
-    renderProdutos();
+    onValue(produtosRef, (snapshot) => {
+        const dadosFirebase = snapshot.val() || {};
 
+        // Produtos cadastrados no Firebase
+        const produtosDoFirebase = Object.entries(dadosFirebase)
+            .filter(([id, dados]) => dados && typeof dados === "object")
+            .map(([id, dados]) => ({
+                ...dados,
+                id: String(id),
+                imagem: dados.imagem || ""
+            }));
 
-    const produtosRef =
-        ref(
-            db,
-            "produtos"
-        );
-
-
-    onValue(
-        produtosRef,
-
-        snapshot => {
-
-            const dados =
-                snapshot.val();
-
-
-            const produtosFirebase =
-                [];
-
-
-            if(dados){
-
-                Object.entries(dados)
-                .forEach(
-                    ([id,produto]) => {
-
-                        if(!produto){
-                            return;
-                        }
-
-
-                        produtosFirebase.push({
-
-                            id,
-
-                            ...produto
-
-                        });
-
-                    }
-                );
-
-            }
-
-
-            produtos = [
-
-                ...produtosFicticios,
-
-                ...produtosFirebase.filter(
-                    p =>
-                        !String(
-                            p.id
-                        ).startsWith("demo")
-                )
-
-            ];
-
-
-            renderCategorias();
-
-            renderProdutos();
-
-        },
-
-        erro => {
-
-            console.error(
-                "Erro ao carregar produtos:",
-                erro
+        // Se existem produtos no Firebase, usa os dados deles.
+        // Caso contrário, mostra os produtos de demonstração.
+        if (produtosDoFirebase.length > 0) {
+            produtos = produtosDoFirebase.filter(produto =>
+                String(produto.status || "aprovado").toLowerCase() === "aprovado"
             );
-
-            produtos =
-                [...produtosFicticios];
-
-            renderCategorias();
-
-            renderProdutos();
-
+        } else {
+            produtos = (produtosFicticios || []).filter(produto =>
+                String(produto.status || "aprovado").toLowerCase() === "aprovado"
+            );
         }
-    );
 
+        renderProdutos();
+
+        console.log("Produtos carregados:", produtos);
+    }, (erro) => {
+        console.error("Erro ao carregar produtos:", erro);
+    });
 }
 
 
