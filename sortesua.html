@@ -1,0 +1,974 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#ff00dc">
+<title>BAHIA DA SORTE</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+:root {
+  --rosa: #ff00dc;
+  --verde: #16a34a;
+  --escuro: #171717;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #ff00dc;
+}
+
+.container {
+  width: 100%;
+  height: 100dvh;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.topo {
+  flex: 0 0 auto;
+  padding: 2px 0;
+  text-align: center;
+  color: white;
+}
+
+.topo h1 {
+  margin: 0;
+  font-size: clamp(17px, 4.5vw, 25px);
+}
+
+.topo p {
+  margin: 3px 0 0;
+  font-size: 12px;
+}
+
+.card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+#imagemPromocao {
+  display: block;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  object-fit: contain;
+  background: white;
+}
+
+.conteudo {
+  flex: 0 0 auto;
+  padding: 7px 12px;
+}
+
+.preco {
+  margin: 0;
+  text-align: center;
+  color: #d900a8;
+  font-size: clamp(20px, 5vw, 28px);
+  font-weight: 900;
+}
+
+.descricao {
+  margin: 3px 0;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.quantidade {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 7px 0;
+}
+
+.quantidade button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: #222;
+  color: white;
+  font-size: 23px;
+}
+
+#qtd {
+  font-size: 21px;
+  font-weight: bold;
+}
+
+.resumo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f3f3f3;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.resumo strong {
+  color: #15803d;
+  font-size: 19px;
+}
+
+.botao-principal {
+  width: 100%;
+  min-height: 46px;
+  padding: 8px;
+  border: 0;
+  border-radius: 9px;
+  background: #16a34a;
+  color: white;
+  font-size: clamp(12px, 3.5vw, 16px);
+  font-weight: 900;
+}
+
+.rodape {
+  flex: 0 0 auto;
+  padding: 2px;
+  color: white;
+  text-align: center;
+  font-size: 10px;
+}
+
+/* Em celulares baixos, economiza ainda mais espaço */
+@media (max-height: 700px) {
+  .topo h1 {
+    font-size: 17px;
+  }
+
+  .topo p {
+    font-size: 10px;
+  }
+
+  .conteudo {
+    padding: 4px 9px;
+  }
+
+  .preco {
+    font-size: 20px;
+  }
+
+  .quantidade {
+    margin: 4px 0;
+  }
+
+  .quantidade button {
+    width: 30px;
+    height: 30px;
+  }
+
+  .resumo {
+    margin-bottom: 5px;
+    padding: 5px 8px;
+  }
+
+  .botao-principal {
+    min-height: 40px;
+  }
+
+  .rodape {
+    display: none;
+  }
+}
+
+/* Os modais continuam podendo rolar se forem altos */
+.modal {
+  overflow-y: auto;
+}
+
+.modal-caixa {
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+
+
+.modal-caixa h2 {
+  text-align: center;
+  margin: 0 0 10px;
+  font-size: 23px;
+}
+
+.modal-caixa p {
+  text-align: center;
+  color: #555;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.campo {
+  margin-top: 14px;
+}
+
+.campo label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.campo input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+  outline-color: #d900a8;
+}
+
+.botoes-modal {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-verde,
+.btn-cinza {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-verde {
+  background: var(--verde);
+  color: white;
+}
+
+.btn-cinza {
+  background: #e5e5e5;
+  color: #222;
+}
+
+#qrcode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 18px auto;
+  min-height: 10px;
+}
+
+#qrcode img,
+#qrcode canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+
+.valor-pix {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 900;
+  color: #15803d;
+  margin: 12px 0;
+}
+
+.pix-chave {
+  padding: 12px;
+  background: #f3f4f6;
+  border-radius: 10px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  text-align: left;
+  max-height: 95px;
+  overflow-y: auto;
+}
+
+.aviso {
+  font-size: 12px !important;
+  color: #666 !important;
+}
+
+.erro {
+  color: #dc2626 !important;
+  font-size: 13px !important;
+}
+
+button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+/* Botões Voltar e Fechar lado a lado */
+#voltarCliente,
+#fecharPix {
+  width: 100%;
+  min-width: 0;
+}
+
+#modalPix .botoes-modal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+#modalPix #copiarWhatsApp {
+  grid-column: 1 / -1;
+}
+
+#modalPix #voltarCliente,
+#modalPix #fecharPix {
+  grid-column: auto;
+  margin: 0;
+}
+
+/* Mostrar o modal quando estiver ativo */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  overflow-y: auto;
+}
+
+.modal.ativo {
+  display: flex;
+}
+
+.modal-caixa {
+  width: 100%;
+  max-width: 420px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<main class="container">
+
+  <header class="topo">
+    <h1>🎯 BAHIA DA SORTE</h1>
+    <p>Escolha seus títulos e participe!</p>
+  </header>
+
+  <section class="card">
+
+    <img
+      id="imagemPromocao"
+      src="https://res.cloudinary.com/dtw3turzb/image/upload/v1792159602/bahiasorte.webp"
+      alt="Promoção Tripla Chance"
+    >
+
+    <div class="conteudo">
+
+      <div class="preco">R$ 5,00</div>
+
+      <p class="descricao">
+        Valor por título. Escolha a quantidade desejada
+        e confira o total antes de continuar.
+      </p>
+
+      <div class="quantidade">
+        <button id="diminuir" type="button" aria-label="Diminuir quantidade">−</button>
+        <span id="qtd">1</span>
+        <button id="aumentar" type="button" aria-label="Aumentar quantidade">+</button>
+      </div>
+
+      <div class="resumo">
+        <span>Total da compra</span>
+        <strong id="total">R$ 5,00</strong>
+      </div>
+
+      <button class="botao-principal" id="comprar" type="button">
+        🟢 COMPRAR AGORA PELO WHATSAPP
+      </button>
+
+      <p class="descricao">
+        Você informará seu telefone para continuar.
+        O CPF é opcional.
+      </p>
+
+    </div>
+  </section>
+
+  <footer class="rodape">
+    Tripla Chance
+  </footer>
+
+</main>
+
+<!-- MODAL DO CLIENTE -->
+
+<div class="modal" id="modalCliente" role="dialog" aria-modal="true" aria-labelledby="tituloCliente">
+  <div class="modal-caixa">
+
+    <h2 id="tituloCliente">👤 Seus dados</h2>
+
+    <p>
+      Informe seu telefone para continuar com a solicitação.
+    </p>
+
+    <form id="formCliente">
+
+      <div class="campo">
+        <label for="cpf">CPF (opcional)</label>
+        <input
+          id="cpf"
+          type="text"
+          inputmode="numeric"
+          maxlength="14"
+          placeholder="000.000.000-00"
+          autocomplete="off"
+        >
+      </div>
+
+      <div class="campo">
+        <label for="telefone">Telefone com DDD *</label>
+        <input
+          id="telefone"
+          type="tel"
+          inputmode="tel"
+          maxlength="16"
+          placeholder="(71) 99999-9999"
+          autocomplete="tel"
+          required
+        >
+      </div>
+
+      <p class="erro" id="erroCliente" hidden></p>
+
+      <div class="botoes-modal">
+        <button class="btn-verde" type="submit">
+          Continuar para o Pix
+        </button>
+
+        <button class="btn-cinza" id="fecharCliente" type="button">
+          Cancelar
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- MODAL PIX -->
+
+<div class="modal" id="modalPix" role="dialog" aria-modal="true" aria-labelledby="tituloPix">
+  <div class="modal-caixa">
+
+    <h2 id="tituloPix">💚 Pagamento via Pix</h2>
+
+    <p>Escaneie o QR Code com o aplicativo do seu banco.</p>
+
+    <div class="valor-pix" id="valorPix">R$ 5,00</div>
+
+    <div id="qrcode"></div>
+
+    <p><strong>Pix Copia e Cola</strong></p>
+
+    <div class="pix-chave" id="pixCopiaCola"></div>
+
+    <p class="aviso">
+ faca o pagamento pra dar validade a seu título 
+    </p>
+
+    <div class="botoes-modal">
+      <button class="btn-verde" id="copiarWhatsApp" type="button">
+        📋 COPIAR PIX E ABRIR WHATSAPP
+      </button>
+
+      <button class="btn-cinza" id="voltarCliente" type="button">
+        Voltar
+      </button>
+
+      <button class="btn-cinza" id="fecharPix" type="button">
+        Fechar
+      </button>
+    </div>
+
+    <p class="aviso" id="statusPix" role="status"></p>
+
+  </div>
+</div>
+
+<script type="module">
+import {
+  initializeApp,
+  getApps
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  onValue
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
+/* =====================================================
+   FIREBASE
+===================================================== */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB1lFw3PKVYqezBmf-TlcWlIoH_dG2EwkY",
+  authDomain: "marketplace-af9c4.firebaseapp.com",
+  databaseURL: "https://marketplace-af9c4-default-rtdb.firebaseio.com",
+  projectId: "marketplace-af9c4",
+  storageBucket: "marketplace-af9c4.firebasestorage.app",
+  messagingSenderId: "655705511573",
+  appId: "1:655705511573:web:3bb3728ca75c217374ed9c"
+};
+
+const app = getApps().length
+  ? getApps()[0]
+  : initializeApp(firebaseConfig);
+
+const db = getDatabase(app);
+
+/* =====================================================
+   CONFIGURAÇÕES DA PROMOÇÃO
+===================================================== */
+
+const PRECO = 5;
+const QUANTIDADE_MINIMA = 1;
+const QUANTIDADE_MAXIMA = 100;
+
+const CHAVE_PIX = "02562631595";
+const NOME_BENEFICIARIO = "CARLOS DOS SANTOS REIS";
+const CIDADE_BENEFICIARIO = "SALVADOR";
+
+const WHATSAPP = "5571992290058";
+
+let quantidade = 1;
+let dadosCliente = null;
+let payloadPixAtual = "";
+
+/* =====================================================
+   ELEMENTOS
+===================================================== */
+
+const $ = id => document.getElementById(id);
+
+function dinheiro(valor) {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+function totalCompra() {
+  return quantidade * PRECO;
+}
+
+function atualizarQuantidade() {
+  $("qtd").textContent = quantidade;
+  $("total").textContent = dinheiro(totalCompra());
+}
+
+$("diminuir").addEventListener("click", () => {
+  if (quantidade > QUANTIDADE_MINIMA) {
+    quantidade--;
+    atualizarQuantidade();
+  }
+});
+
+$("aumentar").addEventListener("click", () => {
+  if (quantidade < QUANTIDADE_MAXIMA) {
+    quantidade++;
+    atualizarQuantidade();
+  }
+});
+
+/* =====================================================
+   IMAGEM DINÂMICA DO FIREBASE
+===================================================== */
+
+const imagemPromocao = $("imagemPromocao");
+
+imagemPromocao.addEventListener("error", () => {
+  imagemPromocao.onerror = null;
+  imagemPromocao.src =
+    "https://res.cloudinary.com/dtw3turzb/image/upload/v1792159602/bahiasorte.webp";
+});
+
+onValue(
+  ref(db, "triplaChance/imagemUrl"),
+  snapshot => {
+    if (!snapshot.exists()) return;
+
+    const url = snapshot.val();
+
+    if (
+      typeof url === "string" &&
+      /^https:\/\//i.test(url)
+    ) {
+      imagemPromocao.src = url;
+    }
+  },
+  error => {
+    console.error("Não foi possível atualizar a imagem:", error);
+  }
+);
+
+/* =====================================================
+   MODAIS
+===================================================== */
+
+function abrirModal(id) {
+  $(id).classList.add("ativo");
+}
+
+function fecharModal(id) {
+  $(id).classList.remove("ativo");
+}
+
+$("comprar").addEventListener("click", () => {
+  $("erroCliente").hidden = true;
+  abrirModal("modalCliente");
+});
+
+$("fecharCliente").addEventListener("click", () => {
+  fecharModal("modalCliente");
+});
+
+$("fecharPix").addEventListener("click", () => {
+  fecharModal("modalPix");
+});
+
+$("voltarCliente").addEventListener("click", () => {
+  fecharModal("modalPix");
+  abrirModal("modalCliente");
+});
+
+document.querySelectorAll(".modal").forEach(modal => {
+  modal.addEventListener("click", event => {
+    if (event.target === modal) {
+      fecharModal(modal.id);
+    }
+  });
+});
+
+/* =====================================================
+   FORMATAÇÃO DE CPF E TELEFONE
+===================================================== */
+
+$("cpf").addEventListener("input", event => {
+  let v = event.target.value.replace(/\D/g, "").slice(0, 11);
+
+  v = v.replace(/(\d{3})(\d)/, "$1.$2");
+  v = v.replace(/(\d{3})(\d)/, "$1.$2");
+  v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+
+  event.target.value = v;
+});
+
+$("telefone").addEventListener("input", event => {
+  let v = event.target.value.replace(/\D/g, "").slice(0, 11);
+
+  if (v.length > 10) {
+    v = v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, "($1) $2-$3");
+  } else if (v.length > 6) {
+    v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, "($1) $2-$3");
+  } else if (v.length > 2) {
+    v = v.replace(/^(\d{2})(\d*)/, "($1) $2");
+  }
+
+  event.target.value = v;
+});
+
+/* =====================================================
+   PIX EMV
+===================================================== */
+
+function campoPix(id, valor) {
+  const texto = String(valor);
+  return id + String(texto.length).padStart(2, "0") + texto;
+}
+
+function crc16CCITT(texto) {
+  let crc = 0xFFFF;
+
+  for (let i = 0; i < texto.length; i++) {
+    crc ^= texto.charCodeAt(i) << 8;
+
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000)
+        ? ((crc << 1) ^ 0x1021)
+        : (crc << 1);
+
+      crc &= 0xFFFF;
+    }
+  }
+
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+
+function montarPix(valor) {
+  const nome = NOME_BENEFICIARIO
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Za-z0-9 ]/g, "")
+    .substring(0, 25);
+
+  const cidade = CIDADE_BENEFICIARIO
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Za-z0-9 ]/g, "")
+    .substring(0, 15);
+
+  const contaPix =
+    campoPix("00", "br.gov.bcb.pix") +
+    campoPix("01", CHAVE_PIX);
+
+  const merchantAccount = campoPix("26", contaPix);
+
+  const valorFormatado = valor.toFixed(2);
+
+  let payload =
+    campoPix("00", "01") +
+    campoPix("01", "12") +
+    merchantAccount +
+    campoPix("52", "0000") +
+    campoPix("53", "986") +
+    campoPix("54", valorFormatado) +
+    campoPix("58", "BR") +
+    campoPix("59", nome) +
+    campoPix("60", cidade) +
+    campoPix("62", campoPix("05", "***")) +
+    "6304";
+
+  payload += crc16CCITT(payload);
+
+  return payload;
+}
+
+/* =====================================================
+   ABRIR PIX E GERAR QR CODE
+===================================================== */
+
+function gerarQRCode(payload) {
+  $("qrcode").innerHTML = "";
+
+  if (typeof QRCode === "undefined") {
+    throw new Error("A biblioteca de QR Code não carregou.");
+  }
+
+  new QRCode($("qrcode"), {
+    text: payload,
+    width: 220,
+    height: 220,
+    colorDark: "#111111",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
+$("formCliente").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const cpf = $("cpf").value.replace(/\D/g, "");
+  const telefone = $("telefone").value.replace(/\D/g, "");
+
+  $("erroCliente").hidden = true;
+
+  if (cpf && cpf.length !== 11) {
+    $("erroCliente").textContent =
+      "Se informar o CPF, digite os 11 números.";
+    $("erroCliente").hidden = false;
+    return;
+  }
+
+  if (telefone.length < 10 || telefone.length > 11) {
+    $("erroCliente").textContent =
+      "Digite um telefone válido com DDD.";
+    $("erroCliente").hidden = false;
+    return;
+  }
+
+  dadosCliente = {
+    cpf: cpf || "Não informado",
+    telefone,
+    quantidade,
+    total: totalCompra()
+  };
+
+  try {
+    payloadPixAtual = montarPix(totalCompra());
+
+    $("valorPix").textContent = dinheiro(totalCompra());
+    $("pixCopiaCola").textContent = payloadPixAtual;
+
+    gerarQRCode(payloadPixAtual);
+
+    fecharModal("modalCliente");
+    abrirModal("modalPix");
+    $("statusPix").textContent = "";
+  } catch (erro) {
+    console.error(erro);
+    $("erroCliente").textContent =
+      "Não foi possível gerar o Pix. Tente novamente.";
+    $("erroCliente").hidden = false;
+  }
+});
+
+/* =====================================================
+   COPIAR PIX E ABRIR WHATSAPP
+===================================================== */
+
+
+/* =====================================================
+   COPIAR PIX E ABRIR WHATSAPP — CORRIGIDO
+===================================================== */
+
+
+/* =====================================================
+   COPIAR PIX E ABRIR WHATSAPP — ANDROID
+===================================================== */
+
+async function copiarTexto(texto) {
+  // Primeira tentativa: Clipboard API
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(texto);
+      return true;
+    } catch (erro) {
+      console.warn("Clipboard API falhou:", erro);
+    }
+  }
+
+  // Segunda tentativa: cópia tradicional
+  const textarea = document.createElement("textarea");
+
+  textarea.value = texto;
+  textarea.readOnly = true;
+  textarea.style.position = "fixed";
+  textarea.style.top = "0";
+  textarea.style.left = "0";
+  textarea.style.width = "1px";
+  textarea.style.height = "1px";
+  textarea.style.opacity = "0";
+
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  textarea.setSelectionRange(0, texto.length);
+
+  let sucesso = false;
+
+  try {
+    sucesso = document.execCommand("copy");
+  } catch (erro) {
+    console.warn("Cópia tradicional falhou:", erro);
+  }
+
+  textarea.remove();
+
+  if (!sucesso) {
+    throw new Error("O navegador bloqueou a cópia.");
+  }
+
+  return true;
+}
+
+$("copiarWhatsApp").addEventListener("click", async () => {
+  if (!dadosCliente || !payloadPixAtual) {
+    $("statusPix").textContent =
+      "Gere o Pix antes de continuar.";
+    return;
+  }
+
+  const botao = $("copiarWhatsApp");
+
+  const mensagem = [
+    "Olá! Quero continuar minha solicitação da promoção BAHIA DA SORTE.",
+    "",
+    "Quantidade: " + dadosCliente.quantidade,
+    "Valor total: " + dinheiro(dadosCliente.total),
+    "Telefone: " + dadosCliente.telefone,
+    "CPF: " + dadosCliente.cpf,
+    "",
+    "Pix Copia e Cola:",
+    payloadPixAtual,
+    "",
+    "Aguardo as instruções para confirmar minha participação."
+  ].join("\n");
+
+  const urlWhatsApp =
+    "https://wa.me/" + WHATSAPP +
+    "?text=" + encodeURIComponent(mensagem);
+
+  botao.disabled = true;
+  botao.textContent = "Copiando Pix...";
+
+  let copiado = false;
+
+  try {
+    copiado = await copiarTexto(payloadPixAtual);
+  } catch (erro) {
+    console.error("Erro ao copiar Pix:", erro);
+  }
+
+  botao.disabled = false;
+
+  if (copiado) {
+    $("statusPix").textContent =
+      "✅ Pix copiado! Cole o código no seu banco. Abrindo WhatsApp...";
+
+    botao.textContent = "✅ PIX COPIADO";
+
+    // Abre o WhatsApp após a tentativa de cópia.
+    window.location.href = urlWhatsApp;
+
+    setTimeout(() => {
+      botao.textContent = "📋 COPIAR PIX E ABRIR WHATSAPP";
+    }, 2500);
+
+  } else {
+    $("statusPix").textContent =
+      "Não foi possível copiar automaticamente. Toque e segure o código Pix acima, selecione Copiar e depois abra o WhatsApp.";
+
+    botao.textContent = "TENTAR NOVAMENTE";
+  }
+});
+
+/* =====================================================
+   INICIALIZAÇÃO
+===================================================== */
+
+atualizarQuantidade();
+</script>
+
+</body>
+</html>
