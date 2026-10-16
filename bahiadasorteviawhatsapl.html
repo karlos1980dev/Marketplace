@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -847,16 +846,22 @@ $("formCliente").addEventListener("submit", event => {
    COPIAR PIX E ABRIR WHATSAPP
 ===================================================== */
 
+
+/* =====================================================
+   COPIAR PIX E ABRIR WHATSAPP — CORRIGIDO
+===================================================== */
+
 async function copiarTexto(texto) {
   if (navigator.clipboard && window.isSecureContext) {
     await navigator.clipboard.writeText(texto);
-    return;
+    return true;
   }
 
   const textarea = document.createElement("textarea");
   textarea.value = texto;
+  textarea.setAttribute("readonly", "");
   textarea.style.position = "fixed";
-  textarea.style.opacity = "0";
+  textarea.style.left = "-9999px";
 
   document.body.appendChild(textarea);
   textarea.select();
@@ -865,60 +870,69 @@ async function copiarTexto(texto) {
   textarea.remove();
 
   if (!sucesso) {
-    throw new Error("Não foi possível copiar automaticamente.");
+    throw new Error("Não foi possível copiar o Pix.");
   }
+
+  return true;
 }
 
 $("copiarWhatsApp").addEventListener("click", async () => {
-  if (!dadosCliente || !payloadPixAtual) return;
+  if (!dadosCliente || !payloadPixAtual) {
+    $("statusPix").textContent =
+      "Gere o Pix antes de continuar.";
+    return;
+  }
 
   const botao = $("copiarWhatsApp");
 
   const mensagemWhatsApp = [
-    "Olá! Quero continuar minha solicitação da promoção Tripla Chance.",
+    "Olá! Quero continuar minha solicitação da promoção BAHIA DA SORTE.",
     "",
-    "Quantidade: " + dadosCliente.quantidade,
+    "Quantidade de títulos: " + dadosCliente.quantidade,
     "Valor total: " + dinheiro(dadosCliente.total),
     "Telefone: " + dadosCliente.telefone,
     "CPF: " + dadosCliente.cpf,
     "",
-    "Pix Copia e Cola:",
+    "PIX COPIA E COLA:",
     payloadPixAtual,
     "",
-    "Aguardarei as instruções para confirmar a participação."
+    "Aguardo as instruções para confirmar minha participação."
   ].join("\n");
 
   const urlWhatsApp =
     "https://wa.me/" + WHATSAPP +
     "?text=" + encodeURIComponent(mensagemWhatsApp);
 
-  // Abrir a janela durante o clique para reduzir bloqueios do navegador.
-  const janelaWhatsApp = window.open("about:blank", "_blank");
-
   botao.disabled = true;
-  botao.textContent = "Copiando Pix...";
+  botao.textContent = "Abrindo WhatsApp...";
+
+  // Abre diretamente o endereço do WhatsApp no clique.
+  // Não utiliza a janela intermediária about:blank.
+  const novaJanela = window.open(
+    urlWhatsApp,
+    "_blank"
+  );
+
+  // Se o navegador bloquear a nova janela,
+  // tenta abrir o WhatsApp na página atual.
+  if (!novaJanela) {
+    window.location.href = urlWhatsApp;
+  }
 
   try {
     await copiarTexto(payloadPixAtual);
 
-    if (janelaWhatsApp) {
-      janelaWhatsApp.location.href = urlWhatsApp;
-    } else {
-      window.location.href = urlWhatsApp;
-    }
-
     $("statusPix").textContent =
-      "Pix copiado. Confira o pagamento no seu banco e continue pelo WhatsApp.";
+      "Código Pix copiado! Confira o WhatsApp para continuar.";
   } catch (erro) {
-    if (janelaWhatsApp) janelaWhatsApp.close();
+    console.error("Erro ao copiar Pix:", erro);
 
     $("statusPix").textContent =
-      "Não foi possível copiar automaticamente. Copie o código Pix acima e tente novamente.";
-
-    console.error(erro);
+      "O WhatsApp foi solicitado para abrir. Se necessário, copie o Pix manualmente.";
   } finally {
     botao.disabled = false;
-    botao.textContent = "📋 COPIAR PIX E ABRIR WHATSAPP";
+    botao.textContent =
+      "📋 COPIAR PIX E ABRIR WHATSAPP";
   }
 });
 
