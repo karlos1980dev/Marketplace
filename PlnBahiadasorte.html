@@ -1,0 +1,256 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel - Tripla Chance</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  background: #ff00dc;
+}
+
+.painel {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px #0003;
+}
+
+h2 {
+  text-align: center;
+  color: #8b008b;
+}
+
+input, button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+input {
+  border: 1px solid #ccc;
+}
+
+button {
+  border: none;
+  background: #16a34a;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#mensagem {
+  margin-top: 15px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+#areaPainel {
+  display: none;
+}
+
+#previa {
+  display: none;
+  width: 100%;
+  max-height: 250px;
+  object-fit: contain;
+  margin-top: 15px;
+  border-radius: 10px;
+}
+
+.pequeno {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.5;
+}
+</style>
+</head>
+
+<body>
+
+<div class="painel">
+  <h2>🎯 Tripla Chance</h2>
+  <p style="text-align:center">Painel de alteração da imagem</p>
+
+  <div id="areaLogin">
+    <input
+      id="senha"
+      type="password"
+      placeholder="Senha administrativa"
+      autocomplete="current-password"
+    >
+    <button id="entrar">Entrar no painel</button>
+  </div>
+
+  <div id="areaPainel">
+    <label for="urlImagem">Link público da nova imagem:</label>
+
+    <input
+      id="urlImagem"
+      type="url"
+      placeholder="https://exemplo.com/imagem.webp"
+    >
+
+    <button id="verImagem">Visualizar imagem</button>
+
+    <img id="previa" alt="Pré-visualização da promoção">
+
+    <button id="salvar">💾 Salvar imagem</button>
+
+    <button id="sair" style="background:#555">
+      Sair do painel
+    </button>
+
+    <p class="pequeno">
+      Use um link HTTPS direto para uma imagem pública.
+      A imagem será exibida na página principal após salvar.
+    </p>
+  </div>
+
+  <div id="mensagem" role="status"></div>
+</div>
+
+<script type="module">
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  get,
+  set
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB1lFw3PKVYqezBmf-TlcWlIoH_dG2EwkY",
+  authDomain: "marketplace-af9c4.firebaseapp.com",
+  databaseURL: "https://marketplace-af9c4-default-rtdb.firebaseio.com",
+  projectId: "marketplace-af9c4",
+  storageBucket: "marketplace-af9c4.firebasestorage.app",
+  messagingSenderId: "655705511573",
+  appId: "1:655705511573:web:3bb3728ca75c217374ed9c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const CAMINHO = "triplaChance/imagemUrl";
+
+// Senha simples para teste.
+// ATENÇÃO: não é uma proteção segura para um site público.
+const SENHA = "313120";
+
+const $ = id => document.getElementById(id);
+
+function mensagem(texto, erro = false) {
+  $("mensagem").textContent = texto;
+  $("mensagem").style.color = erro ? "#dc2626" : "#15803d";
+}
+
+$("entrar").addEventListener("click", () => {
+  if ($("senha").value !== SENHA) {
+    mensagem("Senha incorreta.", true);
+    return;
+  }
+
+  $("areaLogin").style.display = "none";
+  $("areaPainel").style.display = "block";
+  mensagem("Acesso liberado.");
+
+  get(ref(db, CAMINHO))
+    .then(snapshot => {
+      if (snapshot.exists()) {
+        $("urlImagem").value = snapshot.val();
+      }
+    })
+    .catch(() => {
+      mensagem(
+        "Não foi possível carregar a imagem salva. Verifique o Firebase.",
+        true
+      );
+    });
+});
+
+$("senha").addEventListener("keydown", event => {
+  if (event.key === "Enter") $("entrar").click();
+});
+
+$("verImagem").addEventListener("click", () => {
+  const url = $("urlImagem").value.trim();
+
+  try {
+    const endereco = new URL(url);
+
+    if (endereco.protocol !== "https:") {
+      throw new Error("Use um endereço HTTPS.");
+    }
+
+    $("previa").onload = () => mensagem("Imagem carregada.");
+    $("previa").onerror = () => {
+      $("previa").style.display = "none";
+      mensagem("Não foi possível carregar essa imagem.", true);
+    };
+
+    $("previa").src = url;
+    $("previa").style.display = "block";
+  } catch {
+    mensagem("Digite um link HTTPS válido.", true);
+  }
+});
+
+$("salvar").addEventListener("click", async () => {
+  const url = $("urlImagem").value.trim();
+
+  try {
+    const endereco = new URL(url);
+
+    if (endereco.protocol !== "https:") {
+      throw new Error("Link inválido");
+    }
+
+    $("salvar").disabled = true;
+    $("salvar").textContent = "Salvando...";
+
+    await set(ref(db, CAMINHO), url);
+
+    mensagem("Imagem salva! A página principal será atualizada.");
+  } catch (erro) {
+    mensagem(
+      "Erro ao salvar. Verifique o link e as regras do Firebase.",
+      true
+    );
+  } finally {
+    $("salvar").disabled = false;
+    $("salvar").textContent = "💾 Salvar imagem";
+  }
+});
+
+$("sair").addEventListener("click", () => {
+  $("areaPainel").style.display = "none";
+  $("areaLogin").style.display = "block";
+  $("senha").value = "";
+  $("previa").style.display = "none";
+  mensagem("Você saiu do painel.");
+});
+</script>
+
+</body>
+</html>
