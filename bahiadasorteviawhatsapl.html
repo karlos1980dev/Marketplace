@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -851,26 +852,51 @@ $("formCliente").addEventListener("submit", event => {
    COPIAR PIX E ABRIR WHATSAPP — CORRIGIDO
 ===================================================== */
 
+
+/* =====================================================
+   COPIAR PIX E ABRIR WHATSAPP — ANDROID
+===================================================== */
+
 async function copiarTexto(texto) {
+  // Primeira tentativa: Clipboard API
   if (navigator.clipboard && window.isSecureContext) {
-    await navigator.clipboard.writeText(texto);
-    return true;
+    try {
+      await navigator.clipboard.writeText(texto);
+      return true;
+    } catch (erro) {
+      console.warn("Clipboard API falhou:", erro);
+    }
   }
 
+  // Segunda tentativa: cópia tradicional
   const textarea = document.createElement("textarea");
+
   textarea.value = texto;
-  textarea.setAttribute("readonly", "");
+  textarea.readOnly = true;
   textarea.style.position = "fixed";
-  textarea.style.left = "-9999px";
+  textarea.style.top = "0";
+  textarea.style.left = "0";
+  textarea.style.width = "1px";
+  textarea.style.height = "1px";
+  textarea.style.opacity = "0";
 
   document.body.appendChild(textarea);
+  textarea.focus();
   textarea.select();
+  textarea.setSelectionRange(0, texto.length);
 
-  const sucesso = document.execCommand("copy");
+  let sucesso = false;
+
+  try {
+    sucesso = document.execCommand("copy");
+  } catch (erro) {
+    console.warn("Cópia tradicional falhou:", erro);
+  }
+
   textarea.remove();
 
   if (!sucesso) {
-    throw new Error("Não foi possível copiar o Pix.");
+    throw new Error("O navegador bloqueou a cópia.");
   }
 
   return true;
@@ -885,15 +911,15 @@ $("copiarWhatsApp").addEventListener("click", async () => {
 
   const botao = $("copiarWhatsApp");
 
-  const mensagemWhatsApp = [
+  const mensagem = [
     "Olá! Quero continuar minha solicitação da promoção BAHIA DA SORTE.",
     "",
-    "Quantidade de títulos: " + dadosCliente.quantidade,
+    "Quantidade: " + dadosCliente.quantidade,
     "Valor total: " + dinheiro(dadosCliente.total),
     "Telefone: " + dadosCliente.telefone,
     "CPF: " + dadosCliente.cpf,
     "",
-    "PIX COPIA E COLA:",
+    "Pix Copia e Cola:",
     payloadPixAtual,
     "",
     "Aguardo as instruções para confirmar minha participação."
@@ -901,38 +927,39 @@ $("copiarWhatsApp").addEventListener("click", async () => {
 
   const urlWhatsApp =
     "https://wa.me/" + WHATSAPP +
-    "?text=" + encodeURIComponent(mensagemWhatsApp);
+    "?text=" + encodeURIComponent(mensagem);
 
   botao.disabled = true;
-  botao.textContent = "Abrindo WhatsApp...";
+  botao.textContent = "Copiando Pix...";
 
-  // Abre diretamente o endereço do WhatsApp no clique.
-  // Não utiliza a janela intermediária about:blank.
-  const novaJanela = window.open(
-    urlWhatsApp,
-    "_blank"
-  );
-
-  // Se o navegador bloquear a nova janela,
-  // tenta abrir o WhatsApp na página atual.
-  if (!novaJanela) {
-    window.location.href = urlWhatsApp;
-  }
+  let copiado = false;
 
   try {
-    await copiarTexto(payloadPixAtual);
-
-    $("statusPix").textContent =
-      "Código Pix copiado! Confira o WhatsApp para continuar.";
+    copiado = await copiarTexto(payloadPixAtual);
   } catch (erro) {
     console.error("Erro ao copiar Pix:", erro);
+  }
 
+  botao.disabled = false;
+
+  if (copiado) {
     $("statusPix").textContent =
-      "O WhatsApp foi solicitado para abrir. Se necessário, copie o Pix manualmente.";
-  } finally {
-    botao.disabled = false;
-    botao.textContent =
-      "📋 COPIAR PIX E ABRIR WHATSAPP";
+      "✅ Pix copiado! Cole o código no seu banco. Abrindo WhatsApp...";
+
+    botao.textContent = "✅ PIX COPIADO";
+
+    // Abre o WhatsApp após a tentativa de cópia.
+    window.location.href = urlWhatsApp;
+
+    setTimeout(() => {
+      botao.textContent = "📋 COPIAR PIX E ABRIR WHATSAPP";
+    }, 2500);
+
+  } else {
+    $("statusPix").textContent =
+      "Não foi possível copiar automaticamente. Toque e segure o código Pix acima, selecione Copiar e depois abra o WhatsApp.";
+
+    botao.textContent = "TENTAR NOVAMENTE";
   }
 });
 
