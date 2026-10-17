@@ -1,0 +1,678 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ff00dc">
+<title>Painel Administrativo - Tripla Chance</title>
+
+<style>
+:root {
+  --rosa: #ff00dc;
+  --roxo: #8b008b;
+  --verde: #16a34a;
+  --fundo: #f5f5f8;
+  --borda: #e5e7eb;
+  --texto: #222;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+}
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+.topo {
+  background: linear-gradient(135deg, #ff00dc, #8b008b);
+  color: white;
+  padding: 20px 16px;
+}
+.topo-conteudo { max-width: 1100px; margin: auto; }
+.topo h1 { margin: 0; font-size: 23px; }
+.topo p { margin: 7px 0 0; font-size: 13px; }
+.container {
+  width: 100%;
+  max-width: 1100px;
+  margin: auto;
+  padding: 15px;
+}
+#areaLogin {
+  max-width: 420px;
+  margin: 50px auto;
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 5px 25px #0001;
+}
+#areaLogin h2 { text-align: center; }
+input, select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  background: white;
+  min-width: 0;
+}
+label {
+  display: block;
+  margin: 12px 0 6px;
+  font-size: 13px;
+  font-weight: bold;
+}
+.btn {
+  border: 0;
+  border-radius: 9px;
+  padding: 12px 14px;
+  background: var(--verde);
+  color: white;
+  font-weight: bold;
+}
+.btn-secundario { background: #374151; color: white; }
+.btn-rosa { background: var(--rosa); color: white; }
+.btn-perigo { background: #dc2626; color: white; }
+.btn-claro { background: #f3f4f6; color: #222; border: 1px solid #ddd; }
+.btn:disabled, .btn-excluir:disabled { opacity: .6; cursor: wait; }
+.largura-total { width: 100%; }
+#mensagem, #mensagemLogin {
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.escondido { display: none !important; }
+.menu {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 5px 0 14px;
+}
+.menu button {
+  white-space: nowrap;
+  border: 1px solid #ddd;
+  border-radius: 9px;
+  padding: 11px 14px;
+  background: white;
+  color: #333;
+  font-weight: bold;
+}
+.menu button.ativo {
+  background: var(--roxo);
+  color: white;
+  border-color: var(--roxo);
+}
+.grade-resumo {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.resumo {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid var(--borda);
+  min-width: 0;
+}
+.resumo small {
+  display: block;
+  color: #666;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.resumo strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 22px;
+  overflow-wrap: anywhere;
+}
+.cartao {
+  background: white;
+  border: 1px solid var(--borda);
+  border-radius: 13px;
+  padding: 16px;
+  margin-bottom: 14px;
+  min-width: 0;
+}
+.cartao h2 { margin: 0 0 10px; font-size: 18px; }
+.subtitulo { font-size: 13px; color: #666; line-height: 1.5; }
+.filtros {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+  margin: 14px 0;
+}
+.filtros label { margin-top: 0; }
+.lista { display: grid; gap: 12px; }
+.solicitacao {
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 14px;
+  background: #fff;
+  min-width: 0;
+}
+.solicitacao-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.solicitacao h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+.id-registro { font-size: 11px; color: #777; overflow-wrap: anywhere; }
+.dados {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+.dado { min-width: 0; overflow-wrap: anywhere; }
+.dado small { display: block; color: #777; margin-bottom: 5px; font-size: 11px; }
+.dado strong { font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.valor-destaque { color: #15803d; font-size: 19px !important; }
+.etiqueta {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 6px 9px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: bold;
+}
+.etiqueta-pago { background: #dcfce7; color: #166534; }
+.etiqueta-cancelado { background: #fee2e2; color: #991b1b; }
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: end;
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+  margin-top: 10px;
+}
+.acoes .campo-status { flex: 1 1 200px; min-width: 0; }
+.acoes button { padding: 10px 12px; font-size: 12px; }
+.acoes label { margin-top: 0; }
+.btn-excluir {
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  padding: 0 !important;
+  font-size: 25px !important;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.btn-excluir:hover { background: #991b1b; }
+.vazio {
+  padding: 30px 12px;
+  text-align: center;
+  color: #777;
+  border: 1px dashed #ccc;
+  border-radius: 12px;
+  line-height: 1.6;
+}
+#previa {
+  display: none;
+  width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  margin-top: 12px;
+  border-radius: 10px;
+  background: #f3f4f6;
+}
+.pix-registro {
+  display: none;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+.rodape { text-align: center; color: #777; font-size: 11px; padding: 20px; }
+
+@media (max-width: 650px) {
+  .grade-resumo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filtros { grid-template-columns: 1fr; }
+  .dados { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .topo h1 { font-size: 20px; }
+  .container { padding: 10px; }
+  .cartao { padding: 12px; }
+  .acoes .campo-status { flex-basis: 100%; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topo">
+  <div class="topo-conteudo">
+    <h1>🎯 Painel Administrativo</h1>
+    <p>Tripla Chance / Bahia da Sorte</p>
+  </div>
+</header>
+
+<section id="areaLogin" class="container">
+  <h2>🔐 Acesso administrativo</h2>
+  <p class="subtitulo">Entre para administrar as solicitações e a imagem da promoção.</p>
+
+  <form id="formLogin">
+    <label for="senha">Senha administrativa</label>
+    <input id="senha" type="password" placeholder="Digite sua senha" autocomplete="current-password" required>
+    <button id="entrar" class="btn largura-total" type="submit" style="margin-top:14px">
+      Entrar no painel
+    </button>
+  </form>
+  <div id="mensagemLogin" role="status"></div>
+</section>
+
+<main id="areaPainel" class="container escondido">
+  <div class="menu">
+    <button class="ativo" data-aba="solicitacoes">📋 Solicitações</button>
+    <button data-aba="imagem">🖼️ Imagem da promoção</button>
+    <button data-aba="config">⚙️ Informações</button>
+    <button id="sair" class="btn-secundario">Sair</button>
+  </div>
+
+  <div id="mensagem" role="status" aria-live="polite"></div>
+
+  <section id="aba-solicitacoes">
+    <div class="grade-resumo">
+      <div class="resumo"><small>Total de solicitações</small><strong id="totalSolicitacoes">0</strong></div>
+      <div class="resumo"><small>Aguardando pagamento</small><strong id="totalPendentes">0</strong></div>
+      <div class="resumo"><small>Pagamentos confirmados</small><strong id="totalPagos">0</strong></div>
+      <div class="resumo"><small>Valor confirmado</small><strong id="valorConfirmado">R$ 0,00</strong></div>
+    </div>
+
+    <div class="cartao">
+      <h2>📋 Solicitações dos clientes</h2>
+      <p class="subtitulo">
+        Consulte nome completo, e-mail, data de nascimento, CPF, telefone,
+        quantidade, valor, data, hora e status. Lista atualizada em tempo real.
+      </p>
+
+      <div class="filtros">
+        <div>
+          <label for="pesquisa">Pesquisar cliente</label>
+          <input id="pesquisa" type="search" placeholder="Nome, e-mail, telefone, CPF ou código">
+        </div>
+        <div>
+          <label for="filtroStatus">Filtrar status</label>
+          <select id="filtroStatus">
+            <option value="todos">Todos</option>
+            <option value="aguardando_pagamento">Aguardando pagamento</option>
+            <option value="pago">Pago / confirmado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+        <button id="atualizarLista" class="btn btn-secundario" type="button">Atualizar</button>
+      </div>
+
+      <div id="carregamento" class="subtitulo">Carregando solicitações...</div>
+      <div id="listaSolicitacoes" class="lista"></div>
+    </div>
+  </section>
+
+  <section id="aba-imagem" class="escondido">
+    <div class="cartao">
+      <h2>🖼️ Imagem da promoção</h2>
+      <p class="subtitulo">Cole o link HTTPS público da imagem.</p>
+      <label for="urlImagem">Link da imagem</label>
+      <input id="urlImagem" type="url" placeholder="https://exemplo.com/imagem.webp">
+      <img id="previa" alt="Pré-visualização da imagem">
+      <div class="acoes">
+        <button id="verImagem" class="btn btn-secundario" type="button">Visualizar</button>
+        <button id="salvarImagem" class="btn" type="button">💾 Salvar imagem</button>
+      </div>
+      <p class="subtitulo">Caminho Firebase: triplaChance/imagemUrl.</p>
+    </div>
+  </section>
+
+  <section id="aba-config" class="escondido">
+    <div class="cartao">
+      <h2>⚙️ Informações do sistema</h2>
+      <p><strong>Solicitações:</strong> triplaChance/solicitacoes</p>
+      <p><strong>Imagem:</strong> triplaChance/imagemUrl</p>
+      <p><strong>Preço por título:</strong> R$ 5,00</p>
+      <p><strong>Projeto Firebase:</strong> marketplace-af9c4</p>
+      <p class="subtitulo">
+        Confirme o pagamento no aplicativo bancário antes de marcar uma solicitação como paga.
+        A senha local deste exemplo não protege o banco contra acesso externo.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="rodape">Painel administrativo • Tripla Chance</footer>
+
+<script type="module">
+import { initializeApp, getApps }
+  from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+  getDatabase, ref, get, set, onValue, update, remove
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBEV39n-6Gcg9v5MebUprlPgF_1DKxNq9s",
+  authDomain: "vivasuasorte-8531f.firebaseapp.com",
+  projectId: "vivasuasorte-8531f",
+  storageBucket: "vivasuasorte-8531f.firebasestorage.app",
+  messagingSenderId: "1013806826975",
+  appId: "1:1013806826975:web:5388af838e05e898b1f06a"
+};
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const CAMINHO_SOLICITACOES = "triplaChance/solicitacoes";
+const CAMINHO_IMAGEM = "triplaChance/imagemUrl";
+
+/*
+  DEMONSTRAÇÃO:
+  Esta senha é verificada no navegador e NÃO é autenticação segura.
+  Configure Firebase Authentication e regras de banco para proteger os dados.
+*/
+const SENHA = "313120";
+
+const $ = id => document.getElementById(id);
+let solicitacoes = {};
+let pararEscutaSolicitacoes = null;
+let pararEscutaImagem = null;
+let salvandoImagem = false;
+const excluindoIds = new Set();
+
+function dinheiro(valor) {
+  const numero = Number(valor);
+  return (Number.isFinite(numero) ? numero : 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+function mensagem(texto, erro = false) {
+  $("mensagem").textContent = texto;
+  $("mensagem").style.color = erro ? "#dc2626" : "#15803d";
+}
+
+function criarElemento(tag, texto, classe) {
+  const elemento = document.createElement(tag);
+  if (texto !== undefined && texto !== null) elemento.textContent = String(texto);
+  if (classe) elemento.className = classe;
+  return elemento;
+}
+
+function formatarData(registro) {
+  if (registro.dataHora) return registro.dataHora;
+
+  if (registro.criadoEm) {
+    const data = new Date(registro.criadoEm);
+    if (!Number.isNaN(data.getTime())) {
+      return new Intl.DateTimeFormat("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+        dateStyle: "short",
+        timeStyle: "medium"
+      }).format(data);
+    }
+  }
+
+  return "Data não informada";
+}
+
+function nomeStatus(status) {
+  if (status === "pago" || status === "confirmado") return "Pago / confirmado";
+  if (status === "cancelado") return "Cancelado";
+  if (status === "aguardando_pagamento" || status === "aguardando") return "Aguardando pagamento";
+  return status || "Não informado";
+}
+
+function classeStatus(status) {
+  if (status === "pago" || status === "confirmado") return "etiqueta etiqueta-pago";
+  if (status === "cancelado") return "etiqueta etiqueta-cancelado";
+  return "etiqueta";
+}
+
+/* LOGIN */
+$("formLogin").addEventListener("submit", async event => {
+  event.preventDefault();
+  $("mensagemLogin").textContent = "";
+
+  if ($("senha").value !== SENHA) {
+    $("mensagemLogin").textContent = "Senha incorreta.";
+    $("mensagemLogin").style.color = "#dc2626";
+    return;
+  }
+
+  $("entrar").disabled = true;
+  $("entrar").textContent = "Conectando...";
+
+  try {
+    await get(ref(db, CAMINHO_SOLICITACOES));
+    $("areaLogin").classList.add("escondido");
+    $("areaPainel").classList.remove("escondido");
+    mensagem("Painel conectado ao Firebase.");
+    iniciarEscutas();
+  } catch (erro) {
+    console.error(erro);
+    $("mensagemLogin").textContent =
+      "Não foi possível acessar o Firebase. Verifique a conexão e as permissões.";
+    $("mensagemLogin").style.color = "#dc2626";
+  } finally {
+    $("entrar").disabled = false;
+    $("entrar").textContent = "Entrar no painel";
+  }
+});
+
+/* ABAS */
+document.querySelectorAll("[data-aba]").forEach(botao => {
+  botao.addEventListener("click", () => {
+    const aba = botao.dataset.aba;
+
+    document.querySelectorAll("[data-aba]").forEach(item => {
+      item.classList.toggle("ativo", item === botao);
+    });
+
+    ["solicitacoes", "imagem", "config"].forEach(nome => {
+      $("aba-" + nome).classList.toggle("escondido", nome !== aba);
+    });
+  });
+});
+
+/* ESCUTAS FIREBASE */
+function iniciarEscutas() {
+  if (pararEscutaSolicitacoes) pararEscutaSolicitacoes();
+  if (pararEscutaImagem) pararEscutaImagem();
+
+  pararEscutaSolicitacoes = onValue(
+    ref(db, CAMINHO_SOLICITACOES),
+    snapshot => {
+      solicitacoes = snapshot.exists() ? snapshot.val() : {};
+      $("carregamento").textContent = snapshot.exists()
+        ? ""
+        : "Nenhuma solicitação registrada ainda.";
+      atualizarResumo();
+      renderizarSolicitacoes();
+    },
+    erro => {
+      console.error(erro);
+      $("carregamento").textContent =
+        "Erro ao ler solicitações. Verifique as regras do Firebase.";
+    }
+  );
+
+  pararEscutaImagem = onValue(
+    ref(db, CAMINHO_IMAGEM),
+    snapshot => {
+      if (snapshot.exists() && typeof snapshot.val() === "string") {
+        $("urlImagem").value = snapshot.val();
+      }
+    },
+    erro => console.error("Erro ao carregar imagem:", erro)
+  );
+}
+
+function listaRegistros() {
+  return Object.entries(solicitacoes || {}).map(([id, dados]) => ({
+    id,
+    ...(dados && typeof dados === "object" ? dados : {})
+  }));
+}
+
+/* RESUMO */
+function atualizarResumo() {
+  const registros = listaRegistros();
+
+  const pagos = registros.filter(r =>
+    r.status === "pago" || r.status === "confirmado"
+  );
+
+  const pendentes = registros.filter(r =>
+    !["pago", "confirmado", "cancelado"].includes(r.status)
+  );
+
+  const valorPago = pagos.reduce((soma, r) => {
+    const valor = Number(r.valor);
+    return soma + (Number.isFinite(valor) ? valor : 0);
+  }, 0);
+
+  $("totalSolicitacoes").textContent = registros.length;
+  $("totalPendentes").textContent = pendentes.length;
+  $("totalPagos").textContent = pagos.length;
+  $("valorConfirmado").textContent = dinheiro(valorPago);
+}
+
+function adicionarDado(container, titulo, valor, destaque = false) {
+  const bloco = criarElemento("div", undefined, "dado");
+  bloco.appendChild(criarElemento("small", titulo));
+  bloco.appendChild(criarElemento(
+    "strong",
+    valor === undefined || valor === null || valor === "" ? "Não informado" : valor,
+    destaque ? "valor-destaque" : ""
+  ));
+  container.appendChild(bloco);
+}
+
+/* EXCLUSÃO */
+async function excluirSolicitacao(registro, botao) {
+  if (excluindoIds.has(registro.id)) return;
+
+  const confirmar = confirm(
+    "Deseja realmente excluir esta solicitação?\n\n" +
+    "Código: " + registro.id +
+    "\nCliente: " + (registro.nomeCompleto || registro.telefone || "Não informado") +
+    "\nValor: " + dinheiro(registro.valor) +
+    "\nStatus: " + nomeStatus(registro.status) +
+    "\n\nEsta ação não poderá ser desfeita."
+  );
+
+  if (!confirmar) return;
+
+  excluindoIds.add(registro.id);
+  botao.disabled = true;
+  botao.textContent = "...";
+
+  try {
+    await remove(ref(db, CAMINHO_SOLICITACOES + "/" + registro.id));
+    mensagem("Solicitação excluída com sucesso.");
+  } catch (erro) {
+    console.error(erro);
+    mensagem("Não foi possível excluir. Verifique as permissões do Firebase.", true);
+  } finally {
+    excluindoIds.delete(registro.id);
+    botao.disabled = false;
+    botao.textContent = "×";
+  }
+}
+
+/* LISTA */
+function renderizarSolicitacoes() {
+  const lista = $("listaSolicitacoes");
+  lista.replaceChildren();
+
+  const pesquisa = $("pesquisa").value.trim().toLowerCase();
+  const filtro = $("filtroStatus").value;
+
+  const registros = listaRegistros()
+    .sort((a, b) => (Date.parse(b.criadoEm || "") || 0) - (Date.parse(a.criadoEm || "") || 0))
+    .filter(registro => {
+      const texto = [
+        registro.id,
+        registro.nomeCompleto,
+        registro.email,
+        registro.dataNascimento,
+        registro.cpf,
+        registro.telefone,
+        registro.dataHora,
+        registro.status
+      ].join(" ").toLowerCase();
+
+      const correspondePesquisa = texto.includes(pesquisa);
+      let correspondeStatus = filtro === "todos";
+
+      if (filtro === "aguardando_pagamento") {
+        correspondeStatus = !["pago", "confirmado", "cancelado"].includes(registro.status);
+      } else if (filtro === "pago") {
+        correspondeStatus = ["pago", "confirmado"].includes(registro.status);
+      } else if (filtro === "cancelado") {
+        correspondeStatus = registro.status === "cancelado";
+      }
+
+      return correspondePesquisa && correspondeStatus;
+    });
+
+  if (!registros.length) {
+    lista.appendChild(criarElemento("div", "Nenhuma solicitação encontrada com esses filtros.", "vazio"));
+    return;
+  }
+
+  registros.forEach(registro => {
+    const card = criarElemento("article", undefined, "solicitacao");
+    const topo = criarElemento("div", undefined, "solicitacao-topo");
+    const identificacao = document.createElement("div");
+
+    identificacao.appendChild(criarElemento(
+      "h3",
+      registro.nomeCompleto || registro.telefone || "Cliente sem nome"
+    ));
+    identificacao.appendChild(criarElemento("div", "Código: " + registro.id, "id-registro"));
+
+    topo.appendChild(identificacao);
+    topo.appendChild(criarElemento("span", nomeStatus(registro.status), classeStatus(registro.status)));
+    card.appendChild(topo);
+
+    const dados = criarElemento("div", undefined, "dados");
+
+    adicionarDado(dados, "Nome completo", registro.nomeCompleto);
+    adicionarDado(dados, "E-mail", registro.email);
+    adicionarDado(dados, "Data de nascimento", registro.dataNascimento);
+    adicionarDado(dados, "CPF", registro.cpf);
+    adicionarDado(dados, "Telefone", registro.telefone);
+    adicionarDado(dados, "Quantidade", registro.quantidade);
+    adicionarDado(dados, "Valor total", dinheiro(registro.valor), true);
+    adicionarDado(dados, "Data e hora", formatarData(registro));
+    adicionarDado(dados, "Status", nomeStatus(registro.status));
+
+    card.appendChild(dados);
+
+    const acoes = criarElemento("div", undefined, "acoes");
+    const campoStatus = criarElemento("div", undefined, "campo-status");
+    const label = criarElemento("label", "Alterar status");
+    const select = document.createElement("select");
+
+    [
+      ["aguardando_pagamento", "Aguardando pagamento"],
+      ["pago", "Pago / confirmado"],
+      ["cancelado", "Canc
