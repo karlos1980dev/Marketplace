@@ -843,15 +843,6 @@ $("formCliente").addEventListener("submit", event => {
   }
 });
 
-/* =====================================================
-   COPIAR PIX E ABRIR WHATSAPP
-===================================================== */
-
-
-/* =====================================================
-   COPIAR PIX E ABRIR WHATSAPP — CORRIGIDO
-===================================================== */
-
 
 /* =====================================================
    COPIAR PIX E ABRIR WHATSAPP — ANDROID
@@ -902,67 +893,27 @@ async function copiarTexto(texto) {
   return true;
 }
 
-$("copiarWhatsApp").addEventListener("click", async () => {
-  if (!dadosCliente || !payloadPixAtual) {
-    $("statusPix").textContent =
-      "Gere o Pix antes de continuar.";
+
+$("copiarWhatsApp").addEventListener("click", () => {
+  if (!payloadPixAtual) {
+    $("statusPix").textContent = "Gere o Pix primeiro.";
     return;
   }
 
-  const botao = $("copiarWhatsApp");
-
-  const mensagem = [
-    "Olá! Quero continuar minha solicitação da promoção BAHIA DA SORTE.",
-    "",
-    "Quantidade: " + dadosCliente.quantidade,
-    "Valor total: " + dinheiro(dadosCliente.total),
-    "Telefone: " + dadosCliente.telefone,
-    "CPF: " + dadosCliente.cpf,
-    "",
-    "Pix Copia e Cola:",
-    payloadPixAtual,
-    "",
-    "Aguardo as instruções para confirmar minha participação."
-  ].join("\n");
+  const mensagem = payloadPixAtual;
 
   const urlWhatsApp =
     "https://wa.me/" + WHATSAPP +
     "?text=" + encodeURIComponent(mensagem);
 
-  botao.disabled = true;
-  botao.textContent = "Copiando Pix...";
+  window.open(urlWhatsApp, "_blank");
 
-  let copiado = false;
-
-  try {
-    copiado = await copiarTexto(payloadPixAtual);
-  } catch (erro) {
-    console.error("Erro ao copiar Pix:", erro);
-  }
-
-  botao.disabled = false;
-
-  if (copiado) {
-    $("statusPix").textContent =
-      "✅ Pix copiado! Cole o código no seu banco. Abrindo WhatsApp...";
-
-    botao.textContent = "✅ PIX COPIADO";
-
-    // Abre o WhatsApp após a tentativa de cópia.
-    window.location.href = urlWhatsApp;
-
-    setTimeout(() => {
-      botao.textContent = "📋 COPIAR PIX E ABRIR WHATSAPP";
-    }, 2500);
-
-  } else {
-    $("statusPix").textContent =
-      "Não foi possível copiar automaticamente. Toque e segure o código Pix acima, selecione Copiar e depois abra o WhatsApp.";
-
-    botao.textContent = "TENTAR NOVAMENTE";
-  }
+  $("statusPix").textContent =
+    "WhatsApp aberto com o código Pix Copia e Cola.";
 });
 
+
+    
 /* =====================================================
    INICIALIZAÇÃO
 ===================================================== */
