@@ -1,0 +1,801 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#ff00dc">
+<title> VIVA SORTE</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+:root {
+  --rosa: #ff00dc;
+  --verde: #16a34a;
+  --escuro: #171717;
+}
+* { box-sizing: border-box; }
+html, body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+body { background: var(--rosa); }
+.container {
+  width: 100%;
+  max-width: 500px;
+  min-height: 100dvh;
+  margin: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.topo {
+  text-align: center;
+  color: white;
+  padding: 5px;
+}
+.topo h1 {
+  margin: 0;
+  font-size: clamp(20px, 5vw, 27px);
+}
+.topo p { margin: 5px 0 0; font-size: 12px; }
+.card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+}
+#imagemPromocao {
+  width: 100%;
+  display: block;
+  max-height: 52dvh;
+  object-fit: contain;
+  background: white;
+}
+.conteudo { padding: 12px; }
+.preco {
+  margin: 0;
+  text-align: center;
+  color: #d900a8;
+  font-size: 28px;
+  font-weight: 900;
+}
+.descricao {
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.quantidade {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  margin: 12px 0;
+}
+.quantidade button {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 9px;
+  background: #222;
+  color: white;
+  font-size: 25px;
+}
+#qtd { font-size: 22px; font-weight: bold; }
+.resumo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #f3f3f3;
+  border-radius: 9px;
+  font-weight: bold;
+}
+.resumo strong { color: #15803d; font-size: 20px; }
+.botao-principal {
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--verde);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+.rodape {
+  color: white;
+  text-align: center;
+  font-size: 11px;
+  padding: 5px;
+}
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(0,0,0,.75);
+  overflow-y: auto;
+}
+.modal.ativo { display: flex; }
+.modal-caixa {
+  width: 100%;
+  max-width: 420px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 17px;
+  padding: 20px;
+}
+.modal-caixa h2 {
+  text-align: center;
+  font-size: 22px;
+  margin: 0 0 12px;
+}
+.modal-caixa p {
+  color: #555;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+.campo { margin-top: 14px; }
+.campo label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+.campo input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #ccc;
+  border-radius: 9px;
+  font-size: 16px;
+  background: #fff;
+}
+.campo input:focus {
+  outline: 2px solid #ff00dc55;
+  border-color: var(--rosa);
+}
+.botoes-modal {
+  display: grid;
+  gap: 9px;
+  margin-top: 17px;
+}
+.btn-verde, .btn-cinza {
+  width: 100%;
+  padding: 13px;
+  border: 0;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: bold;
+}
+.btn-verde { background: var(--verde); color: white; }
+.btn-cinza { background: #e5e5e5; color: #222; }
+.valor-pix {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 900;
+  color: #15803d;
+  margin: 12px;
+}
+#qrcode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 15px auto;
+}
+#qrcode img, #qrcode canvas {
+  max-width: 100%;
+  height: auto !important;
+}
+.pix-chave {
+  background: #f3f4f6;
+  border-radius: 9px;
+  padding: 12px;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+  max-height: 100px;
+  overflow-y: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.aviso { font-size: 12px !important; }
+.erro { color: #dc2626 !important; }
+button:disabled { opacity: .6; }
+#copiarWhatsApp { grid-column: 1 / -1; }
+.consentimento {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin-top: 15px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.consentimento input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin: 0;
+}
+@media (max-height: 700px) {
+  #imagemPromocao { max-height: 38dvh; }
+  .conteudo { padding: 8px; }
+  .topo h1 { font-size: 20px; }
+}
+</style>
+</head>
+
+<body>
+<main class="container">
+  <header class="topo">
+    <h1>🎯 VIVA SORTE</h1>
+    <p>Escolha seus títulos e participe!</p>
+  </header>
+
+  <section class="card">
+    <img
+      id="imagemPromocao"
+      src="https://res.cloudinary.com/dtw3turzb/image/upload/v1792159602/bahiasorte.webp"
+      alt="Promoção VIVA SORTE"
+    >
+
+    <div class="conteudo">
+      <div class="preco">R$ 0.99</div>
+      <p class="descricao">Valor por título. Escolha a quantidade desejada.</p>
+
+      <div class="quantidade">
+        <button id="diminuir" type="button" aria-label="Diminuir quantidade">−</button>
+        <span id="qtd">1</span>
+        <button id="aumentar" type="button" aria-label="Aumentar quantidade">+</button>
+      </div>
+
+      <div class="resumo">
+        <span>Total da compra</span>
+        <strong id="total">R$ 0.99</strong>
+      </div>
+
+      <button class="botao-principal" id="comprar" type="button">
+        🟢 CONTINUAR PARA O PIX
+      </button>
+
+      <p class="descricao">Preencha seus dados para registrar a solicitação.</p>
+    </div>
+  </section>
+
+  <footer class="rodape">VIVA SORTE</footer>
+</main>
+
+<!-- DADOS DO CLIENTE -->
+<div class="modal" id="modalCliente" role="dialog" aria-modal="true" aria-labelledby="tituloCliente">
+  <div class="modal-caixa">
+    <h2 id="tituloCliente">👤 Seus dados</h2>
+    <p>Nome, e-mail, data de nascimento e telefone são obrigatórios. CPF opcional.</p>
+
+    <form id="formCliente">
+      <div class="campo">
+        <label for="nomeCompleto">Nome completo *</label>
+        <input
+          id="nomeCompleto"
+          type="text"
+          placeholder="Digite seu nome completo"
+          autocomplete="name"
+          maxlength="120"
+          required
+        >
+      </div>
+
+      <div class="campo">
+        <label for="emailCliente">E-mail *</label>
+        <input
+          id="emailCliente"
+          type="email"
+          placeholder="seuemail@exemplo.com"
+          autocomplete="email"
+          maxlength="254"
+          required
+        >
+      </div>
+
+      <div class="campo">
+        <label for="dataNascimento">Data de nascimento *</label>
+        <input
+          id="dataNascimento"
+          type="date"
+          autocomplete="bday"
+          min="1900-01-01"
+          required
+        >
+      </div>
+
+      <div class="campo">
+        <label for="cpf">CPF (opcional)</label>
+        <input
+          id="cpf"
+          type="text"
+          inputmode="numeric"
+          maxlength="14"
+          placeholder="000.000.000-00"
+          autocomplete="off"
+        >
+      </div>
+
+      <div class="campo">
+        <label for="telefone">Telefone com DDD *</label>
+        <input
+          id="telefone"
+          type="tel"
+          inputmode="tel"
+          maxlength="16"
+          placeholder="(71) 99999-9999"
+          required
+          autocomplete="tel"
+        >
+      </div>
+
+      <label class="consentimento">
+        <input id="confirmacaoDados" type="checkbox" required>
+        <span>Confirmo que os dados informados estão corretos e li o aviso sobre o uso dos meus dados para processar esta solicitação.</span>
+      </label>
+
+      <p class="erro" id="erroCliente" role="alert" hidden></p>
+
+      <div class="botoes-modal">
+        <button class="btn-verde" id="btnRegistrar" type="submit">
+          Registrar e gerar Pix
+        </button>
+        <button class="btn-cinza" id="fecharCliente" type="button">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PAGAMENTO PIX -->
+<div class="modal" id="modalPix" role="dialog" aria-modal="true" aria-labelledby="tituloPix">
+  <div class="modal-caixa">
+    <h2 id="tituloPix">💚 Pagamento via Pix</h2>
+    <p>Escaneie o QR Code usando o aplicativo do seu banco.</p>
+
+    <div class="valor-pix" id="valorPix">R$ 0.99</div>
+    <div id="qrcode"></div>
+
+    <p><strong>Pix Copia e Cola</strong></p>
+    <div class="pix-chave" id="pixCopiaCola"></div>
+
+    <p class="aviso">Faça o pagamento e aguarde a confirmação para validar seu título.</p>
+
+    <div class="botoes-modal">
+      <button class="btn-verde" id="copiarWhatsApp" type="button">
+        📋 COPIAR PIX E ABRIR WHATSAPP
+      </button>
+      <button class="btn-cinza" id="voltarCliente" type="button">Voltar</button>
+      <button class="btn-cinza" id="fecharPix" type="button">Fechar</button>
+    </div>
+
+    <p class="aviso" id="statusPix" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApps }
+  from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  onValue,
+  push,
+  set
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
+/* FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyBEV39n-6Gcg9v5MebUprlPgF_1DKxNq9s",
+  authDomain: "vivasuasorte-8531f.firebaseapp.com",
+  projectId: "vivasuasorte-8531f",
+  storageBucket: "vivasuasorte-8531f.firebasestorage.app",
+  messagingSenderId: "1013806826975",
+  appId: "1:1013806826975:web:5388af838e05e898b1f06a"
+};
+
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* CONFIGURAÇÃO */
+const PRECO = 0.99;
+const QUANTIDADE_MINIMA = 1;
+const QUANTIDADE_MAXIMA = 100;
+const CHAVE_PIX = "02562631595";
+const NOME_BENEFICIARIO = "CARLOS DOS SANTOS REIS";
+const CIDADE_BENEFICIARIO = "SALVADOR";
+const WHATSAPP = "5571992290058";
+
+let quantidade = 1;
+let dadosCliente = null;
+let payloadPixAtual = "";
+let salvando = false;
+
+const $ = id => document.getElementById(id);
+
+function dinheiro(valor) {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+function totalCompra() {
+  return quantidade * PRECO;
+}
+
+function atualizarQuantidade() {
+  $("qtd").textContent = quantidade;
+  $("total").textContent = dinheiro(totalCompra());
+}
+
+$("diminuir").addEventListener("click", () => {
+  if (quantidade > QUANTIDADE_MINIMA) quantidade--;
+  atualizarQuantidade();
+});
+
+$("aumentar").addEventListener("click", () => {
+  if (quantidade < QUANTIDADE_MAXIMA) quantidade++;
+  atualizarQuantidade();
+});
+
+/* IMAGEM DA PROMOÇÃO */
+const imagemPromocao = $("imagemPromocao");
+
+imagemPromocao.addEventListener("error", () => {
+  imagemPromocao.onerror = null;
+  imagemPromocao.src =
+    "https://res.cloudinary.com/dtw3turzb/image/upload/v1792159602/bahiasorte.webp";
+});
+
+onValue(
+  ref(db, "triplaChance/imagemUrl"),
+  snapshot => {
+    if (!snapshot.exists()) return;
+    const url = snapshot.val();
+
+    if (typeof url === "string" && /^https:\/\//i.test(url)) {
+      imagemPromocao.src = url;
+    }
+  },
+  error => console.error("Erro ao carregar imagem:", error)
+);
+
+/* MODAIS */
+function abrirModal(id) {
+  $(id).classList.add("ativo");
+}
+
+function fecharModal(id) {
+  $(id).classList.remove("ativo");
+}
+
+$("comprar").addEventListener("click", () => {
+  $("erroCliente").hidden = true;
+  abrirModal("modalCliente");
+});
+
+$("fecharCliente").addEventListener("click", () => fecharModal("modalCliente"));
+$("fecharPix").addEventListener("click", () => fecharModal("modalPix"));
+
+$("voltarCliente").addEventListener("click", () => {
+  fecharModal("modalPix");
+  abrirModal("modalCliente");
+});
+
+document.querySelectorAll(".modal").forEach(modal => {
+  modal.addEventListener("click", event => {
+    if (event.target === modal) fecharModal(modal.id);
+  });
+});
+
+/* FORMATAÇÃO DOS CAMPOS */
+$("cpf").addEventListener("input", event => {
+  let v = event.target.value.replace(/\D/g, "").slice(0, 11);
+  v = v.replace(/(\d{3})(\d)/, "$1.$2");
+  v = v.replace(/(\d{3})(\d)/, "$1.$2");
+  v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  event.target.value = v;
+});
+
+$("telefone").addEventListener("input", event => {
+  let v = event.target.value.replace(/\D/g, "").slice(0, 11);
+
+  if (v.length > 10) {
+    v = v.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, "($1) $2-$3");
+  } else if (v.length > 6) {
+    v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, "($1) $2-$3");
+  } else if (v.length > 2) {
+    v = v.replace(/^(\d{2})(\d*)/, "($1) $2");
+  }
+
+  event.target.value = v;
+});
+
+/* VALIDAÇÃO DE DATA DE NASCIMENTO */
+function validarDataNascimento(data) {
+  if (!data) return false;
+
+  const nascimento = new Date(data + "T12:00:00");
+  const hoje = new Date();
+
+  if (
+    Number.isNaN(nascimento.getTime()) ||
+    nascimento.getFullYear() < 1900 ||
+    nascimento > hoje
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+$("dataNascimento").max = [
+  new Date().getFullYear(),
+  String(new Date().getMonth() + 1).padStart(2, "0"),
+  String(new Date().getDate()).padStart(2, "0")
+].join("-");
+
+/* PIX EMV */
+function campoPix(id, valor) {
+  const texto = String(valor);
+  return id + String(texto.length).padStart(2, "0") + texto;
+}
+
+function crc16CCITT(texto) {
+  let crc = 0xFFFF;
+
+  for (let i = 0; i < texto.length; i++) {
+    crc ^= texto.charCodeAt(i) << 8;
+
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+      crc &= 0xFFFF;
+    }
+  }
+
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+
+function montarPix(valor) {
+  const nome = NOME_BENEFICIARIO
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Za-z0-9 ]/g, "")
+    .substring(0, 25);
+
+  const cidade = CIDADE_BENEFICIARIO
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Za-z0-9 ]/g, "")
+    .substring(0, 15);
+
+  const contaPix =
+    campoPix("00", "br.gov.bcb.pix") +
+    campoPix("01", CHAVE_PIX);
+
+  const merchantAccount = campoPix("26", contaPix);
+
+  let payload =
+    campoPix("00", "01") +
+    campoPix("01", "12") +
+    merchantAccount +
+    campoPix("52", "0000") +
+    campoPix("53", "986") +
+    campoPix("54", valor.toFixed(2)) +
+    campoPix("58", "BR") +
+    campoPix("59", nome) +
+    campoPix("60", cidade) +
+    campoPix("62", campoPix("05", "***")) +
+    "6304";
+
+  payload += crc16CCITT(payload);
+  return payload;
+}
+
+function gerarQRCode(payload) {
+  $("qrcode").innerHTML = "";
+
+  if (typeof QRCode === "undefined") {
+    throw new Error("Biblioteca QR Code não carregada.");
+  }
+
+  new QRCode($("qrcode"), {
+    text: payload,
+    width: 220,
+    height: 220,
+    colorDark: "#111111",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
+/* REGISTRAR CLIENTE E GERAR PIX */
+$("formCliente").addEventListener("submit", async event => {
+  event.preventDefault();
+  if (salvando) return;
+
+  const nomeCompleto = $("nomeCompleto").value.trim();
+  const email = $("emailCliente").value.trim().toLowerCase();
+  const dataNascimento = $("dataNascimento").value;
+  const cpf = $("cpf").value.replace(/\D/g, "");
+  const telefone = $("telefone").value.replace(/\D/g, "");
+
+  const erro = $("erroCliente");
+  erro.hidden = true;
+  erro.textContent = "";
+
+  if (nomeCompleto.split(/\s+/).length < 2) {
+    erro.textContent = "Informe seu nome completo.";
+    erro.hidden = false;
+    return;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    erro.textContent = "Informe um e-mail válido.";
+    erro.hidden = false;
+    return;
+  }
+
+  if (!validarDataNascimento(dataNascimento)) {
+    erro.textContent = "Informe uma data de nascimento válida.";
+    erro.hidden = false;
+    return;
+  }
+
+  if (cpf && cpf.length !== 11) {
+    erro.textContent = "Se informar o CPF, digite os 11 números.";
+    erro.hidden = false;
+    return;
+  }
+
+  if (telefone.length < 10 || telefone.length > 11) {
+    erro.textContent = "Digite um telefone válido com DDD.";
+    erro.hidden = false;
+    return;
+  }
+
+  salvando = true;
+  const botao = $("btnRegistrar");
+  botao.disabled = true;
+  botao.textContent = "Registrando...";
+
+  try {
+    const agora = new Date();
+    const valor = totalCompra();
+    payloadPixAtual = montarPix(valor);
+
+    const dataHora = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    }).format(agora);
+
+    const solicitacaoRef = push(ref(db, "triplaChance/solicitacoes"));
+
+    await set(solicitacaoRef, {
+      nomeCompleto,
+      email,
+      dataNascimento,
+      cpf: cpf || "Não informado",
+      telefone,
+      quantidade,
+      valor,
+      dataHora,
+      criadoEm: agora.toISOString(),
+      status: "aguardando_pagamento",
+      pixCopiaCola: payloadPixAtual
+    });
+
+    dadosCliente = {
+      nomeCompleto,
+      email,
+      dataNascimento,
+      cpf: cpf || "Não informado",
+      telefone,
+      quantidade,
+      total: valor
+    };
+
+    $("valorPix").textContent = dinheiro(valor);
+    $("pixCopiaCola").textContent = payloadPixAtual;
+    gerarQRCode(payloadPixAtual);
+
+    fecharModal("modalCliente");
+    abrirModal("modalPix");
+
+    $("statusPix").textContent =
+      "Solicitação registrada. Pague o Pix e aguarde a confirmação.";
+
+  } catch (erroFirebase) {
+    console.error("Erro ao registrar solicitação:", erroFirebase);
+    erro.textContent =
+      "Não foi possível registrar. Verifique sua conexão e as regras do Firebase.";
+    erro.hidden = false;
+
+  } finally {
+    salvando = false;
+    botao.disabled = false;
+    botao.textContent = "Registrar e gerar Pix";
+  }
+});
+
+/* COPIAR PIX E ABRIR WHATSAPP */
+async function copiarTexto(texto) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(texto);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = texto;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  textarea.setSelectionRange(0, texto.length);
+
+  let sucesso = false;
+
+  try {
+    sucesso = document.execCommand("copy");
+  } finally {
+    textarea.remove();
+  }
+
+  if (!sucesso) throw new Error("Não foi possível copiar o Pix.");
+}
+
+$("copiarWhatsApp").addEventListener("click", async () => {
+  if (!payloadPixAtual || !dadosCliente) return;
+
+  const botao = $("copiarWhatsApp");
+  const urlWhatsApp =
+    "https://wa.me/" + WHATSAPP +
+    "?text=" + encodeURIComponent(payloadPixAtual);
+
+  botao.disabled = true;
+  botao.textContent = "Preparando Pix...";
+
+  try {
+    await copiarTexto(payloadPixAtual);
+    $("statusPix").textContent = "Pix copiado. Abrindo WhatsApp...";
+  } catch (erro) {
+    console.warn("Falha ao copiar Pix:", erro);
+    $("statusPix").textContent =
+      "Não foi possível copiar automaticamente. Copie o código Pix manualmente.";
+  } finally {
+    botao.disabled = false;
+    botao.textContent = "📋 COPIAR PIX E ABRIR WHATSAPP";
+  }
+
+  window.location.href = urlWhatsApp;
+});
+
+atualizarQuantidade();
+</script>
+</body>
+</html>
