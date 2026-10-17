@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -348,7 +347,7 @@ label {
       <p><strong>Solicitações:</strong> triplaChance/solicitacoes</p>
       <p><strong>Imagem:</strong> triplaChance/imagemUrl</p>
       <p><strong>Preço por título:</strong> R$ 5,00</p>
-      <p><strong>Projeto Firebase:</strong> marketplace-af9c4</p>
+      <p><strong>Projeto Firebase:</strong> vivasuasorte-8531f</p>
       <p class="subtitulo">
         Confirme o pagamento no aplicativo bancário antes de marcar uma solicitação como paga.
         A senha local deste exemplo não protege o banco contra acesso externo.
@@ -448,11 +447,15 @@ function classeStatus(status) {
 /* LOGIN */
 $("formLogin").addEventListener("submit", async event => {
   event.preventDefault();
-  $("mensagemLogin").textContent = "";
 
-  if ($("senha").value !== SENHA) {
-    $("mensagemLogin").textContent = "Senha incorreta.";
-    $("mensagemLogin").style.color = "#dc2626";
+  const senhaDigitada = $("senha").value.trim();
+  const mensagemLogin = $("mensagemLogin");
+
+  mensagemLogin.textContent = "";
+
+  if (senhaDigitada !== SENHA) {
+    mensagemLogin.textContent = "Senha incorreta. Confira os números digitados.";
+    mensagemLogin.style.color = "#dc2626";
     return;
   }
 
@@ -461,15 +464,21 @@ $("formLogin").addEventListener("submit", async event => {
 
   try {
     await get(ref(db, CAMINHO_SOLICITACOES));
+
     $("areaLogin").classList.add("escondido");
     $("areaPainel").classList.remove("escondido");
+
     mensagem("Painel conectado ao Firebase.");
     iniciarEscutas();
+
   } catch (erro) {
-    console.error(erro);
-    $("mensagemLogin").textContent =
-      "Não foi possível acessar o Firebase. Verifique a conexão e as permissões.";
-    $("mensagemLogin").style.color = "#dc2626";
+    console.error("Erro no login:", erro);
+
+    mensagemLogin.textContent =
+      "Senha correta, mas o Firebase recusou o acesso. Verifique as regras do Realtime Database e o projeto configurado.";
+
+    mensagemLogin.style.color = "#dc2626";
+
   } finally {
     $("entrar").disabled = false;
     $("entrar").textContent = "Entrar no painel";
@@ -675,4 +684,173 @@ function renderizarSolicitacoes() {
     [
       ["aguardando_pagamento", "Aguardando pagamento"],
       ["pago", "Pago / confirmado"],
-      ["cancelado", "Canc
+      ["cancelado", "Cancelado"]
+    ].forEach(([valor, texto]) => {
+      const option = document.createElement("option");
+      option.value = valor;
+      option.textContent = texto;
+      select.appendChild(option);
+    });
+
+    select.value = ["aguardando", "aguardando_pagamento", "pago", "cancelado"].includes(registro.status)
+      ? (registro.status === "aguardando" ? "aguardando_pagamento" : registro.status)
+      : "aguardando_pagamento";
+
+    label.htmlFor = "status-" + registro.id;
+    select.id = "status-" + registro.id;
+    campoStatus.appendChild(label);
+    campoStatus.appendChild(select);
+    acoes.appendChild(campoStatus);
+
+    const botaoSalvar = criarElemento("button", "Salvar status", "btn");
+    botaoSalvar.type = "button";
+
+    botaoSalvar.addEventListener("click", async () => {
+      botaoSalvar.disabled = true;
+
+      try {
+        await update(ref(db, CAMINHO_SOLICITACOES + "/" + registro.id), {
+          status: select.value
+        });
+        mensagem("Status atualizado para " + nomeStatus(select.value) + ".");
+      } catch (erro) {
+        console.error(erro);
+        mensagem("Não foi possível atualizar o status. Verifique as permissões.", true);
+      } finally {
+        botaoSalvar.disabled = false;
+      }
+    });
+
+    acoes.appendChild(botaoSalvar);
+
+    const botaoExcluir = criarElemento("button", "×", "btn-excluir");
+    botaoExcluir.type = "button";
+    botaoExcluir.title = "Excluir solicitação";
+    botaoExcluir.setAttribute("aria-label", "Excluir solicitação");
+    botaoExcluir.addEventListener("click", () => excluirSolicitacao(registro, botaoExcluir));
+
+    if (excluindoIds.has(registro.id)) {
+      botaoExcluir.disabled = true;
+      botaoExcluir.textContent = "...";
+    }
+
+    acoes.appendChild(botaoExcluir);
+
+    if (registro.pixCopiaCola) {
+      const botaoPix = criarElemento("button", "Ver Pix", "btn btn-secundario");
+      botaoPix.type = "button";
+      const caixaPix = criarElemento("div", undefined, "pix-registro");
+      caixaPix.textContent = registro.pixCopiaCola;
+
+      botaoPix.addEventListener("click", () => {
+        const visivel = caixaPix.style.display === "block";
+        caixaPix.style.display = visivel ? "none" : "block";
+        botaoPix.textContent = visivel ? "Ver Pix" : "Ocultar Pix";
+      });
+
+      acoes.appendChild(botaoPix);
+      card.appendChild(acoes);
+      card.appendChild(caixaPix);
+    } else {
+      card.appendChild(acoes);
+    }
+
+    lista.appendChild(card);
+  });
+}
+
+/* PESQUISA E ATUALIZAÇÃO */
+$("pesquisa").addEventListener("input", renderizarSolicitacoes);
+$("filtroStatus").addEventListener("change", renderizarSolicitacoes);
+
+$("atualizarLista").addEventListener("click", async () => {
+  $("atualizarLista").disabled = true;
+
+  try {
+    const snapshot = await get(ref(db, CAMINHO_SOLICITACOES));
+    solicitacoes = snapshot.exists() ? snapshot.val() : {};
+    atualizarResumo();
+    renderizarSolicitacoes();
+    mensagem("Lista atualizada.");
+  } catch (erro) {
+    console.error(erro);
+    mensagem("Erro ao atualizar a lista.", true);
+  } finally {
+    $("atualizarLista").disabled = false;
+  }
+});
+
+/* IMAGEM DA PROMOÇÃO */
+$("verImagem").addEventListener("click", () => {
+  const url = $("urlImagem").value.trim();
+
+  try {
+    const endereco = new URL(url);
+    if (endereco.protocol !== "https:") throw new Error("Use HTTPS.");
+
+    $("previa").onload = () => {
+      $("previa").style.display = "block";
+      mensagem("Pré-visualização carregada.");
+    };
+
+    $("previa").onerror = () => {
+      $("previa").style.display = "none";
+      mensagem("Não foi possível carregar essa imagem.", true);
+    };
+
+    $("previa").style.display = "none";
+    $("previa").src = url;
+  } catch {
+    mensagem("Digite um endereço HTTPS válido.", true);
+  }
+});
+
+$("salvarImagem").addEventListener("click", async () => {
+  if (salvandoImagem) return;
+
+  const url = $("urlImagem").value.trim();
+
+  try {
+    const endereco = new URL(url);
+    if (endereco.protocol !== "https:") throw new Error("Use HTTPS.");
+
+    salvandoImagem = true;
+    $("salvarImagem").disabled = true;
+    $("salvarImagem").textContent = "Salvando...";
+
+    await set(ref(db, CAMINHO_IMAGEM), url);
+    mensagem("Imagem salva no Firebase.");
+  } catch (erro) {
+    console.error(erro);
+    mensagem("Não foi possível salvar. Verifique o link e as permissões.", true);
+  } finally {
+    salvandoImagem = false;
+    $("salvarImagem").disabled = false;
+    $("salvarImagem").textContent = "💾 Salvar imagem";
+  }
+});
+
+/* SAIR */
+$("sair").addEventListener("click", () => {
+  if (pararEscutaSolicitacoes) pararEscutaSolicitacoes();
+  if (pararEscutaImagem) pararEscutaImagem();
+
+  pararEscutaSolicitacoes = null;
+  pararEscutaImagem = null;
+  solicitacoes = {};
+  excluindoIds.clear();
+
+  $("areaPainel").classList.add("escondido");
+  $("areaLogin").classList.remove("escondido");
+  $("senha").value = "";
+  $("listaSolicitacoes").replaceChildren();
+  $("previa").style.display = "none";
+  $("urlImagem").value = "";
+
+  atualizarResumo();
+  mensagem("");
+  $("mensagemLogin").textContent = "";
+});
+</script>
+</body>
+</html>
