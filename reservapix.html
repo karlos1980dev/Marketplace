@@ -1,0 +1,820 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#00a86b">
+<title>Área do Cliente</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f2f5f9;color:#222;padding:15px}
+.container{max-width:520px;margin:18px auto;background:#fff;padding:20px;border-radius:18px;box-shadow:0 5px 25px #0001}
+header{text-align:center;margin-bottom:22px}
+.logo{font-size:30px;color:#00a86b;font-weight:bold}
+header p,.muted{color:#777;font-size:13px;margin-top:7px}
+h2{font-size:21px;margin-top:8px}
+h3{font-size:17px;margin-bottom:12px}
+label{display:block;font-weight:bold;margin:14px 0 7px;font-size:14px}
+input,textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:10px;font-size:16px;outline:none}
+input:focus,textarea:focus{border-color:#00a86b}
+button{width:100%;padding:14px;margin-top:11px;border:0;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}
+.green{background:#00a86b;color:white}
+.dark{background:#111;color:white}
+.pale{background:#e8f8ef;color:#087443}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:18px 0}
+.metric{background:#f4f7f9;border-radius:12px;padding:12px 6px;text-align:center;overflow-wrap:anywhere}
+.metric span{display:block;font-size:11px;color:#666;margin-bottom:8px}
+.metric strong{font-size:14px}
+.section{border-top:1px solid #eee;padding-top:18px;margin-top:18px}
+.hidden{display:none!important}
+.notice{display:none;padding:12px;border-radius:9px;margin:12px 0;background:#e8f8ef;color:#087443;font-size:14px;overflow-wrap:anywhere;line-height:1.5}
+.notice.error{background:#ffeded;color:#a11}
+.item{border:1px solid #e5e7eb;padding:12px;border-radius:11px;margin-top:10px;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+#qrcode{display:flex;justify-content:center;padding:15px 0;min-height:10px}
+#qrcode img,#qrcode canvas{max-width:100%;height:auto}
+textarea{min-height:110px;font-size:12px;resize:vertical}
+.small{font-size:12px;color:#666;line-height:1.5;margin-top:13px}
+.status{display:inline-block;padding:4px 8px;border-radius:20px;background:#eee;font-size:11px;font-weight:bold}
+.status.pendente{background:#fff0c2;color:#775600}
+.status.aprovado{background:#d8f8e6;color:#087443}
+.status.recusado{background:#ffe0e0;color:#a11}
+.status.processando{background:#e7e6ff;color:#4539a7}
+@media(max-width:360px){
+  .container{padding:14px}
+  .metric strong{font-size:12px}
+  .metric span{font-size:10px}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+  <div class="logo">SALDO do JOGO</div>
+  <h2>Área do participante</h2>
+  <p>Cadastre-se e acompanhe seu saldo</p>
+</header>
+
+<div id="aviso" class="notice" role="status"></div>
+
+<section id="carregando">
+  <p class="muted">Conectando ao sistema...</p>
+</section>
+
+<section id="cadastro" class="hidden">
+  <h3>Primeiro acesso</h3>
+  <p class="muted">Informe seu nome e sua chave Pix para começar.</p>
+
+  <label for="nome">Nome completo</label>
+  <input id="nome" maxlength="100" autocomplete="name"
+         placeholder="Seu nome completo">
+
+  <label for="chave">Sua chave Pix</label>
+  <input id="chave" maxlength="150"
+         placeholder="Sua chave Pix">
+
+  <button id="btnCadastro" class="green">Criar meu cadastro</button>
+</section>
+
+<section id="area" class="hidden">
+  <p>Olá, <strong id="nomeParticipante"></strong></p>
+
+  <div class="cards">
+    <div class="metric">
+      <span>Saldo adicionado</span>
+      <strong id="adicionado">R$ 0,00</strong>
+    </div>
+    <div class="metric">
+      <span>Saldo utilizado</span>
+      <strong id="utilizado">R$ 0,00</strong>
+    </div>
+    <div class="metric">
+      <span>Saldo restante</span>
+      <strong id="restante">R$ 0,00</strong>
+    </div>
+  </div>
+
+  <button id="btnNovoPix" class="green">＋ Adicionar saldo</button>
+
+  <div id="secPix" class="section hidden">
+    <h3>Adicionar saldo</h3>
+
+    <label for="valor">Valor do Pix (R$)</label>
+    <input id="valor" type="number" min="0.01" max="999999.99"
+           step="0.01" inputmode="decimal" placeholder="Ex.: 50.00">
+
+    <button id="btnGerar" class="green">Gerar QR Code Pix</button>
+
+    <div id="resultadoPix" class="hidden">
+      <h3 style="text-align:center;margin-top:18px">Escaneie para pagar</h3>
+      <div id="qrcode"></div>
+
+      <div id="valorGerado"
+           style="text-align:center;font-size:26px;font-weight:bold;margin:10px">
+      </div>
+
+      <label for="codigoPix">Pix Copia e Cola</label>
+      <textarea id="codigoPix" readonly></textarea>
+
+      <button id="btnCopiar" class="dark">Copiar código Pix</button>
+      <button style="display:none"; id="btnWhatsApp" class="pale">📲 Compartilhar pelo WhatsApp</button>
+      <button id="btnSolicitar" class="green">Já paguei — enviar solicitação</button>
+
+      <p class="small">
+        Depois de pagar, envie a solicitação. O administrador deverá
+        verificar o recebimento antes de liberar o saldo.
+      </p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Minhas solicitações</h3>
+    <div id="minhasSolicitacoes" class="muted">Carregando...</div>
+  </div>
+
+  <div class="section">
+    <h3>Histórico de saldo</h3>
+    <div id="historico" class="muted">Carregando...</div>
+  </div>
+
+  <button style="display:none"; id="btnSair" class="dark">Ocultar minha área</button>
+</section>
+
+</div>
+
+<script>
+"use strict";
+
+/* ==========================================
+   FIREBASE - MARKETPLACE SSA
+   Sem Firebase Authentication
+========================================== */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB1Fw3PKVYqezBmf-TlcwIlH_oG2EwkY",
+  authDomain: "marketplace-af9c4.firebaseapp.com",
+  databaseURL: "https://marketplace-af9c4-default-rtdb.firebaseio.com/",
+  projectId: "marketplace-af9c4",
+  storageBucket: "marketplace-af9c4.firebasestorage.app",
+  messagingSenderId: "655705511573",
+  appId: "1:655705511573:web:3bb3728ca75c217374ed9c"
+};
+
+let db;
+let uid = null;
+let participante = null;
+let valorAtual = null;
+let codigoAtual = "";
+let enviandoSolicitacao = false;
+let ocultouArea = false;
+let listenersIniciados = false;
+
+const $ = id => document.getElementById(id);
+
+function iniciarFirebase() {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  db = firebase.database();
+
+  uid = localStorage.getItem("saldoPixParticipanteId");
+
+  if (!uid) {
+    uid = "P" + Date.now() +
+      Math.random().toString(36).slice(2, 9);
+
+    localStorage.setItem("saldoPixParticipanteId", uid);
+  }
+
+  console.log("Firebase iniciado. Identificador:", uid);
+}
+
+/* ==========================================
+   DADOS PIX
+========================================== */
+
+const PIX_CHAVE = "02562631595";
+const PIX_NOME = "CARLOS DOS SANTOS REIS";
+const PIX_CIDADE = "SALVADOR";
+
+function dinheiro(valor) {
+  return Number(valor || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+function avisar(texto, erro = false) {
+  $("aviso").textContent = texto;
+  $("aviso").classList.toggle("error", erro);
+  $("aviso").style.display = "block";
+}
+
+function limparAviso() {
+  $("aviso").style.display = "none";
+  $("aviso").textContent = "";
+}
+
+function dataHora(valor) {
+  if (!valor) return "—";
+
+  const d = new Date(Number(valor));
+
+  return isNaN(d.getTime())
+    ? "—"
+    : d.toLocaleString("pt-BR");
+}
+
+function semAcentos(texto) {
+  return String(texto)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function campoPix(id, valor) {
+  valor = String(valor);
+  return id + String(valor.length).padStart(2, "0") + valor;
+}
+
+function crc16(texto) {
+  let crc = 0xFFFF;
+
+  for (let i = 0; i < texto.length; i++) {
+    crc ^= texto.charCodeAt(i) << 8;
+
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000)
+        ? (crc << 1) ^ 0x1021
+        : crc << 1;
+
+      crc &= 0xFFFF;
+    }
+  }
+
+  return crc.toString(16).toUpperCase().padStart(4, "0");
+}
+
+function criarPix(valor) {
+  const nome = semAcentos(PIX_NOME)
+    .substring(0, 25).toUpperCase();
+
+  const cidade = semAcentos(PIX_CIDADE)
+    .substring(0, 15).toUpperCase();
+
+  const contaPix =
+    campoPix("00", "BR.GOV.BCB.PIX") +
+    campoPix("01", PIX_CHAVE);
+
+  let payload = campoPix("00", "01");
+  payload += campoPix("26", contaPix);
+  payload += campoPix("52", "0000");
+  payload += campoPix("53", "986");
+  payload += campoPix("54", valor.toFixed(2));
+  payload += campoPix("58", "BR");
+  payload += campoPix("59", nome);
+  payload += campoPix("60", cidade);
+  payload += campoPix("62", campoPix("05", "***"));
+
+  const semCRC = payload + "6304";
+
+  return semCRC + crc16(semCRC);
+}
+
+/* ==========================================
+   MOSTRAR TELAS
+========================================== */
+
+function mostrarCarregando() {
+  $("carregando").classList.remove("hidden");
+  $("cadastro").classList.add("hidden");
+  $("area").classList.add("hidden");
+}
+
+function mostrarCadastro() {
+  $("carregando").classList.add("hidden");
+  $("cadastro").classList.remove("hidden");
+  $("area").classList.add("hidden");
+}
+
+function mostrarArea() {
+  $("carregando").classList.add("hidden");
+  $("cadastro").classList.add("hidden");
+  $("area").classList.remove("hidden");
+
+  $("nomeParticipante").textContent =
+    participante?.nome || "";
+}
+
+/* ==========================================
+   INICIALIZAÇÃO DA TELA
+========================================== */
+
+async function iniciarTela() {
+  mostrarCarregando();
+
+  try {
+    iniciarFirebase();
+
+    // Verifica se o Realtime Database responde.
+    const snap = await db.ref("participantes/" + uid)
+      .once("value");
+
+    if (snap.exists()) {
+      participante = snap.val();
+
+      mostrarArea();
+      escutarDados();
+
+      console.log("Cadastro encontrado:", participante.nome);
+    } else {
+      mostrarCadastro();
+
+      console.log("Cadastro não encontrado. Exibindo formulário.");
+    }
+  } catch (erro) {
+    console.error("Erro ao iniciar:", erro);
+
+    mostrarCadastro();
+
+    avisar(
+      "Não foi possível carregar os dados do Firebase: " +
+      erro.message +
+      ". Verifique a conexão e as regras do banco.",
+      true
+    );
+  }
+}
+
+/* ==========================================
+   CRIAR CADASTRO
+========================================== */
+
+$("btnCadastro").addEventListener("click", async () => {
+  limparAviso();
+
+  const nome = $("nome").value.trim();
+  const chavePix = $("chave").value.trim();
+
+  if (nome.length < 2) {
+    avisar("Informe seu nome completo.", true);
+    return;
+  }
+
+  if (!chavePix) {
+    avisar("Informe sua chave Pix.", true);
+    return;
+  }
+
+  if (!db || !uid) {
+    avisar("O Firebase ainda não foi inicializado.", true);
+    return;
+  }
+
+  $("btnCadastro").disabled = true;
+
+  try {
+    const participanteRef = db.ref("participantes/" + uid);
+    const existente = await participanteRef.once("value");
+
+    if (existente.exists()) {
+      participante = existente.val();
+
+      mostrarArea();
+      escutarDados();
+
+      avisar("Seu cadastro já existe.");
+      return;
+    }
+
+    const novo = {
+      uid: uid,
+      nome: nome,
+      chavePix: chavePix,
+      criadoEm: Date.now(),
+      saldoAdicionado: 0,
+      saldoUtilizado: 0,
+      saldoRestante: 0
+    };
+
+    await participanteRef.set(novo);
+
+    participante = novo;
+
+    mostrarArea();
+    escutarDados();
+
+    avisar("Cadastro realizado com sucesso!");
+  } catch (erro) {
+    console.error("Erro no cadastro:", erro);
+
+    avisar(
+      "Não foi possível criar o cadastro: " + erro.message,
+      true
+    );
+  } finally {
+    $("btnCadastro").disabled = false;
+  }
+});
+
+/* ==========================================
+   CRIAR ITEM DE LISTA COM TEXTO SEGURO
+========================================== */
+
+function criarItem(titulo, linhas, status = "") {
+  const div = document.createElement("div");
+  div.className = "item";
+
+  const strong = document.createElement("strong");
+  strong.textContent = titulo;
+  div.appendChild(strong);
+
+  linhas
+    .filter(v => v !== null && v !== undefined && v !== "")
+    .forEach(texto => {
+      const p = document.createElement("div");
+      p.textContent = texto;
+      div.appendChild(p);
+    });
+
+  if (status) {
+    const estado = String(status).toLowerCase();
+    const badge = document.createElement("span");
+
+    const estadosPermitidos = [
+      "pendente", "aprovado", "recusado", "processando"
+    ];
+
+    badge.className = "status " +
+      (estadosPermitidos.includes(estado) ? estado : "");
+
+    badge.textContent = String(status).toUpperCase();
+
+    div.appendChild(document.createElement("br"));
+    div.appendChild(badge);
+  }
+
+  return div;
+}
+
+/* ==========================================
+   ESCUTAR SALDO, SOLICITAÇÕES E HISTÓRICO
+========================================== */
+
+function escutarDados() {
+  if (listenersIniciados || !uid || !db) return;
+
+  listenersIniciados = true;
+
+  db.ref("participantes/" + uid).on("value", snap => {
+    if (!snap.exists()) return;
+
+    participante = snap.val();
+
+    $("nomeParticipante").textContent =
+      participante.nome || "";
+
+    $("adicionado").textContent =
+      dinheiro(participante.saldoAdicionado);
+
+    $("utilizado").textContent =
+      dinheiro(participante.saldoUtilizado);
+
+    $("restante").textContent =
+      dinheiro(participante.saldoRestante);
+  }, erro => {
+    console.error("Erro ao atualizar saldo:", erro);
+
+    avisar(
+      "Erro ao atualizar o saldo: " + erro.message,
+      true
+    );
+  });
+
+  db.ref("solicitacoes")
+    .orderByChild("uid")
+    .equalTo(uid)
+    .on("value", snap => {
+      const box = $("minhasSolicitacoes");
+      box.replaceChildren();
+
+      const lista = [];
+
+      snap.forEach(item => {
+        lista.push({
+          id: item.key,
+          ...item.val()
+        });
+      });
+
+      lista.sort((a, b) =>
+        Number(b.criadoEm || 0) -
+        Number(a.criadoEm || 0)
+      );
+
+      if (!lista.length) {
+        box.textContent = "Nenhuma solicitação.";
+        return;
+      }
+
+      lista.forEach(item => {
+        box.appendChild(criarItem(
+          dinheiro(item.valor),
+          [
+            "Data: " + dataHora(item.criadoEm),
+            "Código: " + (item.id || ""),
+            "Atualizado: " + dataHora(item.atualizadoEm)
+          ],
+          item.status || "pendente"
+        ));
+      });
+    }, erro => {
+      console.error("Erro nas solicitações:", erro);
+
+      $("minhasSolicitacoes").textContent =
+        "Não foi possível carregar as solicitações.";
+    });
+
+  db.ref("historicoSaldo/" + uid).on("value", snap => {
+    const box = $("historico");
+    box.replaceChildren();
+
+    const lista = [];
+
+    snap.forEach(item => {
+      lista.push({
+        id: item.key,
+        ...item.val()
+      });
+    });
+
+    lista.sort((a, b) =>
+      Number(b.criadoEm || b.data || 0) -
+      Number(a.criadoEm || a.data || 0)
+    );
+
+    if (!lista.length) {
+      box.textContent = "Nenhuma movimentação.";
+      return;
+    }
+
+    lista.forEach(item => {
+      box.appendChild(criarItem(
+        item.tipo || "Movimentação",
+        [
+          "Valor: " + dinheiro(item.valor),
+          "Data: " + dataHora(item.criadoEm || item.data),
+          item.descricao || item.observacao || ""
+        ]
+      ));
+    });
+  }, erro => {
+    console.error("Erro no histórico:", erro);
+
+    $("historico").textContent =
+      "Não foi possível carregar o histórico.";
+  });
+}
+
+/* ==========================================
+   ABRIR / FECHAR PIX
+========================================== */
+
+$("btnNovoPix").addEventListener("click", () => {
+  $("secPix").classList.toggle("hidden");
+
+  if (!$("secPix").classList.contains("hidden")) {
+    $("valor").focus();
+  }
+});
+
+/* ==========================================
+   GERAR QR CODE PIX
+========================================== */
+
+$("btnGerar").addEventListener("click", () => {
+  limparAviso();
+
+  const valor = Number($("valor").value);
+
+  if (
+    !Number.isFinite(valor) ||
+    valor < 0.01 ||
+    valor > 999999.99
+  ) {
+    avisar(
+      "Digite um valor entre R$ 0,01 e R$ 999.999,99.",
+      true
+    );
+    return;
+  }
+
+  if (typeof QRCode === "undefined") {
+    avisar(
+      "A biblioteca de QR Code não carregou. Verifique sua internet.",
+      true
+    );
+    return;
+  }
+
+  valorAtual = Math.round(valor * 100) / 100;
+  codigoAtual = criarPix(valorAtual);
+
+  $("codigoPix").value = codigoAtual;
+  $("valorGerado").textContent = dinheiro(valorAtual);
+  $("qrcode").replaceChildren();
+
+  new QRCode($("qrcode"), {
+    text: codigoAtual,
+    width: 230,
+    height: 230,
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  $("resultadoPix").classList.remove("hidden");
+});
+
+/* ==========================================
+   COPIAR PIX
+========================================== */
+
+$("btnCopiar").addEventListener("click", async () => {
+  if (!codigoAtual) {
+    avisar("Gere o Pix primeiro.", true);
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(codigoAtual);
+    avisar("Pix Copia e Cola copiado!");
+  } catch (erro) {
+    $("codigoPix").focus();
+    $("codigoPix").select();
+
+    let copiou = false;
+
+    try {
+      copiou = document.execCommand("copy");
+    } catch (_) {}
+
+    avisar(
+      copiou
+        ? "Pix Copia e Cola copiado!"
+        : "Selecione o código e copie manualmente.",
+      !copiou
+    );
+  }
+});
+
+/* ==========================================
+   COMPARTILHAR NO WHATSAPP
+========================================== */
+
+$("btnWhatsApp").addEventListener("click", () => {
+  if (!codigoAtual) {
+    avisar("Gere o Pix primeiro.", true);
+    return;
+  }
+
+  const texto =
+    "Pix para pagamento de " + dinheiro(valorAtual) +
+    "\n\nPix Copia e Cola:\n" + codigoAtual;
+
+  const url =
+    "https://wa.me/?text=" + encodeURIComponent(texto);
+
+  window.open(url, "_blank");
+});
+
+/* ==========================================
+   ENVIAR SOLICITAÇÃO AO ADMINISTRADOR
+========================================== */
+
+$("btnSolicitar").addEventListener("click", async () => {
+  if (enviandoSolicitacao) return;
+
+  if (!uid || !participante) {
+    avisar("Seu cadastro ainda não foi carregado.", true);
+    return;
+  }
+
+  if (!valorAtual || !codigoAtual) {
+    avisar("Gere o Pix primeiro.", true);
+    return;
+  }
+
+  enviandoSolicitacao = true;
+  $("btnSolicitar").disabled = true;
+  limparAviso();
+
+  try {
+    const snap = await db.ref("solicitacoes")
+      .orderByChild("uid")
+      .equalTo(uid)
+      .once("value");
+
+    let pendente = false;
+    let processando = false;
+
+    snap.forEach(item => {
+      const status = String(
+        item.val().status || "pendente"
+      ).toLowerCase();
+
+      if (status === "pendente") pendente = true;
+      if (status === "processando") processando = true;
+    });
+
+    if (pendente || processando) {
+      avisar(
+        "Você já tem uma solicitação aguardando análise. Aguarde antes de enviar outra.",
+        true
+      );
+      return;
+    }
+
+    const solicitacaoRef = db.ref("solicitacoes").push();
+    const agora = Date.now();
+
+    await solicitacaoRef.set({
+      id: solicitacaoRef.key,
+      uid: uid,
+      nome: participante.nome || "",
+      chavePix: participante.chavePix || "",
+      valor: valorAtual,
+      codigoPix: codigoAtual,
+      status: "pendente",
+      criadoEm: agora,
+      atualizadoEm: agora
+    });
+
+    avisar(
+      "Solicitação enviada! Aguarde a verificação do pagamento pelo administrador."
+    );
+
+    $("resultadoPix").classList.add("hidden");
+    $("secPix").classList.add("hidden");
+    $("valor").value = "";
+
+    valorAtual = null;
+    codigoAtual = "";
+  } catch (erro) {
+    console.error("Erro na solicitação:", erro);
+
+    avisar(
+      "Erro ao enviar solicitação: " + erro.message,
+      true
+    );
+  } finally {
+    enviandoSolicitacao = false;
+    $("btnSolicitar").disabled = false;
+  }
+});
+
+/* ==========================================
+   OCULTAR / MOSTRAR ÁREA
+========================================== */
+
+$("btnSair").addEventListener("click", () => {
+  ocultouArea = !ocultouArea;
+
+  $("area").classList.toggle("hidden", ocultouArea);
+
+  $("btnSair").textContent = ocultouArea
+    ? "Voltar à minha área"
+    : "Ocultar minha área";
+
+  if (ocultouArea) {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+    avisar(
+      "Sua área foi ocultada. O cadastro permanece salvo neste dispositivo."
+    );
+  } else {
+    limparAviso();
+  }
+});
+
+/* ==========================================
+   INICIAR QUANDO A PÁGINA ABRIR
+========================================== */
+function papa(){
+localStorage.clear();
+    alert("limpo")
+}
+
+iniciarTela();
+</script>
+</body>
+</html>
