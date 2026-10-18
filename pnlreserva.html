@@ -86,6 +86,25 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </section>
 
 <div id="painel" class="hidden">
+    <section id="aba-semanal" class="section">
+  <div class="card">
+    <h2>📊 Total semanal por participante</h2>
+    <p class="muted" id="periodoSemanal">
+      Carregando período...
+    </p>
+
+    <div class="stat">
+      <span>Total geral de códigos aprovados</span>
+      <strong id="totalGeralSemanal" class="green">
+        R$ 0,00
+      </strong>
+    </div>
+
+    <div id="listaTotaisSemanais" class="empty">
+      Carregando totais...
+    </div>
+  </div>
+</section>
     <section id="aba-codigos" class="section">
   <div class="card">
     <h2>Códigos Recebidos</h2>
@@ -114,6 +133,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
 
   <nav class="tabs">
+      <button data-aba="semanal">Total semanal</button>
       <button data-aba="codigos">Códigos Recebidos</button>
     <button class="active" data-aba="solicitacoes">Solicitações Pix</button>
     <button data-aba="participantes">Participantes</button>
@@ -179,12 +199,15 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </main>
 
 <script type="module">
+    import {
+  getDatabase, ref, onValue, update, push,
+  runTransaction, off
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
 import {initializeApp}
 from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 
-import {
-  getDatabase, ref, onValue, update, push, runTransaction
-} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyB1Fw3PKVYqezBmf-TlcwIlH_oG2EwkY",
@@ -206,6 +229,59 @@ let participantes = {};
 let solicitacoes = {};
 let historicos = {};
 let desligarListeners = [];
+let totaisSemanais = {};
+let pararListenerSemanal = null;
+let semanaAtual = "";
+
+function obterSemanaAtual() {
+  const partes = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(new Date());
+
+  const p = {};
+  partes.forEach(x => p[x.type] = x.value);
+
+  const data = new Date(Date.UTC(
+    Number(p.year),
+    Number(p.month) - 1,
+    Number(p.day)
+  ));
+
+  const dia = data.getUTCDay();
+  data.setUTCDate(data.getUTCDate() - ((dia + 6) % 7));
+
+  return data.toISOString().slice(0, 10);
+}
+
+function sincronizarListenerSemanal() {
+  if (!sessaoAtiva) return;
+
+  const semana = obterSemanaAtual();
+  if (semana === semanaAtual && pararListenerSemanal) return;
+
+  if (pararListenerSemanal) pararListenerSemanal();
+
+  semanaAtual = semana;
+  totaisSemanais = {};
+
+  pararListenerSemanal = onValue(
+    ref(db, "totaisSemanaisCodigos/" + semana),
+    snap => {
+      if (!sessaoAtiva || semana !== semanaAtual) return;
+
+      totaisSemanais = snap.val() || {};
+      renderTotaisSemanais();
+    },
+    erroBanco
+  );
+
+  renderTotaisSemanais();
+}
+
+window.addEventListener("focus", sincronizarListenerSemanal);
 
 /* Valores monetários em centavos para evitar erros de arredondamento. */
 const centavos = valor => Math.round((Number(valor) || 0) * 100);
@@ -251,6 +327,13 @@ function pararListeners() {
   solicitacoes = {};
   historicos = {};
   enviosSaldo = {};
+  if (pararListenerSemanal) {
+  pararListenerSemanal();
+  pararListenerSemanal = null;
+}
+
+semanaAtual = "";
+totaisSemanais = {};
 }
 $("filtroCodigo").addEventListener("change", renderCodigos);
 /* LOGIN */
@@ -282,6 +365,7 @@ $("btnSair").addEventListener("click", () => {
 
 /* LEITURA FIREBASE */
 function iniciarListeners() {
+sincronizarListenerSemanal();
   pararListeners();
 desligarListeners.push(
   onValue(ref(db, "enviosSaldo"), snap => {
@@ -744,6 +828,10 @@ $("listaCodigos").addEventListener("click", async event => {
 async function aprovarCodigoRecebido(id) {
   const item = enviosSaldo[id];
 
+  if (!sessaoAtiva) {
+    throw new Error("Entre novamente no painel.");
+  }
+
   if (!item || String(item.status || "pendente").toLowerCase() !== "pendente") {
     throw new Error("Este código não está pendente.");
   }
@@ -769,14 +857,15 @@ async function aprovarCodigoRecebido(id) {
 
   if (!confirm(
     "Confirma a aprovação deste código?\n\n" +
-    "Código: " + item.codigo + "\n" +
-    "Participante: " + item.nome + "\n" +
-    "Valor a descontar: " + dinheiro(reais(valorCent))
+    "Código: " + (item.codigo || id) + "\n" +
+    "Participante: " + (item.nome || participantes[item.uid].nome || "") + "\n" +
+    "Valor a descontar: " + dinheiro(reais(valorCent)) +
+    "\n\nO valor também será registrado no total semanal."
   )) return;
 
-  // Reserva o código: impede duas aprovações simultâneas.
   const statusRef = ref(db, "enviosSaldo/" + id + "/status");
 
+  // Reserva o código para impedir aprovações simultâneas.
   const reserva = await runTransaction(statusRef, atual => {
     if (atual !== "pendente") return;
     return "processando";
@@ -789,35 +878,92 @@ async function aprovarCodigoRecebido(id) {
   let saldoDescontado = false;
 
   try {
-    const participanteRef = ref(db, "participantes/" + item.uid);
+    const participanteRef = ref(
+      db,
+      "participantes/" + item.uid
+    );
 
     const resultado = await runTransaction(participanteRef, p => {
       if (!p) return;
 
       const adicionadoCent = centavos(p.saldoAdicionado);
       const utilizadoCent = centavos(p.saldoUtilizado);
-      const restanteCent = Math.max(0, adicionadoCent - utilizadoCent);
+      const restanteCent = Math.max(
+        0,
+        adicionadoCent - utilizadoCent
+      );
 
-      // Revalida o saldo dentro da transação.
       if (valorCent > restanteCent) return;
 
       p.saldoUtilizado = reais(utilizadoCent + valorCent);
       p.saldoRestante = reais(
-        Math.max(0, adicionadoCent - (utilizadoCent + valorCent))
+        Math.max(
+          0,
+          adicionadoCent - (utilizadoCent + valorCent)
+        )
       );
 
       return p;
     });
 
     if (!resultado.committed) {
-      throw new Error("Saldo insuficiente ou participante não encontrado.");
+      throw new Error(
+        "Saldo insuficiente ou participante não encontrado."
+      );
     }
 
     saldoDescontado = true;
 
     const agora = Date.now();
-    const registro = push(ref(db, "historicoSaldo/" + item.uid));
+    const semana = obterSemanaAtual();
 
+    /*
+      Caminho semanal:
+      totaisSemanaisCodigos/AAAA-MM-DD/UID/codigos/ID_DO_CODIGO
+
+      A data corresponde à segunda-feira da semana.
+      O ID do código impede contar duas vezes o mesmo código.
+    */
+    const totalSemanalRef = ref(
+      db,
+      "totaisSemanaisCodigos/" +
+      semana + "/" +
+      item.uid + "/codigos/" +
+      id
+    );
+
+    const registroSemanal = await runTransaction(
+      totalSemanalRef,
+      atual => {
+        if (atual !== null) return;
+
+        return {
+          valor: reais(valorCent),
+          codigo: String(item.codigo || ""),
+          nome: String(
+            item.nome ||
+            participantes[item.uid]?.nome ||
+            "Participante"
+          ),
+          criadoEm: agora
+        };
+      }
+    );
+
+    if (
+      !registroSemanal.committed &&
+      !registroSemanal.snapshot.exists()
+    ) {
+      throw new Error(
+        "O saldo foi descontado, mas não foi possível registrar o total semanal."
+      );
+    }
+
+    const registro = push(
+      ref(db, "historicoSaldo/" + item.uid)
+    );
+
+    // Atualiza o status e o histórico.
     await update(ref(db), {
       ["enviosSaldo/" + id + "/status"]: "aprovado",
       ["enviosSaldo/" + id + "/atualizadoEm"]: agora,
@@ -826,24 +972,41 @@ async function aprovarCodigoRecebido(id) {
       ["historicoSaldo/" + item.uid + "/" + registro.key]: {
         tipo: "desconto_codigo",
         valor: reais(valorCent),
-        descricao: "Desconto pela aprovação do código: " + item.codigo,
+        descricao:
+          "Desconto pela aprovação do código: " +
+          (item.codigo || id),
         codigoEnvioId: id,
         criadoEm: agora
       }
     });
 
-    alert("Código aprovado e saldo descontado com sucesso.");
+    // Atualiza o relatório caso a aba semanal esteja aberta.
+    if (typeof renderTotaisSemanais === "function") {
+      sincronizarListenerSemanal();
+      renderTotaisSemanais();
+    }
+
+    alert(
+      "Código aprovado com sucesso!\n\n" +
+      "Participante: " +
+      (item.nome || participantes[item.uid]?.nome || "") +
+      "\nValor descontado: " + dinheiro(reais(valorCent)) +
+      "\nTotal semanal atualizado."
+    );
+
   } catch (erro) {
-    console.error(erro);
+    console.error("Erro ao aprovar código:", erro);
 
     if (saldoDescontado) {
       alert(
-        "O saldo já foi descontado, mas não foi possível concluir o registro. " +
-        "O código pode continuar como processando. Confira o saldo, o histórico " +
-        "e o status antes de fazer qualquer ajuste manual para evitar desconto duplicado."
+        "ATENÇÃO: o saldo já foi descontado.\n\n" +
+        "Erro: " + erro.message +
+        "\n\nO código poderá continuar como processando. " +
+        "Confira o saldo, o total semanal, o histórico e o status " +
+        "antes de qualquer ajuste manual. Não tente aprovar novamente."
       );
     } else {
-      // Libera o código para nova tentativa se o saldo não foi alterado.
+      // Só libera para nova tentativa se o saldo não foi alterado.
       await runTransaction(statusRef, atual => {
         if (atual !== "processando") return;
         return "pendente";
@@ -853,7 +1016,6 @@ async function aprovarCodigoRecebido(id) {
     throw erro;
   }
 }
-
 async function recusarCodigoRecebido(id) {
   const item = enviosSaldo[id];
 
@@ -884,7 +1046,67 @@ async function recusarCodigoRecebido(id) {
 
   alert("Código recusado. O saldo não foi alterado.");
 }
+function renderTotaisSemanais() {
+  const inicio = semanaAtual || obterSemanaAtual();
 
+  const dataInicio = new Date(inicio + "T12:00:00Z");
+  const dataFim = new Date(dataInicio);
+  dataFim.setUTCDate(dataFim.getUTCDate() + 6);
+
+  const formatarData = data => data.toLocaleDateString("pt-BR", {
+    timeZone: "UTC"
+  });
+
+  $("periodoSemanal").textContent =
+    "Período: " + formatarData(dataInicio) +
+    " até " + formatarData(dataFim);
+
+  const itens = Object.entries(totaisSemanais).map(([uid, dados]) => {
+    const codigos = dados?.codigos || {};
+    const registros = Object.values(codigos);
+
+    const totalCentavos = registros.reduce(
+      (soma, registro) => soma + centavos(registro.valor),
+      0
+    );
+
+    return {
+      uid,
+      nome: participantes[uid]?.nome ||
+            dados?.nome ||
+            "Participante",
+      quantidade: registros.length,
+      totalCentavos
+    };
+  }).filter(item => item.quantidade > 0)
+    .sort((a, b) => b.totalCentavos - a.totalCentavos);
+
+  const geral = itens.reduce(
+    (soma, item) => soma + item.totalCentavos, 0
+  );
+
+  $("totalGeralSemanal").textContent =
+    dinheiro(reais(geral));
+
+  if (!itens.length) {
+    $("listaTotaisSemanais").innerHTML =
+      '<div class="empty">Nenhum código aprovado nesta semana.</div>';
+    return;
+  }
+
+  $("listaTotaisSemanais").innerHTML = itens.map(item => `
+    <div class="item">
+      <strong>${escapar(item.nome)}</strong>
+      <p>ID: ${escapar(item.uid)}</p>
+      <p>Códigos aprovados: ${item.quantidade}</p>
+      <p>Total semanal:
+        <strong class="green amount">
+          ${dinheiro(reais(item.totalCentavos))}
+        </strong>
+      </p>
+    </div>
+  `).join("");
+}
 </script>
 </body>
 </html>
