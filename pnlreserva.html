@@ -9,55 +9,28 @@
 
 <style>
 :root{
-  --bg:#101010;
-  --card:#1b1b1b;
-  --border:#303030;
-  --green:#19c37d;
-  --red:#ff4d5a;
-  --yellow:#ffca55;
-  --text:#f5f5f5;
-  --muted:#a5a5a5;
+  --bg:#101010;--card:#1b1b1b;--border:#303030;
+  --green:#19c37d;--red:#ff4d5a;--yellow:#ffca55;
+  --text:#f5f5f5;--muted:#a5a5a5;
 }
 *{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Arial,sans-serif;
-}
-header{
-  background:#171717;border-bottom:1px solid var(--border);
-  padding:16px;position:sticky;top:0;z-index:5;
-}
-.header-content{
-  max-width:1200px;margin:auto;display:flex;
-  align-items:center;justify-content:space-between;gap:10px;
-}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{background:#171717;border-bottom:1px solid var(--border);padding:16px;position:sticky;top:0;z-index:5}
+.header-content{max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
 h1{font-size:19px;margin:0}
 h2{font-size:17px;margin:0 0 15px}
 main{max-width:1200px;margin:auto;padding:15px}
-.card,.stat{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:13px;padding:15px;margin-bottom:15px;
-}
+.card,.stat{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:15px;margin-bottom:15px}
 #loginBox{max-width:420px;margin:50px auto}
 #loginBox h2{font-size:22px}
-input,select{
-  width:100%;padding:12px;background:#101010;color:white;
-  border:1px solid #3b3b3b;border-radius:9px;
-  font-size:15px;margin:7px 0 13px;
-}
+input,select{width:100%;padding:12px;background:#101010;color:white;border:1px solid #3b3b3b;border-radius:9px;font-size:15px;margin:7px 0 13px}
 label{font-size:13px;color:#ddd}
-button{
-  border:0;border-radius:9px;padding:11px 14px;
-  font-size:13px;font-weight:bold;cursor:pointer;
-}
+button{border:0;border-radius:9px;padding:11px 14px;font-size:13px;font-weight:bold;cursor:pointer}
 button:disabled{opacity:.5;cursor:not-allowed}
 .primary{background:var(--green);color:#07180f}
 .secondary{background:#333;color:white}
 .danger{background:#4b2024;color:#ffb6bc}
-.stats{
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:10px;margin-bottom:15px;
-}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:15px}
 .stat{margin:0;min-width:0}
 .stat span{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}
 .stat strong{font-size:19px;overflow-wrap:anywhere}
@@ -68,26 +41,17 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .section.active{display:block}
 .item{padding:14px 0;border-bottom:1px solid var(--border)}
 .item:last-child{border-bottom:0}
-.item p{
-  font-size:13px;color:#c8c8c8;margin:7px 0;
-  overflow-wrap:anywhere;
-}
+.item p{font-size:13px;color:#c8c8c8;margin:7px 0;overflow-wrap:anywhere}
 .amount{font-weight:bold;font-size:18px}
 .muted,small{color:var(--muted)}
 .green{color:var(--green)}
 .yellow{color:var(--yellow)}
-.pill{
-  display:inline-block;padding:5px 8px;border-radius:20px;
-  background:#333;color:#ddd;font-size:11px;
-}
+.pill{display:inline-block;padding:5px 8px;border-radius:20px;background:#333;color:#ddd;font-size:11px}
 .pill.pendente,.pill.processando{background:#473819;color:#ffe0a0}
 .pill.aprovado{background:#173b2b;color:#8df0b9}
 .pill.recusado{background:#4b2024;color:#ffb6bc}
 .empty{text-align:center;color:var(--muted);padding:20px 5px}
-.notice{
-  padding:12px;background:#252525;border-radius:9px;
-  font-size:13px;line-height:1.5;margin-bottom:15px;
-}
+.notice{padding:12px;background:#252525;border-radius:9px;font-size:13px;line-height:1.5;margin-bottom:15px}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .actions button{flex:1}
 .hidden{display:none!important}
@@ -110,130 +74,118 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </header>
 
 <main>
-  <section id="loginBox" class="card">
-    <h2>Entrar no painel</h2>
-    <p class="muted">Digite a senha de administrador.</p>
+<section id="loginBox" class="card">
+  <h2>Entrar no painel</h2>
+  <p class="muted">Digite a senha de administrador.</p>
+  <form id="formLogin">
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" placeholder="Digite sua senha" autocomplete="current-password" required>
+    <button class="primary" type="submit" style="width:100%">Entrar</button>
+  </form>
+  <p id="loginMsg" class="muted" role="status"></p>
+</section>
 
-    <form id="formLogin">
-      <label for="senha">Senha</label>
-      <input id="senha" type="password"
-        placeholder="Digite sua senha"
-        autocomplete="current-password" required>
+<div id="painel" class="hidden">
+    <section id="aba-codigos" class="section">
+  <div class="card">
+    <h2>Códigos Recebidos</h2>
 
-      <button class="primary" type="submit" style="width:100%">
-        Entrar
-      </button>
-    </form>
-    <p id="loginMsg" class="muted" role="status"></p>
+    <label for="filtroCodigo">Filtrar por status</label>
+    <select id="filtroCodigo">
+      <option value="todos">Todos</option>
+      <option value="pendente">Pendentes</option>
+      <option value="aprovado">Aprovados</option>
+      <option value="recusado">Recusados</option>
+    </select>
+
+    <div id="listaCodigos" class="empty">Carregando códigos...</div>
+  </div>
+</section>
+  <div class="notice">
+    <strong>Atenção:</strong> confirme o recebimento no aplicativo do banco antes de liberar saldo.
+    O QR Code ou Pix Copia e Cola não confirma o pagamento.
+  </div>
+
+  <div class="stats">
+    <div class="stat"><span>Participantes</span><strong id="totalParticipantes">0</strong></div>
+    <div class="stat"><span>Pedidos pendentes</span><strong id="totalPendentes" class="yellow">0</strong></div>
+    <div class="stat"><span>Total adicionado</span><strong id="totalAdicionado" class="green">R$ 0,00</strong></div>
+    <div class="stat"><span>Saldo disponível</span><strong id="totalRestante">R$ 0,00</strong></div>
+  </div>
+
+  <nav class="tabs">
+      <button data-aba="codigos">Códigos Recebidos</button>
+    <button class="active" data-aba="solicitacoes">Solicitações Pix</button>
+    <button data-aba="participantes">Participantes</button>
+    <button data-aba="ajuste">Ajustar saldo</button>
+    <button data-aba="historico">Histórico</button>
+  </nav>
+
+  <section id="aba-solicitacoes" class="section active">
+    <div class="card">
+      <h2>Solicitações Pix</h2>
+      <label for="filtroSolicitacao">Filtrar por status</label>
+      <select id="filtroSolicitacao">
+        <option value="todas">Todas</option>
+        <option value="pendente">Pendentes</option>
+        <option value="processando">Em processamento</option>
+        <option value="aprovado">Aprovadas</option>
+        <option value="recusado">Recusadas</option>
+      </select>
+      <div id="listaSolicitacoes" class="empty">Carregando...</div>
+    </div>
   </section>
 
-  <div id="painel" class="hidden">
-    <div class="notice">
-      <strong>Atenção:</strong> confirme o recebimento no aplicativo do banco
-      antes de liberar saldo. O QR Code ou Pix Copia e Cola não confirma
-      que o pagamento foi realizado.
+  <section id="aba-participantes" class="section">
+    <div class="card">
+      <h2>Participantes cadastrados</h2>
+      <input id="buscaParticipante" placeholder="Buscar nome, chave Pix ou ID">
+      <div id="listaParticipantes" class="empty">Carregando...</div>
     </div>
+  </section>
 
-    <div class="stats">
-      <div class="stat">
-        <span>Participantes</span>
-        <strong id="totalParticipantes">0</strong>
-      </div>
-      <div class="stat">
-        <span>Pedidos pendentes</span>
-        <strong id="totalPendentes" class="yellow">0</strong>
-      </div>
-      <div class="stat">
-        <span>Total adicionado</span>
-        <strong id="totalAdicionado" class="green">R$ 0,00</strong>
-      </div>
-      <div class="stat">
-        <span>Saldo disponível</span>
-        <strong id="totalRestante">R$ 0,00</strong>
-      </div>
+  <section id="aba-ajuste" class="section">
+    <div class="card">
+      <h2>Ajustar saldo</h2>
+      <label for="participanteAjuste">Participante</label>
+      <select id="participanteAjuste">
+        <option value="">Selecione um participante</option>
+      </select>
+
+      <label for="tipoAjuste">Operação</label>
+      <select id="tipoAjuste">
+        <option value="adicionar">Adicionar saldo</option>
+        <option value="descontar">Descontar saldo</option>
+      </select>
+
+      <label for="valorAjuste">Valor em reais</label>
+      <input id="valorAjuste" type="number" min="0.01" max="99999999" step="0.01" inputmode="decimal" placeholder="0,00">
+
+      <label for="motivoAjuste">Motivo</label>
+      <input id="motivoAjuste" maxlength="150" placeholder="Ex.: correção de saldo">
+
+      <button id="btnAjustar" class="primary">Confirmar ajuste</button>
+      <p id="ajusteMsg" class="muted" role="status"></p>
     </div>
+  </section>
 
-    <nav class="tabs">
-      <button class="active" data-aba="solicitacoes">Solicitações Pix</button>
-      <button data-aba="participantes">Participantes</button>
-      <button data-aba="ajuste">Ajustar saldo</button>
-      <button data-aba="historico">Histórico</button>
-    </nav>
-
-    <section id="aba-solicitacoes" class="section active">
-      <div class="card">
-        <h2>Solicitações Pix</h2>
-        <label for="filtroSolicitacao">Filtrar por status</label>
-        <select id="filtroSolicitacao">
-          <option value="todas">Todas</option>
-          <option value="pendente">Pendentes</option>
-          <option value="processando">Em processamento</option>
-          <option value="aprovado">Aprovadas</option>
-          <option value="recusado">Recusadas</option>
-        </select>
-        <div id="listaSolicitacoes" class="empty">Carregando...</div>
-      </div>
-    </section>
-
-    <section id="aba-participantes" class="section">
-      <div class="card">
-        <h2>Participantes cadastrados</h2>
-        <input id="buscaParticipante"
-          placeholder="Buscar nome, chave Pix ou ID">
-        <div id="listaParticipantes" class="empty">Carregando...</div>
-      </div>
-    </section>
-
-    <section id="aba-ajuste" class="section">
-      <div class="card">
-        <h2>Ajustar saldo</h2>
-
-        <label for="participanteAjuste">Participante</label>
-        <select id="participanteAjuste">
-          <option value="">Selecione um participante</option>
-        </select>
-
-        <label for="tipoAjuste">Operação</label>
-        <select id="tipoAjuste">
-          <option value="adicionar">Adicionar saldo</option>
-          <option value="descontar">Descontar saldo</option>
-        </select>
-
-        <label for="valorAjuste">Valor em reais</label>
-        <input id="valorAjuste" type="number" min="0.01" step="0.01"
-          inputmode="decimal" placeholder="0,00">
-
-        <label for="motivoAjuste">Motivo</label>
-        <input id="motivoAjuste" maxlength="150"
-          placeholder="Ex.: correção de saldo">
-
-        <button id="btnAjustar" class="primary">Confirmar ajuste</button>
-        <p id="ajusteMsg" class="muted"></p>
-      </div>
-    </section>
-
-    <section id="aba-historico" class="section">
-      <div class="card">
-        <h2>Histórico de operações</h2>
-        <div id="listaHistorico" class="empty">Carregando...</div>
-      </div>
-    </section>
-  </div>
+  <section id="aba-historico" class="section">
+    <div class="card">
+      <h2>Histórico de operações</h2>
+      <div id="listaHistorico" class="empty">Carregando...</div>
+    </div>
+  </section>
+</div>
 </main>
 
 <script type="module">
-import { initializeApp }
+import {initializeApp}
 from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 
 import {
   getDatabase, ref, onValue, update, push, runTransaction
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
 
-// ==================================================
-// CONFIGURAÇÃO FIREBASE
-// Confira a API KEY no Firebase Console:
-// Configurações do projeto > Geral > Seus apps.
-// ==================================================
 const firebaseConfig = {
   apiKey: "AIzaSyB1Fw3PKVYqezBmf-TlcwIlH_oG2EwkY",
   authDomain: "marketplace-af9c4.firebaseapp.com",
@@ -247,20 +199,32 @@ const firebaseConfig = {
 const SENHA_ADMIN = "12345";
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
 const $ = id => document.getElementById(id);
-
-let usuarioAdmin = null;
+let enviosSaldo = {};
 let sessaoAtiva = false;
 let participantes = {};
 let solicitacoes = {};
 let historicos = {};
 let desligarListeners = [];
 
-const dinheiro = valor => Number(valor || 0).toLocaleString("pt-BR", {
-  style: "currency",
-  currency: "BRL"
+/* Valores monetários em centavos para evitar erros de arredondamento. */
+const centavos = valor => Math.round((Number(valor) || 0) * 100);
+const reais = cent => cent / 100;
+
+const dinheiro = valor => reais(centavos(valor)).toLocaleString("pt-BR", {
+  style:"currency", currency:"BRL"
 });
+
+/*
+  O saldo restante calculado é sempre:
+  saldo adicionado - saldo utilizado.
+  Assim, um saldo restante antigo incorreto não é usado no cálculo.
+*/
+function saldoCalculado(p) {
+  const adicionado = centavos(p?.saldoAdicionado);
+  const utilizado = centavos(p?.saldoUtilizado);
+  return Math.max(0, adicionado - utilizado);
+}
 
 function escapar(valor) {
   return String(valor ?? "").replace(/[&<>"']/g, c => ({
@@ -280,14 +244,16 @@ function statusDe(valor) {
   return String(valor || "pendente").toLowerCase();
 }
 
-function erroBanco(erro) {
-  console.error("Firebase:", erro);
-  alert("Erro Firebase: " + (erro?.message || "Verifique a conexão e as regras."));
+function pararListeners() {
+  desligarListeners.forEach(parar => parar());
+  desligarListeners = [];
+  participantes = {};
+  solicitacoes = {};
+  historicos = {};
+  enviosSaldo = {};
 }
-
-// ==================================================
-// LOGIN SOMENTE COM SENHA
-// ==================================================
+$("filtroCodigo").addEventListener("change", renderCodigos);
+/* LOGIN */
 $("formLogin").addEventListener("submit", event => {
   event.preventDefault();
 
@@ -298,70 +264,59 @@ $("formLogin").addEventListener("submit", event => {
   }
 
   sessaoAtiva = true;
-  usuarioAdmin = { email: "administrador-local" };
-
   $("loginMsg").textContent = "";
   $("loginBox").classList.add("hidden");
   $("painel").classList.remove("hidden");
   $("btnSair").classList.remove("hidden");
-
   iniciarListeners();
 });
 
 $("btnSair").addEventListener("click", () => {
   sessaoAtiva = false;
-  usuarioAdmin = null;
-
   pararListeners();
-
   $("painel").classList.add("hidden");
   $("loginBox").classList.remove("hidden");
   $("btnSair").classList.add("hidden");
   $("senha").value = "";
-  $("loginMsg").textContent = "";
 });
 
-// ==================================================
-// LEITURA EM TEMPO REAL
-// ==================================================
+/* LEITURA FIREBASE */
 function iniciarListeners() {
   pararListeners();
+desligarListeners.push(
+  onValue(ref(db, "enviosSaldo"), snap => {
+    if (!sessaoAtiva) return;
 
-  desligarListeners.push(
-    onValue(ref(db, "participantes"), snap => {
-      if (!sessaoAtiva) return;
-      participantes = snap.val() || {};
-      atualizarResumo();
-      renderParticipantes();
-      preencherSelect();
-      renderHistorico();
-    }, erroBanco)
-  );
+    enviosSaldo = snap.val() || {};
+    renderCodigos();
+  }, erroBanco)
+);
+  desligarListeners.push(onValue(ref(db,"participantes"), snap => {
+    if (!sessaoAtiva) return;
+    participantes = snap.val() || {};
+    atualizarResumo();
+    renderParticipantes();
+    preencherSelect();
+    renderHistorico();
+  }, erroBanco));
 
-  desligarListeners.push(
-    onValue(ref(db, "solicitacoes"), snap => {
-      if (!sessaoAtiva) return;
-      solicitacoes = snap.val() || {};
-      atualizarResumo();
-      renderSolicitacoes();
-    }, erroBanco)
-  );
+  desligarListeners.push(onValue(ref(db,"solicitacoes"), snap => {
+    if (!sessaoAtiva) return;
+    solicitacoes = snap.val() || {};
+    atualizarResumo();
+    renderSolicitacoes();
+  }, erroBanco));
 
-  desligarListeners.push(
-    onValue(ref(db, "historicoSaldo"), snap => {
-      if (!sessaoAtiva) return;
-      historicos = snap.val() || {};
-      renderHistorico();
-    }, erroBanco)
-  );
+  desligarListeners.push(onValue(ref(db,"historicoSaldo"), snap => {
+    if (!sessaoAtiva) return;
+    historicos = snap.val() || {};
+    renderHistorico();
+  }, erroBanco));
 }
 
-function pararListeners() {
-  desligarListeners.forEach(parar => parar());
-  desligarListeners = [];
-  participantes = {};
-  solicitacoes = {};
-  historicos = {};
+function erroBanco(erro) {
+  console.error("Firebase:", erro);
+  alert("Erro Firebase: " + (erro?.message || "Verifique a conexão e as regras."));
 }
 
 function atualizarResumo() {
@@ -374,95 +329,68 @@ function atualizarResumo() {
   ).length;
 
   $("totalAdicionado").textContent = dinheiro(
-    pessoas.reduce((s, p) => s + Number(p.saldoAdicionado || 0), 0)
+    pessoas.reduce((s,p) => s + centavos(p.saldoAdicionado),0) / 100
   );
 
   $("totalRestante").textContent = dinheiro(
-    pessoas.reduce((s, p) => s + Number(p.saldoRestante || 0), 0)
+    pessoas.reduce((s,p) => s + saldoCalculado(p),0) / 100
   );
 }
 
-// ==================================================
-// NAVEGAÇÃO
-// ==================================================
+/* ABAS */
 document.querySelectorAll("[data-aba]").forEach(botao => {
   botao.addEventListener("click", () => {
-    const nome = botao.dataset.aba;
-
-    document.querySelectorAll(".section").forEach(el =>
-      el.classList.remove("active")
-    );
-
-    document.querySelectorAll("[data-aba]").forEach(el =>
-      el.classList.remove("active")
-    );
-
-    $("aba-" + nome).classList.add("active");
+    document.querySelectorAll(".section").forEach(el => el.classList.remove("active"));
+    document.querySelectorAll("[data-aba]").forEach(el => el.classList.remove("active"));
+    $("aba-" + botao.dataset.aba).classList.add("active");
     botao.classList.add("active");
   });
 });
 
-$("filtroSolicitacao").addEventListener("change", renderSolicitacoes);
-$("buscaParticipante").addEventListener("input", renderParticipantes);
+$("filtroSolicitacao").addEventListener("change",renderSolicitacoes);
+$("buscaParticipante").addEventListener("input",renderParticipantes);
 
-// ==================================================
-// SOLICITAÇÕES PIX
-// ==================================================
+/* SOLICITAÇÕES */
 function renderSolicitacoes() {
   const filtro = $("filtroSolicitacao").value;
-
   const itens = Object.entries(solicitacoes)
-    .map(([id, p]) => ({ ...p, id }))
+    .map(([id,p]) => ({...p,id}))
     .filter(p => filtro === "todas" || statusDe(p.status) === filtro)
-    .sort((a, b) => Number(b.criadoEm || 0) - Number(a.criadoEm || 0));
+    .sort((a,b) => Number(b.criadoEm||0)-Number(a.criadoEm||0));
 
   if (!itens.length) {
-    $("listaSolicitacoes").innerHTML =
-      '<div class="empty">Nenhuma solicitação encontrada.</div>';
+    $("listaSolicitacoes").innerHTML = '<div class="empty">Nenhuma solicitação encontrada.</div>';
     return;
   }
 
   $("listaSolicitacoes").innerHTML = itens.map(p => {
     const status = statusDe(p.status);
-    const pendente = status === "pendente";
-
     return `
       <div class="item">
         <strong>${escapar(p.nome || "Sem nome")}</strong>
         <p>Valor: <strong class="amount">${dinheiro(p.valor)}</strong></p>
         <p>Chave Pix: ${escapar(p.chavePix || "Não informada")}</p>
-        <p>ID da solicitação: ${escapar(p.id)}</p>
-        <p>ID participante: ${escapar(p.uid || "Não informado")}</p>
+        <p>ID solicitação: ${escapar(p.id)}</p>
+        <p>ID participante: ${escapar(p.uid || "")}</p>
         <p>Data: ${escapar(dataHora(p.criadoEm))}</p>
-        <p>Status:
-          <span class="pill ${escapar(status)}">${escapar(status)}</span>
-        </p>
-
-        ${pendente ? `
+        <p>Status: <span class="pill ${escapar(status)}">${escapar(status)}</span></p>
+        ${status === "pendente" ? `
           <div class="actions">
-            <button class="primary" data-acao="aprovar"
-              data-id="${escapar(p.id)}">Confirmar pagamento e liberar</button>
-            <button class="danger" data-acao="recusar"
-              data-id="${escapar(p.id)}">Recusar</button>
-          </div>
-        ` : ""}
-      </div>
-    `;
+            <button class="primary" data-acao="aprovar" data-id="${escapar(p.id)}">Confirmar pagamento e liberar</button>
+            <button class="danger" data-acao="recusar" data-id="${escapar(p.id)}">Recusar</button>
+          </div>` : ""}
+      </div>`;
   }).join("");
 }
 
 $("listaSolicitacoes").addEventListener("click", async event => {
   const botao = event.target.closest("button[data-acao]");
   if (!botao || !sessaoAtiva) return;
-
   botao.disabled = true;
 
   try {
-    if (botao.dataset.acao === "aprovar") {
-      await aprovarSolicitacao(botao.dataset.id);
-    } else {
-      await recusarSolicitacao(botao.dataset.id);
-    }
+    if (botao.dataset.acao === "aprovar") await aprovarSolicitacao(botao.dataset.id);
+    else await recusarSolicitacao(botao.dataset.id);
   } catch (erro) {
     console.error(erro);
     alert("Erro: " + erro.message);
@@ -473,137 +401,113 @@ $("listaSolicitacoes").addEventListener("click", async event => {
 
 async function aprovarSolicitacao(id) {
   const pedido = solicitacoes[id];
-
   if (!sessaoAtiva) throw new Error("Entre novamente no painel.");
-  if (!pedido || statusDe(pedido.status) !== "pendente") {
-    throw new Error("A solicitação não está pendente.");
-  }
+  if (!pedido || statusDe(pedido.status) !== "pendente") throw new Error("Solicitação não está pendente.");
 
   const uid = pedido.uid;
-  const valor = Math.round(Number(pedido.valor) * 100) / 100;
+  const valorCent = centavos(pedido.valor);
 
-  if (!uid || !participantes[uid]) {
-    throw new Error("Participante não encontrado.");
-  }
-
-  if (!Number.isFinite(valor) || valor <= 0) {
-    throw new Error("Valor inválido.");
-  }
+  if (!uid || !participantes[uid]) throw new Error("Participante não encontrado.");
+  if (valorCent <= 0) throw new Error("Valor inválido.");
 
   if (!confirm(
     "Confirme que o pagamento foi recebido no banco.\n\n" +
     "Participante: " + (pedido.nome || "") + "\n" +
-    "Valor: " + dinheiro(valor) + "\n\nLiberar saldo?"
+    "Valor: " + dinheiro(reais(valorCent)) + "\n\nLiberar saldo?"
   )) return;
 
-  // Reserva o pedido para evitar que duas aprovações sejam iniciadas.
-  const statusRef = ref(db, "solicitacoes/" + id + "/status");
+  const statusRef = ref(db,"solicitacoes/" + id + "/status");
   const reserva = await runTransaction(statusRef, atual => {
     if (atual !== "pendente") return;
     return "processando";
   });
 
-  if (!reserva.committed) {
-    throw new Error("A solicitação já foi processada ou alterada.");
-  }
+  if (!reserva.committed) throw new Error("A solicitação já foi processada ou alterada.");
 
   try {
-    // A transação no participante impede atualizações concorrentes
-    // de sobrescreverem o saldo.
-    const saldoRef = ref(db, "participantes/" + uid);
+    const saldoRef = ref(db,"participantes/" + uid);
+
     const resultado = await runTransaction(saldoRef, p => {
       if (!p) return;
 
-      p.saldoAdicionado = Number(p.saldoAdicionado || 0) + valor;
-      p.saldoRestante = Number(p.saldoRestante || 0) + valor;
+      const adicionado = centavos(p.saldoAdicionado);
+      const utilizado = centavos(p.saldoUtilizado);
+      const novoAdicionado = adicionado + valorCent;
+
+      p.saldoAdicionado = reais(novoAdicionado);
+      p.saldoUtilizado = reais(utilizado);
+      p.saldoRestante = reais(Math.max(0, novoAdicionado - utilizado));
 
       return p;
     });
 
-    if (!resultado.committed) {
-      throw new Error("O saldo não foi atualizado.");
-    }
+    if (!resultado.committed) throw new Error("Saldo não foi atualizado.");
 
     const agora = Date.now();
-    const registro = push(ref(db, "historicoSaldo/" + uid));
+    const registro = push(ref(db,"historicoSaldo/" + uid));
 
     await update(ref(db), {
       ["historicoSaldo/" + uid + "/" + registro.key]: {
-        tipo: "credito_pix",
-        valor,
-        descricao: "Crédito da solicitação " + id,
-        solicitacaoId: id,
-        administrador: usuarioAdmin.email,
-        criadoEm: agora
+        tipo:"credito_pix",
+        valor:reais(valorCent),
+        descricao:"Crédito da solicitação " + id,
+        solicitacaoId:id,
+        criadoEm:agora
       },
-      ["solicitacoes/" + id + "/status"]: "aprovado",
-      ["solicitacoes/" + id + "/atualizadoEm"]: agora,
-      ["solicitacoes/" + id + "/aprovadoPor"]: usuarioAdmin.email
+      ["solicitacoes/" + id + "/status"]:"aprovado",
+      ["solicitacoes/" + id + "/atualizadoEm"]:agora
     });
 
     alert("Saldo liberado com sucesso.");
   } catch (erro) {
     console.error(erro);
     alert(
-      "A operação não foi concluída por completo. O pedido pode continuar " +
-      "como 'processando'. Confira o saldo e o histórico antes de corrigir " +
-      "manualmente para evitar crédito duplicado.\n\n" + erro.message
+      "Não foi possível concluir todas as etapas. Confira o saldo, o histórico e o status do pedido antes de tentar novamente, para evitar crédito duplicado.\n\n" +
+      erro.message
     );
   }
 }
 
 async function recusarSolicitacao(id) {
   if (!sessaoAtiva) throw new Error("Entre novamente no painel.");
-
   const pedido = solicitacoes[id];
-  if (!pedido || statusDe(pedido.status) !== "pendente") {
-    throw new Error("A solicitação não está pendente.");
-  }
 
-  const motivo = prompt("Motivo da recusa (opcional):", "");
+  if (!pedido || statusDe(pedido.status) !== "pendente") throw new Error("Solicitação não está pendente.");
+
+  const motivo = prompt("Motivo da recusa (opcional):","");
   if (motivo === null) return;
-
   if (!confirm("Deseja realmente recusar esta solicitação?")) return;
 
-  const statusRef = ref(db, "solicitacoes/" + id + "/status");
-  const resultado = await runTransaction(statusRef, atual => {
+  const resultado = await runTransaction(ref(db,"solicitacoes/" + id + "/status"), atual => {
     if (atual !== "pendente") return;
     return "recusado";
   });
 
-  if (!resultado.committed) {
-    throw new Error("A solicitação já foi alterada.");
-  }
+  if (!resultado.committed) throw new Error("Solicitação já foi alterada.");
 
-  await update(ref(db, "solicitacoes/" + id), {
-    atualizadoEm: Date.now(),
-    motivoRecusa: motivo,
-    recusadoPor: usuarioAdmin.email
+  await update(ref(db,"solicitacoes/" + id), {
+    atualizadoEm:Date.now(),
+    motivoRecusa:motivo
   });
 
   alert("Solicitação recusada.");
 }
 
-// ==================================================
-// PARTICIPANTES
-// ==================================================
+/* PARTICIPANTES */
 function renderParticipantes() {
   const busca = $("buscaParticipante").value.trim().toLowerCase();
 
   const itens = Object.entries(participantes)
-    .map(([uid, p]) => ({ ...p, uid }))
+    .map(([uid,p]) => ({...p,uid}))
     .filter(p =>
-      String(p.nome || "").toLowerCase().includes(busca) ||
-      String(p.chavePix || "").toLowerCase().includes(busca) ||
+      String(p.nome||"").toLowerCase().includes(busca) ||
+      String(p.chavePix||"").toLowerCase().includes(busca) ||
       p.uid.toLowerCase().includes(busca)
     )
-    .sort((a, b) =>
-      String(a.nome || "").localeCompare(String(b.nome || ""))
-    );
+    .sort((a,b) => String(a.nome||"").localeCompare(String(b.nome||"")));
 
   if (!itens.length) {
-    $("listaParticipantes").innerHTML =
-      '<div class="empty">Nenhum participante encontrado.</div>';
+    $("listaParticipantes").innerHTML = '<div class="empty">Nenhum participante encontrado.</div>';
     return;
   }
 
@@ -613,22 +517,17 @@ function renderParticipantes() {
       <p>ID: ${escapar(p.uid)}</p>
       <p>Chave Pix: ${escapar(p.chavePix || "Não informada")}</p>
       <p>Cadastro: ${escapar(dataHora(p.criadoEm))}</p>
-      <p>Saldo adicionado:
-        <strong class="green">${dinheiro(p.saldoAdicionado)}</strong>
-      </p>
+      <p>Saldo adicionado: <strong class="green">${dinheiro(p.saldoAdicionado)}</strong></p>
       <p>Saldo utilizado: ${dinheiro(p.saldoUtilizado)}</p>
-      <p>Saldo restante: <strong>${dinheiro(p.saldoRestante)}</strong></p>
-      <button class="secondary" data-ajustar="${escapar(p.uid)}">
-        Ajustar saldo
-      </button>
+      <p>Saldo restante: <strong>${dinheiro(reais(saldoCalculado(p)))}</strong></p>
+      <button class="secondary" data-ajustar="${escapar(p.uid)}">Ajustar saldo</button>
     </div>
   `).join("");
 }
 
-$("listaParticipantes").addEventListener("click", event => {
+$("listaParticipantes").addEventListener("click",event => {
   const botao = event.target.closest("[data-ajustar]");
   if (!botao) return;
-
   $("participanteAjuste").value = botao.dataset.ajustar;
   document.querySelector('[data-aba="ajuste"]').click();
 });
@@ -638,92 +537,100 @@ function preencherSelect() {
   const anterior = select.value;
 
   const itens = Object.entries(participantes)
-    .map(([uid, p]) => ({ uid, nome: p.nome || "Sem nome" }))
-    .sort((a, b) => a.nome.localeCompare(b.nome));
+    .map(([uid,p]) => ({uid,nome:p.nome||"Sem nome"}))
+    .sort((a,b) => a.nome.localeCompare(b.nome));
 
   select.innerHTML = '<option value="">Selecione um participante</option>' +
-    itens.map(p =>
-      `<option value="${escapar(p.uid)}">${escapar(p.nome)} — ${escapar(p.uid)}</option>`
-    ).join("");
+    itens.map(p => `<option value="${escapar(p.uid)}">${escapar(p.nome)} — ${escapar(p.uid)}</option>`).join("");
 
   if (participantes[anterior]) select.value = anterior;
 }
 
-// ==================================================
-// AJUSTE MANUAL DE SALDO
-// ==================================================
-$("btnAjustar").addEventListener("click", ajustarSaldo);
+/* AJUSTE DE SALDO CORRIGIDO */
+$("btnAjustar").addEventListener("click",ajustarSaldo);
 
 async function ajustarSaldo() {
   if (!sessaoAtiva) return alert("Entre no painel primeiro.");
 
   const uid = $("participanteAjuste").value;
   const tipo = $("tipoAjuste").value;
-  const valor = Math.round(Number($("valorAjuste").value) * 100) / 100;
+  const valorCent = centavos($("valorAjuste").value);
   const motivo = $("motivoAjuste").value.trim();
 
-  if (!uid || !participantes[uid]) {
-    return alert("Selecione um participante.");
-  }
+  if (!uid || !participantes[uid]) return alert("Selecione um participante.");
+  if (!Number.isSafeInteger(valorCent) || valorCent <= 0) return alert("Informe um valor válido.");
+  if (valorCent > 9999999900) return alert("Valor muito alto.");
 
-  if (!Number.isFinite(valor) || valor <= 0) {
-    return alert("Informe um valor válido.");
-  }
+  const pessoa = participantes[uid];
 
-  if (tipo === "descontar" &&
-      valor > Number(participantes[uid].saldoRestante || 0)) {
+  if (tipo === "descontar" && valorCent > saldoCalculado(pessoa)) {
     return alert("O desconto é maior que o saldo disponível.");
   }
 
+  const operacao = tipo === "adicionar" ? "adicionar" : "descontar";
+
   if (!confirm(
-    "Confirma " + tipo + " " + dinheiro(valor) +
-    " para " + (participantes[uid].nome || "participante") + "?"
+    "Confirma " + operacao + " " + dinheiro(reais(valorCent)) +
+    " para " + (pessoa.nome || "participante") + "?"
   )) return;
 
   $("btnAjustar").disabled = true;
   $("ajusteMsg").textContent = "Salvando ajuste...";
 
   try {
-    const resultado = await runTransaction(
-      ref(db, "participantes/" + uid), p => {
-        if (!p) return;
+    const saldoRef = ref(db,"participantes/" + uid);
 
-        const restante = Number(p.saldoRestante || 0);
-        const adicionado = Number(p.saldoAdicionado || 0);
+    const resultado = await runTransaction(saldoRef,p => {
+      if (!p) return;
 
-        if (tipo === "descontar" && valor > restante) return;
+      const adicionadoCent = centavos(p.saldoAdicionado);
+      const utilizadoCent = centavos(p.saldoUtilizado);
 
-        if (tipo === "adicionar") {
-          p.saldoAdicionado = adicionado + valor;
-          p.saldoRestante = restante + valor;
-        } else {
-          p.saldoRestante = restante - valor;
-        }
+      // Não confia no saldoRestante antigo: recalcula pelo saldo acumulado.
+      const restanteCent = Math.max(0,adicionadoCent-utilizadoCent);
 
-        return p;
+      if (tipo === "descontar" && valorCent > restanteCent) return;
+
+      if (tipo === "adicionar") {
+        // Crédito: aumenta o total adicionado, não altera o utilizado.
+        const novoAdicionado = adicionadoCent + valorCent;
+        p.saldoAdicionado = reais(novoAdicionado);
+        p.saldoUtilizado = reais(utilizadoCent);
+        p.saldoRestante = reais(Math.max(0,novoAdicionado-utilizadoCent));
+      } else {
+        // Débito: aumenta o utilizado, não diminui o total adicionado.
+        const novoUtilizado = utilizadoCent + valorCent;
+        p.saldoAdicionado = reais(adicionadoCent);
+        p.saldoUtilizado = reais(novoUtilizado);
+        p.saldoRestante = reais(Math.max(0,adicionadoCent-novoUtilizado));
       }
-    );
+
+      return p;
+    });
 
     if (!resultado.committed) {
-      throw new Error("Saldo não alterado. Confira o saldo atual.");
+      throw new Error("Saldo não alterado. Confira o saldo disponível e tente novamente.");
     }
 
-    const registro = push(ref(db, "historicoSaldo/" + uid));
+    const registro = push(ref(db,"historicoSaldo/" + uid));
     const agora = Date.now();
 
     await update(ref(db), {
       ["historicoSaldo/" + uid + "/" + registro.key]: {
-        tipo: tipo === "adicionar" ? "ajuste_credito" : "ajuste_debito",
-        valor,
-        descricao: motivo || "Ajuste manual",
-        administrador: usuarioAdmin.email,
-        criadoEm: agora
+        tipo:tipo === "adicionar" ? "ajuste_credito" : "ajuste_debito",
+        valor:reais(valorCent),
+        descricao:motivo || (tipo === "adicionar" ? "Adição manual de saldo" : "Desconto manual de saldo"),
+        criadoEm:agora
       }
     });
 
     $("valorAjuste").value = "";
     $("motivoAjuste").value = "";
-    $("ajusteMsg").textContent = "Ajuste realizado com sucesso.";
+
+    $("ajusteMsg").textContent =
+      "Ajuste realizado! Saldo restante: " +
+      dinheiro(reais(saldoCalculado(resultado.snapshot.val())));
+
   } catch (erro) {
     console.error(erro);
     $("ajusteMsg").textContent = "Erro: " + erro.message;
@@ -732,45 +639,252 @@ async function ajustarSaldo() {
   }
 }
 
-// ==================================================
-// HISTÓRICO
-// ==================================================
+/* HISTÓRICO */
 function renderHistorico() {
   const itens = [];
 
-  Object.entries(historicos).forEach(([uid, registros]) => {
-    Object.entries(registros || {}).forEach(([id, h]) => {
+  Object.entries(historicos).forEach(([uid,registros]) => {
+    Object.entries(registros||{}).forEach(([id,h]) => {
       itens.push({
-        ...h,
-        uid,
-        id,
-        nome: participantes[uid]?.nome || "Participante"
+        ...h,uid,id,
+        nome:participantes[uid]?.nome || "Participante"
       });
     });
   });
 
-  itens.sort((a, b) =>
-    Number(b.criadoEm || 0) - Number(a.criadoEm || 0)
-  );
+  itens.sort((a,b) => Number(b.criadoEm||0)-Number(a.criadoEm||0));
 
   if (!itens.length) {
-    $("listaHistorico").innerHTML =
-      '<div class="empty">Nenhuma operação registrada.</div>';
+    $("listaHistorico").innerHTML = '<div class="empty">Nenhuma operação registrada.</div>';
     return;
   }
 
-  $("listaHistorico").innerHTML = itens.slice(0, 200).map(h => `
+  $("listaHistorico").innerHTML = itens.slice(0,200).map(h => `
     <div class="item">
       <strong>${escapar(h.nome)}</strong>
       <p>Tipo: ${escapar(h.tipo || "Operação")}</p>
       <p>Descrição: ${escapar(h.descricao || "Sem descrição")}</p>
       <p>Data: ${escapar(dataHora(h.criadoEm))}</p>
-      <p>Administrador: ${escapar(h.administrador || "Não informado")}</p>
-      <p><strong>${dinheiro(h.valor)}</strong></p>
+      <p>Valor: <strong>${dinheiro(h.valor)}</strong></p>
       <small>ID participante: ${escapar(h.uid)}</small>
     </div>
   `).join("");
 }
+
+function renderCodigos() {
+  const filtro = $("filtroCodigo").value;
+
+  const itens = Object.entries(enviosSaldo)
+    .map(([id, item]) => ({ ...item, id }))
+    .filter(item =>
+      filtro === "todos" ||
+      String(item.status || "pendente").toLowerCase() === filtro
+    )
+    .sort((a, b) => Number(b.criadoEm || 0) - Number(a.criadoEm || 0));
+
+  if (!itens.length) {
+    $("listaCodigos").innerHTML =
+      '<div class="empty">Nenhum código recebido.</div>';
+    return;
+  }
+
+  $("listaCodigos").innerHTML = itens.map(item => {
+    const status = String(item.status || "pendente").toLowerCase();
+
+    return `
+      <div class="item">
+        <strong>${escapar(item.nome || "Participante")}</strong>
+        <p>Código: <strong>${escapar(item.codigo || "")}</strong></p>
+        <p>Valor: <strong class="amount">${dinheiro(item.valor)}</strong></p>
+        <p>ID participante: ${escapar(item.uid || "")}</p>
+        <p>Data: ${escapar(dataHora(item.criadoEm))}</p>
+        <p>Status:
+          <span class="pill ${escapar(status)}">${escapar(status)}</span>
+        </p>
+
+        ${status === "pendente" ? `
+          <div class="actions">
+            <button class="primary"
+              data-codigo-acao="aprovar"
+              data-id="${escapar(item.id)}">
+              Aprovar e descontar saldo
+            </button>
+            <button class="danger"
+              data-codigo-acao="recusar"
+              data-id="${escapar(item.id)}">
+              Recusar
+            </button>
+          </div>
+        ` : ""}
+      </div>
+    `;
+  }).join("");
+}
+
+$("listaCodigos").addEventListener("click", async event => {
+  const botao = event.target.closest("button[data-codigo-acao]");
+  if (!botao || !sessaoAtiva) return;
+
+  botao.disabled = true;
+
+  try {
+    if (botao.dataset.codigoAcao === "aprovar") {
+      await aprovarCodigoRecebido(botao.dataset.id);
+    } else {
+      await recusarCodigoRecebido(botao.dataset.id);
+    }
+  } catch (erro) {
+    console.error(erro);
+    alert("Erro ao processar código: " + erro.message);
+  } finally {
+    botao.disabled = false;
+  }
+});
+
+async function aprovarCodigoRecebido(id) {
+  const item = enviosSaldo[id];
+
+  if (!item || String(item.status || "pendente").toLowerCase() !== "pendente") {
+    throw new Error("Este código não está pendente.");
+  }
+
+  if (!item.uid || !participantes[item.uid]) {
+    throw new Error("Participante não encontrado.");
+  }
+
+  const valorCent = centavos(item.valor);
+
+  if (valorCent <= 0) {
+    throw new Error("Valor inválido.");
+  }
+
+  const saldoAtual = saldoCalculado(participantes[item.uid]);
+
+  if (valorCent > saldoAtual) {
+    throw new Error(
+      "Saldo insuficiente. Disponível: " +
+      dinheiro(reais(saldoAtual))
+    );
+  }
+
+  if (!confirm(
+    "Confirma a aprovação deste código?\n\n" +
+    "Código: " + item.codigo + "\n" +
+    "Participante: " + item.nome + "\n" +
+    "Valor a descontar: " + dinheiro(reais(valorCent))
+  )) return;
+
+  // Reserva o código: impede duas aprovações simultâneas.
+  const statusRef = ref(db, "enviosSaldo/" + id + "/status");
+
+  const reserva = await runTransaction(statusRef, atual => {
+    if (atual !== "pendente") return;
+    return "processando";
+  });
+
+  if (!reserva.committed) {
+    throw new Error("Este código já foi processado.");
+  }
+
+  let saldoDescontado = false;
+
+  try {
+    const participanteRef = ref(db, "participantes/" + item.uid);
+
+    const resultado = await runTransaction(participanteRef, p => {
+      if (!p) return;
+
+      const adicionadoCent = centavos(p.saldoAdicionado);
+      const utilizadoCent = centavos(p.saldoUtilizado);
+      const restanteCent = Math.max(0, adicionadoCent - utilizadoCent);
+
+      // Revalida o saldo dentro da transação.
+      if (valorCent > restanteCent) return;
+
+      p.saldoUtilizado = reais(utilizadoCent + valorCent);
+      p.saldoRestante = reais(
+        Math.max(0, adicionadoCent - (utilizadoCent + valorCent))
+      );
+
+      return p;
+    });
+
+    if (!resultado.committed) {
+      throw new Error("Saldo insuficiente ou participante não encontrado.");
+    }
+
+    saldoDescontado = true;
+
+    const agora = Date.now();
+    const registro = push(ref(db, "historicoSaldo/" + item.uid));
+
+    await update(ref(db), {
+      ["enviosSaldo/" + id + "/status"]: "aprovado",
+      ["enviosSaldo/" + id + "/atualizadoEm"]: agora,
+      ["enviosSaldo/" + id + "/aprovadoEm"]: agora,
+
+      ["historicoSaldo/" + item.uid + "/" + registro.key]: {
+        tipo: "desconto_codigo",
+        valor: reais(valorCent),
+        descricao: "Desconto pela aprovação do código: " + item.codigo,
+        codigoEnvioId: id,
+        criadoEm: agora
+      }
+    });
+
+    alert("Código aprovado e saldo descontado com sucesso.");
+  } catch (erro) {
+    console.error(erro);
+
+    if (saldoDescontado) {
+      alert(
+        "O saldo já foi descontado, mas não foi possível concluir o registro. " +
+        "O código pode continuar como processando. Confira o saldo, o histórico " +
+        "e o status antes de fazer qualquer ajuste manual para evitar desconto duplicado."
+      );
+    } else {
+      // Libera o código para nova tentativa se o saldo não foi alterado.
+      await runTransaction(statusRef, atual => {
+        if (atual !== "processando") return;
+        return "pendente";
+      });
+    }
+
+    throw erro;
+  }
+}
+
+async function recusarCodigoRecebido(id) {
+  const item = enviosSaldo[id];
+
+  if (!item || String(item.status || "pendente").toLowerCase() !== "pendente") {
+    throw new Error("Este código não está pendente.");
+  }
+
+  if (!confirm(
+    "Deseja recusar este código?\n\n" +
+    "Código: " + item.codigo + "\n" +
+    "Valor: " + dinheiro(item.valor)
+  )) return;
+
+  const statusRef = ref(db, "enviosSaldo/" + id + "/status");
+
+  const resultado = await runTransaction(statusRef, atual => {
+    if (atual !== "pendente") return;
+    return "recusado";
+  });
+
+  if (!resultado.committed) {
+    throw new Error("Este código já foi processado.");
+  }
+
+  await update(ref(db, "enviosSaldo/" + id), {
+    atualizadoEm: Date.now()
+  });
+
+  alert("Código recusado. O saldo não foi alterado.");
+}
+
 </script>
 </body>
 </html>
