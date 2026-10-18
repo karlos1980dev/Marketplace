@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="theme-color" content="#00a86b">
-<title>Área do Cliente</title>
+<title>Área do Cliente - Saldo do Jogo</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -13,7 +13,7 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#f2f5f9;color:#222;padding:15px}
+body{font-family:Arial,sans-serif;background:#ff7455;color:#222;padding:15px}
 .container{max-width:520px;margin:18px auto;background:#fff;padding:20px;border-radius:18px;box-shadow:0 5px 25px #0001}
 header{text-align:center;margin-bottom:22px}
 .logo{font-size:30px;color:#00a86b;font-weight:bold}
@@ -46,10 +46,13 @@ textarea{min-height:110px;font-size:12px;resize:vertical}
 .status.aprovado{background:#d8f8e6;color:#087443}
 .status.recusado{background:#ffe0e0;color:#a11}
 .status.processando{background:#e7e6ff;color:#4539a7}
+.campos-envio{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
+.campos-envio input{min-width:0}
 @media(max-width:360px){
   .container{padding:14px}
   .metric strong{font-size:12px}
   .metric span{font-size:10px}
+  .campos-envio{gap:6px}
 }
 </style>
 </head>
@@ -74,12 +77,10 @@ textarea{min-height:110px;font-size:12px;resize:vertical}
   <p class="muted">Informe seu nome e sua chave Pix para começar.</p>
 
   <label for="nome">Nome completo</label>
-  <input id="nome" maxlength="100" autocomplete="name"
-         placeholder="Seu nome completo">
+  <input id="nome" maxlength="100" autocomplete="name" placeholder="Seu nome completo">
 
   <label for="chave">Sua chave Pix</label>
-  <input id="chave" maxlength="150"
-         placeholder="Sua chave Pix">
+  <input id="chave" maxlength="150" placeholder="Sua chave Pix">
 
   <button id="btnCadastro" class="green">Criar meu cadastro</button>
 </section>
@@ -102,6 +103,26 @@ textarea{min-height:110px;font-size:12px;resize:vertical}
     </div>
   </div>
 
+  <!-- NOVO: CÓDIGO E VALOR -->
+  <div class="section">
+    <h3>Enviar código e valor</h3>
+
+    <div class="campos-envio">
+      <div>
+        <label for="codigoEnvio">Código</label>
+        <input id="codigoEnvio" type="number" maxlength="100" placeholder="Digite o código">
+      </div>
+
+      <div>
+        <label for="valorEnvio">Valor (R$)</label>
+        <input id="valorEnvio" type="number" min="0.01" max="999999.99"
+               step="0.01" inputmode="decimal" placeholder="0,00">
+      </div>
+    </div>
+
+    <button id="btnEnviarCodigo" class="green">Enviar</button>
+  </div>
+
   <button id="btnNovoPix" class="green">＋ Adicionar saldo</button>
 
   <div id="secPix" class="section hidden">
@@ -116,27 +137,22 @@ textarea{min-height:110px;font-size:12px;resize:vertical}
     <div id="resultadoPix" class="hidden">
       <h3 style="text-align:center;margin-top:18px">Escaneie para pagar</h3>
       <div id="qrcode"></div>
-
-      <div id="valorGerado"
-           style="text-align:center;font-size:26px;font-weight:bold;margin:10px">
-      </div>
+      <div id="valorGerado" style="text-align:center;font-size:26px;font-weight:bold;margin:10px"></div>
 
       <label for="codigoPix">Pix Copia e Cola</label>
       <textarea id="codigoPix" readonly></textarea>
 
       <button id="btnCopiar" class="dark">Copiar código Pix</button>
-      <button style="display:none"; id="btnWhatsApp" class="pale">📲 Compartilhar pelo WhatsApp</button>
       <button id="btnSolicitar" class="green">Já paguei — enviar solicitação</button>
 
       <p class="small">
-        Depois de pagar, envie a solicitação. O administrador deverá
-        verificar o recebimento antes de liberar o saldo.
+        Após pagar, envie a solicitação. O administrador deverá verificar o pagamento antes de liberar o saldo.
       </p>
     </div>
   </div>
 
   <div class="section">
-    <h3>Minhas solicitações</h3>
+    <h3>Minhas solicitações Pix</h3>
     <div id="minhasSolicitacoes" class="muted">Carregando...</div>
   </div>
 
@@ -144,20 +160,17 @@ textarea{min-height:110px;font-size:12px;resize:vertical}
     <h3>Histórico de saldo</h3>
     <div id="historico" class="muted">Carregando...</div>
   </div>
-
-  <button style="display:none"; id="btnSair" class="dark">Ocultar minha área</button>
 </section>
 
+<p class="small">
+  A geração do QR Code não confirma automaticamente o recebimento do dinheiro.
+</p>
 </div>
 
 <script>
 "use strict";
 
-/* ==========================================
-   FIREBASE - MARKETPLACE SSA
-   Sem Firebase Authentication
-========================================== */
-
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyB1Fw3PKVYqezBmf-TlcwIlH_oG2EwkY",
   authDomain: "marketplace-af9c4.firebaseapp.com",
@@ -168,39 +181,27 @@ const firebaseConfig = {
   appId: "1:655705511573:web:3bb3728ca75c217374ed9c"
 };
 
-let db;
-let uid = null;
-let participante = null;
-let valorAtual = null;
-let codigoAtual = "";
+let db, uid = null, participante = null;
+let valorAtual = null, codigoAtual = "";
 let enviandoSolicitacao = false;
-let ocultouArea = false;
+let enviandoCodigo = false;
 let listenersIniciados = false;
 
 const $ = id => document.getElementById(id);
 
 function iniciarFirebase() {
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-  }
-
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   db = firebase.database();
 
   uid = localStorage.getItem("saldoPixParticipanteId");
 
   if (!uid) {
-    uid = "P" + Date.now() +
-      Math.random().toString(36).slice(2, 9);
-
+    uid = "P" + Date.now() + Math.random().toString(36).slice(2,9);
     localStorage.setItem("saldoPixParticipanteId", uid);
   }
 
   console.log("Firebase iniciado. Identificador:", uid);
 }
-
-/* ==========================================
-   DADOS PIX
-========================================== */
 
 const PIX_CHAVE = "02562631595";
 const PIX_NOME = "CARLOS DOS SANTOS REIS";
@@ -208,12 +209,11 @@ const PIX_CIDADE = "SALVADOR";
 
 function dinheiro(valor) {
   return Number(valor || 0).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL"
+    style:"currency", currency:"BRL"
   });
 }
 
-function avisar(texto, erro = false) {
+function avisar(texto, erro=false) {
   $("aviso").textContent = texto;
   $("aviso").classList.toggle("error", erro);
   $("aviso").style.display = "block";
@@ -226,77 +226,51 @@ function limparAviso() {
 
 function dataHora(valor) {
   if (!valor) return "—";
-
   const d = new Date(Number(valor));
-
-  return isNaN(d.getTime())
-    ? "—"
-    : d.toLocaleString("pt-BR");
+  return isNaN(d.getTime()) ? "—" : d.toLocaleString("pt-BR");
 }
 
 function semAcentos(texto) {
-  return String(texto)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+  return String(texto).normalize("NFD").replace(/[\u0300-\u036f]/g,"");
 }
 
 function campoPix(id, valor) {
   valor = String(valor);
-  return id + String(valor.length).padStart(2, "0") + valor;
+  return id + String(valor.length).padStart(2,"0") + valor;
 }
 
 function crc16(texto) {
   let crc = 0xFFFF;
-
-  for (let i = 0; i < texto.length; i++) {
+  for (let i=0; i<texto.length; i++) {
     crc ^= texto.charCodeAt(i) << 8;
-
-    for (let j = 0; j < 8; j++) {
-      crc = (crc & 0x8000)
-        ? (crc << 1) ^ 0x1021
-        : crc << 1;
-
+    for (let j=0; j<8; j++) {
+      crc = (crc & 0x8000) ? (crc << 1)^0x1021 : crc << 1;
       crc &= 0xFFFF;
     }
   }
-
-  return crc.toString(16).toUpperCase().padStart(4, "0");
+  return crc.toString(16).toUpperCase().padStart(4,"0");
 }
 
 function criarPix(valor) {
-  const nome = semAcentos(PIX_NOME)
-    .substring(0, 25).toUpperCase();
-
-  const cidade = semAcentos(PIX_CIDADE)
-    .substring(0, 15).toUpperCase();
+  const nome = semAcentos(PIX_NOME).substring(0,25).toUpperCase();
+  const cidade = semAcentos(PIX_CIDADE).substring(0,15).toUpperCase();
 
   const contaPix =
-    campoPix("00", "BR.GOV.BCB.PIX") +
-    campoPix("01", PIX_CHAVE);
+    campoPix("00","BR.GOV.BCB.PIX") +
+    campoPix("01",PIX_CHAVE);
 
-  let payload = campoPix("00", "01");
-  payload += campoPix("26", contaPix);
-  payload += campoPix("52", "0000");
-  payload += campoPix("53", "986");
-  payload += campoPix("54", valor.toFixed(2));
-  payload += campoPix("58", "BR");
-  payload += campoPix("59", nome);
-  payload += campoPix("60", cidade);
-  payload += campoPix("62", campoPix("05", "***"));
+  let payload = campoPix("00","01");
+  payload += campoPix("26",contaPix);
+  payload += campoPix("52","0000");
+  payload += campoPix("53","986");
+  payload += campoPix("54",valor.toFixed(2));
+  payload += campoPix("58","BR");
+  payload += campoPix("59",nome);
+  payload += campoPix("60",cidade);
+  payload += campoPix("62",campoPix("05","***"));
 
   const semCRC = payload + "6304";
-
   return semCRC + crc16(semCRC);
-}
-
-/* ==========================================
-   MOSTRAR TELAS
-========================================== */
-
-function mostrarCarregando() {
-  $("carregando").classList.remove("hidden");
-  $("cadastro").classList.add("hidden");
-  $("area").classList.add("hidden");
 }
 
 function mostrarCadastro() {
@@ -309,127 +283,69 @@ function mostrarArea() {
   $("carregando").classList.add("hidden");
   $("cadastro").classList.add("hidden");
   $("area").classList.remove("hidden");
-
-  $("nomeParticipante").textContent =
-    participante?.nome || "";
+  $("nomeParticipante").textContent = participante?.nome || "";
 }
 
-/* ==========================================
-   INICIALIZAÇÃO DA TELA
-========================================== */
-
 async function iniciarTela() {
-  mostrarCarregando();
+  $("carregando").classList.remove("hidden");
 
   try {
     iniciarFirebase();
 
-    // Verifica se o Realtime Database responde.
-    const snap = await db.ref("participantes/" + uid)
-      .once("value");
+    const snap = await db.ref("participantes/" + uid).once("value");
 
     if (snap.exists()) {
       participante = snap.val();
-
       mostrarArea();
       escutarDados();
-
-      console.log("Cadastro encontrado:", participante.nome);
     } else {
       mostrarCadastro();
-
-      console.log("Cadastro não encontrado. Exibindo formulário.");
     }
   } catch (erro) {
-    console.error("Erro ao iniciar:", erro);
-
+    console.error(erro);
     mostrarCadastro();
-
-    avisar(
-      "Não foi possível carregar os dados do Firebase: " +
-      erro.message +
-      ". Verifique a conexão e as regras do banco.",
-      true
-    );
+    avisar("Erro ao carregar Firebase: " + erro.message, true);
   }
 }
 
-/* ==========================================
-   CRIAR CADASTRO
-========================================== */
-
+/* CADASTRO */
 $("btnCadastro").addEventListener("click", async () => {
-  limparAviso();
-
   const nome = $("nome").value.trim();
   const chavePix = $("chave").value.trim();
 
-  if (nome.length < 2) {
-    avisar("Informe seu nome completo.", true);
-    return;
-  }
+  limparAviso();
 
-  if (!chavePix) {
-    avisar("Informe sua chave Pix.", true);
-    return;
-  }
-
-  if (!db || !uid) {
-    avisar("O Firebase ainda não foi inicializado.", true);
-    return;
-  }
+  if (nome.length < 2) return avisar("Informe seu nome completo.",true);
+  if (!chavePix) return avisar("Informe sua chave Pix.",true);
 
   $("btnCadastro").disabled = true;
 
   try {
-    const participanteRef = db.ref("participantes/" + uid);
-    const existente = await participanteRef.once("value");
+    const refParticipante = db.ref("participantes/" + uid);
+    const existente = await refParticipante.once("value");
 
     if (existente.exists()) {
       participante = existente.val();
-
-      mostrarArea();
-      escutarDados();
-
-      avisar("Seu cadastro já existe.");
-      return;
+    } else {
+      participante = {
+        uid, nome, chavePix, criadoEm:Date.now(),
+        saldoAdicionado:0, saldoUtilizado:0, saldoRestante:0
+      };
+      await refParticipante.set(participante);
     }
-
-    const novo = {
-      uid: uid,
-      nome: nome,
-      chavePix: chavePix,
-      criadoEm: Date.now(),
-      saldoAdicionado: 0,
-      saldoUtilizado: 0,
-      saldoRestante: 0
-    };
-
-    await participanteRef.set(novo);
-
-    participante = novo;
 
     mostrarArea();
     escutarDados();
-
     avisar("Cadastro realizado com sucesso!");
   } catch (erro) {
-    console.error("Erro no cadastro:", erro);
-
-    avisar(
-      "Não foi possível criar o cadastro: " + erro.message,
-      true
-    );
+    avisar("Erro ao cadastrar: " + erro.message,true);
   } finally {
     $("btnCadastro").disabled = false;
   }
 });
 
-/* ==========================================
-   CRIAR ITEM DE LISTA COM TEXTO SEGURO
-========================================== */
-
-function criarItem(titulo, linhas, status = "") {
+/* ITEM DE LISTA */
+function criarItem(titulo, linhas, status="") {
   const div = document.createElement("div");
   div.className = "item";
 
@@ -437,8 +353,7 @@ function criarItem(titulo, linhas, status = "") {
   strong.textContent = titulo;
   div.appendChild(strong);
 
-  linhas
-    .filter(v => v !== null && v !== undefined && v !== "")
+  linhas.filter(v => v !== null && v !== undefined && v !== "")
     .forEach(texto => {
       const p = document.createElement("div");
       p.textContent = texto;
@@ -448,16 +363,9 @@ function criarItem(titulo, linhas, status = "") {
   if (status) {
     const estado = String(status).toLowerCase();
     const badge = document.createElement("span");
-
-    const estadosPermitidos = [
-      "pendente", "aprovado", "recusado", "processando"
-    ];
-
-    badge.className = "status " +
-      (estadosPermitidos.includes(estado) ? estado : "");
-
+    const permitidos = ["pendente","aprovado","recusado","processando"];
+    badge.className = "status " + (permitidos.includes(estado) ? estado : "");
     badge.textContent = String(status).toUpperCase();
-
     div.appendChild(document.createElement("br"));
     div.appendChild(badge);
   }
@@ -465,167 +373,144 @@ function criarItem(titulo, linhas, status = "") {
   return div;
 }
 
-/* ==========================================
-   ESCUTAR SALDO, SOLICITAÇÕES E HISTÓRICO
-========================================== */
-
+/* LISTENERS FIREBASE */
 function escutarDados() {
   if (listenersIniciados || !uid || !db) return;
-
   listenersIniciados = true;
 
   db.ref("participantes/" + uid).on("value", snap => {
     if (!snap.exists()) return;
-
     participante = snap.val();
 
-    $("nomeParticipante").textContent =
-      participante.nome || "";
+    $("nomeParticipante").textContent = participante.nome || "";
+    $("adicionado").textContent = dinheiro(participante.saldoAdicionado);
+    $("utilizado").textContent = dinheiro(participante.saldoUtilizado);
+    $("restante").textContent = dinheiro(participante.saldoRestante);
+  }, erro => avisar("Erro ao atualizar saldo: " + erro.message,true));
 
-    $("adicionado").textContent =
-      dinheiro(participante.saldoAdicionado);
+  db.ref("solicitacoes").orderByChild("uid").equalTo(uid).on("value", snap => {
+    const box = $("minhasSolicitacoes");
+    box.replaceChildren();
+    const lista = [];
 
-    $("utilizado").textContent =
-      dinheiro(participante.saldoUtilizado);
+    snap.forEach(item => lista.push({id:item.key,...item.val()}));
+    lista.sort((a,b) => Number(b.criadoEm||0)-Number(a.criadoEm||0));
 
-    $("restante").textContent =
-      dinheiro(participante.saldoRestante);
+    if (!lista.length) {
+      box.textContent = "Nenhuma solicitação.";
+      return;
+    }
+
+    lista.forEach(item => box.appendChild(criarItem(dinheiro(item.valor),[
+      "Data: " + dataHora(item.criadoEm),
+      "Código: " + (item.id||""),
+      "Atualizado: " + dataHora(item.atualizadoEm)
+    ],item.status||"pendente")));
   }, erro => {
-    console.error("Erro ao atualizar saldo:", erro);
-
-    avisar(
-      "Erro ao atualizar o saldo: " + erro.message,
-      true
-    );
+    $("minhasSolicitacoes").textContent = "Não foi possível carregar as solicitações.";
   });
-
-  db.ref("solicitacoes")
-    .orderByChild("uid")
-    .equalTo(uid)
-    .on("value", snap => {
-      const box = $("minhasSolicitacoes");
-      box.replaceChildren();
-
-      const lista = [];
-
-      snap.forEach(item => {
-        lista.push({
-          id: item.key,
-          ...item.val()
-        });
-      });
-
-      lista.sort((a, b) =>
-        Number(b.criadoEm || 0) -
-        Number(a.criadoEm || 0)
-      );
-
-      if (!lista.length) {
-        box.textContent = "Nenhuma solicitação.";
-        return;
-      }
-
-      lista.forEach(item => {
-        box.appendChild(criarItem(
-          dinheiro(item.valor),
-          [
-            "Data: " + dataHora(item.criadoEm),
-            "Código: " + (item.id || ""),
-            "Atualizado: " + dataHora(item.atualizadoEm)
-          ],
-          item.status || "pendente"
-        ));
-      });
-    }, erro => {
-      console.error("Erro nas solicitações:", erro);
-
-      $("minhasSolicitacoes").textContent =
-        "Não foi possível carregar as solicitações.";
-    });
 
   db.ref("historicoSaldo/" + uid).on("value", snap => {
     const box = $("historico");
     box.replaceChildren();
-
     const lista = [];
 
-    snap.forEach(item => {
-      lista.push({
-        id: item.key,
-        ...item.val()
-      });
-    });
-
-    lista.sort((a, b) =>
-      Number(b.criadoEm || b.data || 0) -
-      Number(a.criadoEm || a.data || 0)
-    );
+    snap.forEach(item => lista.push({id:item.key,...item.val()}));
+    lista.sort((a,b) => Number(b.criadoEm||b.data||0)-Number(a.criadoEm||a.data||0));
 
     if (!lista.length) {
       box.textContent = "Nenhuma movimentação.";
       return;
     }
 
-    lista.forEach(item => {
-      box.appendChild(criarItem(
-        item.tipo || "Movimentação",
-        [
-          "Valor: " + dinheiro(item.valor),
-          "Data: " + dataHora(item.criadoEm || item.data),
-          item.descricao || item.observacao || ""
-        ]
-      ));
-    });
+    lista.forEach(item => box.appendChild(criarItem(item.tipo||"Movimentação",[
+      "Valor: " + dinheiro(item.valor),
+      "Data: " + dataHora(item.criadoEm||item.data),
+      item.descricao||item.observacao||""
+    ])));
   }, erro => {
-    console.error("Erro no histórico:", erro);
-
-    $("historico").textContent =
-      "Não foi possível carregar o histórico.";
+    $("historico").textContent = "Não foi possível carregar o histórico.";
   });
 }
 
-/* ==========================================
-   ABRIR / FECHAR PIX
-========================================== */
+/* NOVO: ENVIAR CÓDIGO E VALOR */
+$("btnEnviarCodigo").addEventListener("click", async () => {
+  if (enviandoCodigo) return;
 
-$("btnNovoPix").addEventListener("click", () => {
-  $("secPix").classList.toggle("hidden");
+  const codigo = $("codigoEnvio").value.trim();
+  const valor = Number($("valorEnvio").value);
 
-  if (!$("secPix").classList.contains("hidden")) {
-    $("valor").focus();
+  limparAviso();
+
+  if (!uid || !participante || !db) {
+    avisar("Faça seu cadastro primeiro.",true);
+    return;
+  }
+
+  if (!codigo) {
+    avisar("Digite o código.",true);
+    $("codigoEnvio").focus();
+    return;
+  }
+
+  if (!Number.isFinite(valor) || valor < 0.01 || valor > 999999.99) {
+    avisar("Digite um valor válido entre R$ 0,01 e R$ 999.999,99.",true);
+    $("valorEnvio").focus();
+    return;
+  }
+
+  enviandoCodigo = true;
+  $("btnEnviarCodigo").disabled = true;
+
+  try {
+    const novoEnvio = db.ref("enviosSaldo").push();
+
+    await novoEnvio.set({
+      id: novoEnvio.key,
+      uid: uid,
+      nome: participante.nome || "",
+      codigo: codigo,
+      valor: Math.round(valor*100)/100,
+      status: "pendente",
+      criadoEm: Date.now()
+    });
+
+    $("codigoEnvio").value = "";
+    $("valorEnvio").value = "";
+
+    avisar("Código e valor enviados com sucesso!");
+  } catch (erro) {
+    console.error(erro);
+    avisar("Erro ao enviar: " + erro.message,true);
+  } finally {
+    enviandoCodigo = false;
+    $("btnEnviarCodigo").disabled = false;
   }
 });
 
-/* ==========================================
-   GERAR QR CODE PIX
-========================================== */
+/* ABRIR GERADOR PIX */
+$("btnNovoPix").addEventListener("click", () => {
+  $("secPix").classList.toggle("hidden");
+  if (!$("secPix").classList.contains("hidden")) $("valor").focus();
+});
 
+/* GERAR QR CODE */
 $("btnGerar").addEventListener("click", () => {
   limparAviso();
 
   const valor = Number($("valor").value);
 
-  if (
-    !Number.isFinite(valor) ||
-    valor < 0.01 ||
-    valor > 999999.99
-  ) {
-    avisar(
-      "Digite um valor entre R$ 0,01 e R$ 999.999,99.",
-      true
-    );
+  if (!Number.isFinite(valor) || valor < 0.01 || valor > 999999.99) {
+    avisar("Digite um valor válido.",true);
     return;
   }
 
   if (typeof QRCode === "undefined") {
-    avisar(
-      "A biblioteca de QR Code não carregou. Verifique sua internet.",
-      true
-    );
+    avisar("A biblioteca QR Code não carregou. Verifique sua internet.",true);
     return;
   }
 
-  valorAtual = Math.round(valor * 100) / 100;
+  valorAtual = Math.round(valor*100)/100;
   codigoAtual = criarPix(valorAtual);
 
   $("codigoPix").value = codigoAtual;
@@ -633,24 +518,18 @@ $("btnGerar").addEventListener("click", () => {
   $("qrcode").replaceChildren();
 
   new QRCode($("qrcode"), {
-    text: codigoAtual,
-    width: 230,
-    height: 230,
-    correctLevel: QRCode.CorrectLevel.M
+    text:codigoAtual,
+    width:230,
+    height:230,
+    correctLevel:QRCode.CorrectLevel.M
   });
 
   $("resultadoPix").classList.remove("hidden");
 });
 
-/* ==========================================
-   COPIAR PIX
-========================================== */
-
+/* COPIAR PIX */
 $("btnCopiar").addEventListener("click", async () => {
-  if (!codigoAtual) {
-    avisar("Gere o Pix primeiro.", true);
-    return;
-  }
+  if (!codigoAtual) return avisar("Gere o Pix primeiro.",true);
 
   try {
     await navigator.clipboard.writeText(codigoAtual);
@@ -660,160 +539,71 @@ $("btnCopiar").addEventListener("click", async () => {
     $("codigoPix").select();
 
     let copiou = false;
-
-    try {
-      copiou = document.execCommand("copy");
-    } catch (_) {}
+    try { copiou = document.execCommand("copy"); } catch (_) {}
 
     avisar(
-      copiou
-        ? "Pix Copia e Cola copiado!"
-        : "Selecione o código e copie manualmente.",
+      copiou ? "Pix Copia e Cola copiado!" : "Selecione o código e copie manualmente.",
       !copiou
     );
   }
 });
 
-/* ==========================================
-   COMPARTILHAR NO WHATSAPP
-========================================== */
-
-$("btnWhatsApp").addEventListener("click", () => {
-  if (!codigoAtual) {
-    avisar("Gere o Pix primeiro.", true);
-    return;
-  }
-
-  const texto =
-    "Pix para pagamento de " + dinheiro(valorAtual) +
-    "\n\nPix Copia e Cola:\n" + codigoAtual;
-
-  const url =
-    "https://wa.me/?text=" + encodeURIComponent(texto);
-
-  window.open(url, "_blank");
-});
-
-/* ==========================================
-   ENVIAR SOLICITAÇÃO AO ADMINISTRADOR
-========================================== */
-
+/* SOLICITAR ANÁLISE DO PIX */
 $("btnSolicitar").addEventListener("click", async () => {
   if (enviandoSolicitacao) return;
 
-  if (!uid || !participante) {
-    avisar("Seu cadastro ainda não foi carregado.", true);
-    return;
-  }
-
-  if (!valorAtual || !codigoAtual) {
-    avisar("Gere o Pix primeiro.", true);
-    return;
-  }
+  if (!uid || !participante) return avisar("Seu cadastro ainda não foi carregado.",true);
+  if (!valorAtual || !codigoAtual) return avisar("Gere o Pix primeiro.",true);
 
   enviandoSolicitacao = true;
   $("btnSolicitar").disabled = true;
-  limparAviso();
 
   try {
     const snap = await db.ref("solicitacoes")
-      .orderByChild("uid")
-      .equalTo(uid)
-      .once("value");
+      .orderByChild("uid").equalTo(uid).once("value");
 
-    let pendente = false;
-    let processando = false;
+    let bloqueada = false;
 
     snap.forEach(item => {
-      const status = String(
-        item.val().status || "pendente"
-      ).toLowerCase();
-
-      if (status === "pendente") pendente = true;
-      if (status === "processando") processando = true;
+      const status = String(item.val().status||"pendente").toLowerCase();
+      if (status === "pendente" || status === "processando") bloqueada = true;
     });
 
-    if (pendente || processando) {
-      avisar(
-        "Você já tem uma solicitação aguardando análise. Aguarde antes de enviar outra.",
-        true
-      );
+    if (bloqueada) {
+      avisar("Você já tem uma solicitação aguardando análise.",true);
       return;
     }
 
-    const solicitacaoRef = db.ref("solicitacoes").push();
+    const refSolicitacao = db.ref("solicitacoes").push();
     const agora = Date.now();
 
-    await solicitacaoRef.set({
-      id: solicitacaoRef.key,
-      uid: uid,
-      nome: participante.nome || "",
-      chavePix: participante.chavePix || "",
-      valor: valorAtual,
-      codigoPix: codigoAtual,
-      status: "pendente",
-      criadoEm: agora,
-      atualizadoEm: agora
+    await refSolicitacao.set({
+      id:refSolicitacao.key,
+      uid:uid,
+      nome:participante.nome||"",
+      chavePix:participante.chavePix||"",
+      valor:valorAtual,
+      codigoPix:codigoAtual,
+      status:"pendente",
+      criadoEm:agora,
+      atualizadoEm:agora
     });
 
-    avisar(
-      "Solicitação enviada! Aguarde a verificação do pagamento pelo administrador."
-    );
-
+    avisar("Solicitação enviada! Aguarde a verificação do pagamento.");
     $("resultadoPix").classList.add("hidden");
     $("secPix").classList.add("hidden");
     $("valor").value = "";
-
     valorAtual = null;
     codigoAtual = "";
   } catch (erro) {
-    console.error("Erro na solicitação:", erro);
-
-    avisar(
-      "Erro ao enviar solicitação: " + erro.message,
-      true
-    );
+    avisar("Erro ao enviar solicitação: " + erro.message,true);
   } finally {
     enviandoSolicitacao = false;
     $("btnSolicitar").disabled = false;
   }
 });
 
-/* ==========================================
-   OCULTAR / MOSTRAR ÁREA
-========================================== */
-
-$("btnSair").addEventListener("click", () => {
-  ocultouArea = !ocultouArea;
-
-  $("area").classList.toggle("hidden", ocultouArea);
-
-  $("btnSair").textContent = ocultouArea
-    ? "Voltar à minha área"
-    : "Ocultar minha área";
-
-  if (ocultouArea) {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-
-    avisar(
-      "Sua área foi ocultada. O cadastro permanece salvo neste dispositivo."
-    );
-  } else {
-    limparAviso();
-  }
-});
-
-/* ==========================================
-   INICIAR QUANDO A PÁGINA ABRIR
-========================================== */
-function papa(){
-localStorage.clear();
-    alert("limpo")
-}
-
+/* INICIAR */
 iniciarTela();
 </script>
 </body>
