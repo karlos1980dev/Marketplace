@@ -1,0 +1,637 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#101010">
+<title>Enquete Presidencial 2026</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #101010;
+  color: #fff;
+  min-height: 100vh;
+  padding: 20px 12px;
+}
+
+.container {
+  max-width: 440px;
+  margin: 10px auto;
+  background: #1b1b1b;
+  border: 1px solid #333;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px #0008;
+}
+
+.header {
+  text-align: center;
+  padding: 26px 16px;
+  background: linear-gradient(135deg, #14532d, #101010);
+  border-bottom: 2px solid #32d583;
+}
+
+.tag {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #ffffff18;
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-bottom: 13px;
+}
+
+.header h1 {
+  font-size: 27px;
+  margin-bottom: 9px;
+}
+
+.header p {
+  color: #ddd;
+  font-size: 13px;
+}
+
+.content {
+  padding: 20px 16px;
+}
+
+.question {
+  text-align: center;
+  font-size: 22px;
+  line-height: 1.4;
+  margin-bottom: 9px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #aaa;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.status {
+  padding: 10px;
+  background: #292929;
+  border-radius: 8px;
+  text-align: center;
+  color: #bbb;
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.status.online {
+  color: #71f5aa;
+}
+
+.status.error {
+  color: #ff8989;
+}
+
+.message {
+  display: none;
+  padding: 12px;
+  text-align: center;
+  background: #164b32;
+  color: #8fffc1;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.candidate {
+  padding: 15px;
+  background: #252525;
+  border: 1px solid #3c3c3c;
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+
+.candidate-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.avatar {
+  width: 55px;
+  height: 55px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+.lula {
+  background: #c92735;
+}
+
+.flavio {
+  background: #2467c9;
+}
+
+.name {
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.party {
+  color: #aaa;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.vote-btn {
+  width: 100%;
+  padding: 14px 10px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform .15s, opacity .15s;
+}
+
+.vote-btn:active {
+  transform: scale(.97);
+}
+
+.vote-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.btn-lula {
+  background: #d52e3c;
+}
+
+.btn-flavio {
+  background: #2467d1;
+}
+
+.results {
+  margin-top: 22px;
+  padding: 16px;
+  background: #252525;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.results h2 {
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.total-label {
+  color: #aaa;
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.total {
+  text-align: center;
+  color: #32d583;
+  font-size: 34px;
+  font-weight: bold;
+  margin: 10px 0 22px;
+}
+
+.result-row {
+  margin-bottom: 20px;
+}
+
+.result-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.percentage {
+  font-weight: bold;
+}
+
+.bar-bg {
+  height: 12px;
+  background: #444;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bar {
+  height: 100%;
+  width: 0%;
+  transition: width .45s ease;
+  border-radius: 10px;
+}
+
+.bar-red {
+  background: #e53946;
+}
+
+.bar-blue {
+  background: #3485f5;
+}
+
+.result-count {
+  color: #aaa;
+  font-size: 12px;
+  margin-top: 7px;
+}
+
+.share-btn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 14px 10px;
+  background: #168c50;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.share-btn:active {
+  opacity: .8;
+}
+
+.notice {
+  font-size: 11px;
+  color: #999;
+  text-align: center;
+  line-height: 1.6;
+  margin-top: 17px;
+}
+
+.footer {
+  padding: 15px;
+  text-align: center;
+  color: #777;
+  font-size: 11px;
+  border-top: 1px solid #333;
+}
+
+@media (max-width: 350px) {
+  .header h1 { font-size: 23px; }
+  .question { font-size: 19px; }
+  .name { font-size: 17px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <header class="header">
+    <div class="tag">📊 ENQUETE POPULAR</div>
+    <h1>ELEIÇÕES 2026</h1>
+    <p>O Brasil quer saber a sua opinião!</p>
+  </header>
+
+  <main class="content">
+
+    <h2 class="question">
+      Em quem você votaria para presidente?
+    </h2>
+
+    <p class="subtitle">
+      Escolha seu candidato e participe da enquete.
+    </p>
+
+    <div id="status" class="status">
+      Conectando ao servidor...
+    </div>
+
+    <div id="message" class="message" role="status"></div>
+
+    <section class="candidate">
+      <div class="candidate-info">
+        <div class="avatar lula">L</div>
+        <div>
+          <div class="name">Lula</div>
+          <div class="party">PT</div>
+        </div>
+      </div>
+
+      <button
+        class="vote-btn btn-lula"
+        id="voteLula"
+        disabled>
+        VOTAR EM LULA
+      </button>
+    </section>
+
+    <section class="candidate">
+      <div class="candidate-info">
+        <div class="avatar flavio">F</div>
+        <div>
+          <div class="name">Flávio Bolsonaro</div>
+          <div class="party">PL</div>
+        </div>
+      </div>
+
+      <button
+        class="vote-btn btn-flavio"
+        id="voteFlavio"
+        disabled>
+        VOTAR EM FLÁVIO
+      </button>
+    </section>
+
+    <section class="results">
+
+      <h2>📈 Resultado em tempo real</h2>
+
+      <p class="total-label">
+        Total geral de votos registrados
+      </p>
+
+      <div class="total" id="total">—</div>
+
+      <div class="result-row">
+        <div class="result-top">
+          <span>Lula</span>
+          <span class="percentage" id="pctLula">0%</span>
+        </div>
+
+        <div class="bar-bg">
+          <div class="bar bar-red" id="barLula"></div>
+        </div>
+
+        <p class="result-count" id="countLula">0 votos</p>
+      </div>
+
+      <div class="result-row">
+        <div class="result-top">
+          <span>Flávio Bolsonaro</span>
+          <span class="percentage" id="pctFlavio">0%</span>
+        </div>
+
+        <div class="bar-bg">
+          <div class="bar bar-blue" id="barFlavio"></div>
+        </div>
+
+        <p class="result-count" id="countFlavio">0 votos</p>
+      </div>
+
+      <button class="share-btn" id="shareBtn">
+        📲 COMPARTILHAR ENQUETE
+      </button>
+
+      <p class="notice">
+        Enquete informal, sem caráter científico.
+        Não representa pesquisa eleitoral oficial.
+        O bloqueio local de voto não impede fraudes
+        ou votos repetidos por outros dispositivos.
+      </p>
+
+    </section>
+  </main>
+
+  <footer class="footer">
+    ENQUETE POPULAR • ELEIÇÕES 2026
+  </footer>
+
+</div>
+
+<script type="module">
+import { initializeApp } from
+  "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  onValue,
+  runTransaction
+} from
+  "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js";
+
+/* CONFIGURAÇÃO FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyB1lFw3PKVYqezBmf-TlcWlIoH_dG2EwkY",
+  authDomain: "marketplace-af9c4.firebaseapp.com",
+  databaseURL: "https://marketplace-af9c4-default-rtdb.firebaseio.com/",
+  projectId: "marketplace-af9c4",
+  storageBucket: "marketplace-af9c4.firebasestorage.app",
+  messagingSenderId: "655705511573",
+  appId: "1:655705511573:web:3bb3728ca75c217374ed9c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/*
+  CAMINHO EXCLUSIVO DA ENQUETE.
+  Os outros dados do projeto permanecem separados.
+*/
+const votosRef = ref(db, "enquetePresidencial2026");
+
+const CHAVE_VOTO = "enquetePresidencial2026_meuVoto";
+
+let conectado = false;
+let enviando = false;
+let votosCarregados = false;
+
+const btnLula = document.getElementById("voteLula");
+const btnFlavio = document.getElementById("voteFlavio");
+const statusEl = document.getElementById("status");
+const messageEl = document.getElementById("message");
+
+function mostrarMensagem(texto) {
+  messageEl.textContent = texto;
+  messageEl.style.display = "block";
+}
+
+function atualizarBotoes() {
+  const jaVotou = Boolean(localStorage.getItem(CHAVE_VOTO));
+  const bloqueado = !conectado || !votosCarregados || enviando;
+
+  btnLula.disabled = bloqueado || jaVotou;
+  btnFlavio.disabled = bloqueado || jaVotou;
+
+  if (jaVotou && votosCarregados) {
+    btnLula.textContent = "VOTO JÁ REGISTRADO";
+    btnFlavio.textContent = "VOTO JÁ REGISTRADO";
+  } else {
+    btnLula.textContent = "VOTAR EM LULA";
+    btnFlavio.textContent = "VOTAR EM FLÁVIO";
+  }
+}
+
+function formatarVotos(numero) {
+  return numero.toLocaleString("pt-BR");
+}
+
+function atualizarResultados(dados) {
+  const lula = Math.max(0, Number(dados?.lula) || 0);
+  const flavio = Math.max(0, Number(dados?.flavio) || 0);
+  const total = lula + flavio;
+
+  const pctLula = total > 0 ? lula / total * 100 : 0;
+  const pctFlavio = total > 0 ? flavio / total * 100 : 0;
+
+  document.getElementById("total").textContent =
+    formatarVotos(total);
+
+  document.getElementById("countLula").textContent =
+    formatarVotos(lula) + (lula === 1 ? " voto" : " votos");
+
+  document.getElementById("countFlavio").textContent =
+    formatarVotos(flavio) + (flavio === 1 ? " voto" : " votos");
+
+  document.getElementById("pctLula").textContent =
+    pctLula.toFixed(1).replace(".", ",") + "%";
+
+  document.getElementById("pctFlavio").textContent =
+    pctFlavio.toFixed(1).replace(".", ",") + "%";
+
+  document.getElementById("barLula").style.width =
+    pctLula + "%";
+
+  document.getElementById("barFlavio").style.width =
+    pctFlavio + "%";
+}
+
+/* ESCUTA ALTERAÇÕES DO FIREBASE EM TEMPO REAL */
+onValue(votosRef, (snapshot) => {
+  const dados = snapshot.val() || {};
+
+  atualizarResultados(dados);
+
+  conectado = true;
+  votosCarregados = true;
+
+  statusEl.textContent = "● Conectado • Resultados atualizados";
+  statusEl.className = "status online";
+
+  atualizarBotoes();
+}, (erro) => {
+  console.error("Erro ao ler enquete:", erro);
+
+  conectado = false;
+  statusEl.textContent =
+    "Erro de conexão. Verifique as regras do Firebase.";
+  statusEl.className = "status error";
+
+  atualizarBotoes();
+});
+
+/* REGISTRO DO VOTO */
+async function votar(candidato) {
+  if (!conectado || !votosCarregados || enviando) {
+    alert("Aguarde a conexão com o Firebase.");
+    return;
+  }
+
+  if (candidato !== "lula" && candidato !== "flavio") {
+    return;
+  }
+
+  if (localStorage.getItem(CHAVE_VOTO)) {
+    mostrarMensagem("Você já registrou um voto neste navegador.");
+    atualizarBotoes();
+    return;
+  }
+
+  enviando = true;
+  atualizarBotoes();
+
+  try {
+    /*
+      A transação evita que dois votos simultâneos
+      sobrescrevam um ao outro no contador.
+    */
+    const resultado = await runTransaction(votosRef, (dados) => {
+      dados = dados || {};
+
+      dados.lula = Math.max(0, Number(dados.lula) || 0);
+      dados.flavio = Math.max(0, Number(dados.flavio) || 0);
+
+      dados[candidato] += 1;
+
+      return dados;
+    });
+
+    if (!resultado.committed) {
+      throw new Error("O Firebase não confirmou o voto.");
+    }
+
+    try {
+      localStorage.setItem(CHAVE_VOTO, candidato);
+    } catch (erroLocal) {
+      console.warn("Não foi possível salvar o bloqueio local.", erroLocal);
+    }
+
+    mostrarMensagem("✅ Seu voto foi registrado com sucesso!");
+
+  } catch (erro) {
+    console.error("Erro ao votar:", erro);
+
+    mostrarMensagem(
+      "Não foi possível registrar seu voto. Verifique as regras do Firebase e tente novamente."
+    );
+  } finally {
+    enviando = false;
+    atualizarBotoes();
+  }
+}
+
+btnLula.addEventListener("click", () => votar("lula"));
+btnFlavio.addEventListener("click", () => votar("flavio"));
+
+/* COMPARTILHAMENTO */
+document.getElementById("shareBtn").addEventListener("click", async () => {
+  const texto =
+    "📊 ENQUETE PRESIDENCIAL 2026\n\n" +
+    "Em quem você votaria para presidente?\n\n" +
+    "🔴 Lula\n" +
+    "🔵 Flávio Bolsonaro\n\n" +
+    "Participe da enquete!";
+
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: "Enquete Presidencial 2026",
+        text: texto,
+        url: window.location.href
+      });
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(
+        texto + "\n" + window.location.href
+      );
+      alert("Texto copiado para compartilhar!");
+    } else {
+      window.prompt("Copie o texto para compartilhar:", texto);
+    }
+  } catch (erro) {
+    if (erro.name !== "AbortError") {
+      console.error("Erro ao compartilhar:", erro);
+    }
+  }
+});
+
+atualizarBotoes();
+</script>
+
+</body>
+</html>
