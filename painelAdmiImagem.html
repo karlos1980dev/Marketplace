@@ -186,7 +186,23 @@ th{background:#f9fafb}
    <div class="campo"><label for="editProdutoPreco">Preço (R$)</label><input id="editProdutoPreco" type="number" min="0" step="0.01" required></div>
    <div class="campo"><label for="editProdutoEstoque">Estoque</label><input id="editProdutoEstoque" type="number" min="0" step="1" required></div>
    <div class="campo"><label for="editProdutoCategoria">Categoria</label><input id="editProdutoCategoria" list="categoriasProdutos" maxlength="100" required>
-    <datalist id="categoriasProdutos"><option>Eletrônicos</option><option>Celulares</option><option>Moda</option><option>Casa</option><option>Automotivo</option><option>Outros</option></datalist>
+    <datalist id="categoriasProdutos"><option value="Todos">Todos</option>
+<option value="Casa">Casa</option>
+<option value="Cama">Cama</option>
+<option value="Mesa">Mesa</option>
+<option value="Banho">Banho</option>
+<option value="Sofa">Sofá</option>
+<option value="Eletrônicos">Eletrônicos</option>
+<option value="Celulares">Celulares</option>
+<option value="Moda">Moda</option>
+<option value="Acessórios">Acessórios</option>
+<option value="Informática">Informática</option>
+<option value="Beleza">Beleza</option>
+<option value="Esportes">Esportes</option>
+<option value="Games">Games</option>
+<option value="Automotivo">Automotivo</option>
+<option value="Pet">Pet</option>
+<option value="Outros">Outros</option></datalist>
    </div>
    <div class="campo"><label for="editProdutoImagem">URL da imagem</label><input id="editProdutoImagem" type="url" placeholder="https://site.com/imagem.jpg" required></div>
    <div class="campo"><label>Prévia da imagem</label><img id="editProdutoPreview" alt="Prévia" style="display:none;width:100%;max-height:220px;object-fit:contain;border:1px solid #ddd;border-radius:10px"><p id="editProdutoImagemErro" style="color:#dc2626;font-size:13px;margin-top:7px"></p></div>
