@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>Administração - Marketplace SSA</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f3f4f6;color:#1f2937}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+#telaLogin{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#111827,#2563eb)}
+.loginBox{background:white;padding:28px;border-radius:20px;width:100%;max-width:390px}
+.loginBox h1,.loginBox p{text-align:center;margin-bottom:16px}
+.loginBox p{color:#6b7280}
+.campo{margin-bottom:14px}
+.campo label{display:block;font-weight:bold;font-size:14px;margin-bottom:7px}
+.campo input,.campo textarea,.campo select{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:9px;background:white}
+.btnLogin{width:100%;border:0;padding:14px;border-radius:10px;background:#2563eb;color:white;font-weight:bold}
+#loginErro{color:#dc2626;text-align:center;margin-top:10px}
+#painelAdmin{display:none}
+.topo{position:fixed;z-index:10;top:0;left:0;right:0;height:62px;background:#111827;color:white;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.btnSair{background:#dc2626;color:white;border:0;border-radius:8px;padding:9px 13px}
+.sidebar{position:fixed;top:62px;bottom:0;left:0;width:210px;background:white;border-right:1px solid #ddd;padding:12px;overflow:auto}
+.menuBtn{width:100%;text-align:left;border:0;background:white;padding:13px;border-radius:9px;margin-bottom:5px}
+.menuBtn.ativo,.menuBtn:hover{background:#eff6ff;color:#2563eb;font-weight:bold}
+.conteudo{margin-left:210px;padding:85px 22px 30px}
+.secao{display:none}.secao.ativa{display:block}
+.tituloPagina{margin-bottom:20px}.tituloPagina h2{margin-bottom:6px}.tituloPagina p{color:#6b7280}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.card,.painel{background:white;border-radius:13px;padding:17px;box-shadow:0 2px 9px #00000008;margin-bottom:16px}
+.cardTitulo{color:#6b7280;font-size:12px;margin:7px 0}
+.cardValor{font-size:23px;font-weight:bold;overflow-wrap:anywhere}
+.painelCabecalho{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:15px}
+.busca,.filtros input,.filtros select{padding:11px;border:1px solid #d1d5db;border-radius:9px;min-width:0}
+.busca{width:100%;max-width:320px}
+.filtros{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:14px}
+.tabelaContainer{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{text-align:left;padding:12px 9px;border-bottom:1px solid #e5e7eb;font-size:13px}
+th{background:#f9fafb}
+.btn{border:0;border-radius:7px;padding:8px 10px;font-size:12px;font-weight:bold;margin:2px}
+.btnAzul{background:#2563eb;color:white}.btnVerde{background:#16a34a;color:white}
+.btnVermelho{background:#dc2626;color:white}.btnCinza{background:#e5e7eb;color:#111827}
+.status{display:inline-block;padding:5px 8px;border-radius:20px;font-size:11px;background:#e5e7eb}
+.statusAtivo,.statusPago,.statusEntregue{background:#dcfce7;color:#166534}
+.statusBloqueado,.statusCancelado{background:#fee2e2;color:#991b1b}
+.statusAguardando{background:#fef3c7;color:#92400e}
+.statusProcessando,.statusEnviado{background:#dbeafe;color:#1e40af}
+.vazio{text-align:center;padding:25px;color:#6b7280}
+.modal{display:none;position:fixed;inset:0;background:#0009;z-index:30;align-items:center;justify-content:center;padding:12px}
+.modal.ativo{display:flex}
+.modalBox{background:white;width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:16px;padding:20px}
+.modalTopo{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.fechar{border:0;background:#eee;border-radius:50%;width:34px;height:34px;font-size:20px}
+.infoLinha{padding:10px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere}
+.infoLinha strong{display:block;font-size:12px;color:#6b7280;margin-bottom:4px}
+.itemPedido{border:1px solid #ddd;padding:12px;border-radius:9px;margin:8px 0}
+.financeiroGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.financeiroCard{background:#fff;border-radius:12px;padding:18px}
+.financeiroCard h4{color:#6b7280;margin-bottom:10px}
+.financeiroCard strong{font-size:22px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translate(-50%,100px);opacity:0;background:#111827;color:white;padding:13px 18px;border-radius:10px;z-index:50;transition:.25s;max-width:90%;text-align:center}
+#toast.mostrar{transform:translate(-50%,0);opacity:1}
+.imagensAdminGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.imagemAdminItem{min-width:0;border:1px solid #e5e7eb;border-radius:12px;padding:10px;background:#f9fafb}
+.imagemAdminItem label{display:block;font-size:13px;font-weight:bold;margin-bottom:8px}
+.imagemAdminItem input{width:100%;min-width:0;padding:10px;border:1px solid #d1d5db;border-radius:8px;background:white;font-size:13px}
+.previewImagemAdmin{display:none;width:100%;height:115px;margin-top:9px;object-fit:contain;border:1px solid #ddd;border-radius:8px;background:white}
+.textoAjudaImagens{font-size:12px;color:#6b7280;margin:0 0 12px;line-height:1.5}
+.botoesProduto{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.botoesProduto button{padding:12px 15px;font-size:14px}
+@media(max-width:950px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.financeiroGrid{grid-template-columns:1fr}}
+@media(max-width:650px){
+ .sidebar{width:58px;padding:7px 4px}
+ .menuBtn{font-size:0;text-align:center;padding:13px 2px}
+ .menuBtn::first-letter{font-size:19px}
+ .conteudo{margin-left:58px;padding:78px 9px 20px}
+ .cards{gap:8px}.card{padding:12px}.cardValor{font-size:19px}
+ .painel{padding:12px}.topo strong{font-size:14px}
+ .tituloPagina h2{font-size:22px}
+ .modalBox{padding:14px}
+}
+@media(max-width:400px){.imagensAdminGrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="telaLogin">
+ <form class="loginBox" id="formCodigo">
+  <h1>🛒 Marketplace SSA</h1>
+  <p>Painel administrativo</p>
+  <div class="campo">
+   <label for="codigoAdmin">Código de acesso</label>
+   <input id="codigoAdmin" type="password" inputmode="numeric" autocomplete="off" required>
+  </div>
+  <button class="btnLogin">ENTRAR NO PAINEL</button>
+  <div id="loginErro"></div>
+ </form>
+</div>
+
+<div id="painelAdmin">
+ <header class="topo">
+  <strong>🛒 Marketplace SSA</strong>
+  <button class="btnSair" onclick="sair()">Sair</button>
+ </header>
+
+ <aside class="sidebar">
+  <button class="menuBtn ativo" onclick="abrirSecao('inicio',this)">📊 Dashboard</button>
+  <button class="menuBtn" onclick="abrirSecao('clientes',this)">👥 Clientes</button>
+  <button class="menuBtn" onclick="abrirSecao('pedidos',this)">🛒 Pedidos</button>
+  <button class="menuBtn" onclick="abrirSecao('produtos',this)">📦 Produtos</button>
+  <button class="menuBtn" onclick="abrirSecao('vendedores',this)">🏪 Vendedores</button>
+  <button class="menuBtn" onclick="abrirSecao('financeiro',this)">💰 Financeiro</button>
+ </aside>
+
+ <main class="conteudo">
+  <section id="secao-inicio" class="secao ativa">
+   <div class="tituloPagina"><h2>Dashboard</h2><p>Visão geral do marketplace</p></div>
+   <div class="cards">
+    <div class="card"><div>👥</div><div class="cardTitulo">CLIENTES</div><div class="cardValor" id="totalClientes">0</div></div>
+    <div class="card"><div>🛒</div><div class="cardTitulo">PEDIDOS</div><div class="cardValor" id="totalPedidos">0</div></div>
+    <div class="card"><div>💰</div><div class="cardTitulo">VENDAS</div><div class="cardValor" id="totalVendas">R$ 0,00</div></div>
+    <div class="card"><div>📦</div><div class="cardTitulo">PRODUTOS</div><div class="cardValor" id="totalProdutos">0</div></div>
+    <div class="card"><div>⏳</div><div class="cardTitulo">PENDENTES</div><div class="cardValor" id="totalPendentes">0</div></div>
+    <div class="card"><div>🏪</div><div class="cardTitulo">VENDEDORES</div><div class="cardValor" id="totalVendedores">0</div></div>
+    <div class="card"><div>💵</div><div class="cardTitulo">COMISSÃO 10%</div><div class="cardValor" id="totalComissao">R$ 0,00</div></div>
+    <div class="card"><div>🟢</div><div class="cardTitulo">PEDIDOS PAGOS</div><div class="cardValor" id="totalPagos">0</div></div>
+   </div>
+   <div class="painel"><div class="painelCabecalho"><h3>Pedidos recentes</h3><button class="btn btnAzul" onclick="abrirSecao('pedidos')">Ver todos</button></div><div id="pedidosRecentes"></div></div>
+  </section>
+
+  <section id="secao-clientes" class="secao">
+   <div class="tituloPagina"><h2>Clientes</h2><p>Clientes cadastrados</p></div>
+   <div class="painel">
+    <div class="painelCabecalho"><h3>Lista de clientes</h3><input class="busca" id="buscaClientes" placeholder="Buscar cliente..." oninput="renderClientes()"></div>
+    <div class="tabelaContainer"><table><thead><tr><th>Nome</th><th>Telefone</th><th>E-mail</th><th>Status</th><th>Ação</th></tr></thead><tbody id="listaClientes"></tbody></table></div>
+   </div>
+  </section>
+
+  <section id="secao-pedidos" class="secao">
+   <div class="tituloPagina"><h2>Pedidos</h2><p>Gerencie os pedidos</p></div>
+   <div class="painel">
+    <div class="filtros">
+     <input id="buscaPedidos" placeholder="Buscar pedido ou cliente..." oninput="renderPedidos()">
+     <select id="filtroStatus" onchange="renderPedidos()">
+      <option value="">Todos os status</option>
+      <option value="aguardando_pagamento">Aguardando pagamento</option>
+      <option value="pago">Pago</option><option value="processando">Processando</option>
+      <option value="enviado">Enviado</option><option value="entregue">Entregue</option>
+      <option value="cancelado">Cancelado</option>
+     </select>
+    </div>
+    <div class="tabelaContainer"><table><thead><tr><th>Pedido</th><th>Cliente</th><th>Total</th><th>Pagamento</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead><tbody id="listaPedidos"></tbody></table></div>
+   </div>
+  </section>
+
+  <section id="secao-produtos" class="secao">
+   <div class="tituloPagina"><h2>Produtos</h2><p>Cadastre, edite e gerencie até 8 imagens por produto.</p></div>
+   <div class="painel">
+    <div class="botoesProduto">
+     <button class="btn btnVerde" onclick="novoProduto()">➕ Cadastrar produto</button>
+    </div>
+    <div class="filtros">
+     <input id="buscaProdutos" placeholder="Buscar produto..." oninput="renderProdutosAdmin()">
+     <select id="filtroProdutoStatus" onchange="renderProdutosAdmin()">
+      <option value="">Todos os status</option>
+      <option value="aprovado">Aprovados</option>
+      <option value="bloqueado">Bloqueados</option>
+     </select>
+    </div>
+    <div class="tabelaContainer"><table><thead><tr><th>Foto/produto</th><th>Preço</th><th>Estoque</th><th>Categoria</th><th>Vendedor</th><th>Status</th><th>Ação</th></tr></thead><tbody id="listaProdutos"></tbody></table></div>
+   </div>
+  </section>
+
+  <section id="secao-vendedores" class="secao">
+   <div class="tituloPagina"><h2>Vendedores</h2><p>Vendedores identificados pelos produtos e pedidos</p></div>
+   <div class="painel"><div class="tabelaContainer"><table><thead><tr><th>Vendedor</th><th>ID</th><th>Produtos</th><th>Unidades vendidas</th><th>Valor vendido</th></tr></thead><tbody id="listaVendedores"></tbody></table></div></div>
+  </section>
+
+  <section id="secao-financeiro" class="secao">
+   <div class="tituloPagina"><h2>Financeiro</h2><p>Resumo de vendas e comissão</p></div>
+   <div class="financeiroGrid">
+    <div class="financeiroCard"><h4>Total de vendas</h4><strong id="financeiroVendas">R$ 0,00</strong></div>
+    <div class="financeiroCard"><h4>Comissão 10%</h4><strong id="financeiroComissao">R$ 0,00</strong></div>
+    <div class="financeiroCard"><h4>Valor dos vendedores</h4><strong id="financeiroVendedores">R$ 0,00</strong></div>
+   </div>
+  </section>
+ </main>
+</div>
+
+<div class="modal" id="modalEditarProduto">
+ <div class="modalBox">
+  <div class="modalTopo">
+   <h3 id="tituloFormularioProduto">Cadastrar produto</h3>
+   <button type="button" class="fechar" onclick="fecharModal('modalEditarProduto')">×</button>
+  </div>
+
+  <form id="formEditarProduto">
+   <input type="hidden" id="editProdutoId">
+
+   <div class="campo"><label for="editProdutoNome">Nome do produto</label><input id="editProdutoNome" maxlength="150" required></div>
+   <div class="campo"><label for="editProdutoDescricao">Descrição</label><textarea id="editProdutoDescricao" rows="4" maxlength="3000"></textarea></div>
+   <div class="campo"><label for="editProdutoPreco">Preço (R$)</label><input id="editProdutoPreco" type="number" min="0" step="0.01" required></div>
+   <div class="campo"><label for="editProdutoEstoque">Estoque</label><input id="editProdutoEstoque" type="number" min="0" step="1" required></div>
+
+   <div class="campo">
+    <label for="editProdutoCategoria">Categoria</label>
+    <input id="editProdutoCategoria" list="categoriasProdutos" maxlength="100" required>
+    <datalist id="categoriasProdutos">
+     <option value="Casa"><option value="Cama"><option value="Mesa"><option value="Banho">
+     <option value="Sofa"><option value="Eletrônicos"><option value="Celulares">
+     <option value="Moda"><option value="Acessórios"><option value="Informática">
+     <option value="Beleza"><option value="Esportes"><option value="Games">
+     <option value="Automotivo"><option value="Pet"><option value="Outros">
+    </datalist>
+   </div>
+
+   <div class="campo"><label for="editProdutoVendedorId">ID do vendedor (opcional)</label><input id="editProdutoVendedorId" maxlength="150" placeholder="ID do vendedor"></div>
+   <div class="campo"><label for="editProdutoVendedorNome">Nome do vendedor (opcional)</label><input id="editProdutoVendedorNome" maxlength="150" placeholder="Nome da loja ou vendedor"></div>
+
+   <div class="campo">
+    <label>Fotos do produto — até 8 imagens</label>
+    <p class="textoAjudaImagens">Cole os links diretos das imagens. A Foto 1 será a principal da vitrine. As demais serão usadas na galeria de detalhes, desde que a index.html esteja preparada para ler o campo imagens. Deixe vazios os campos que não precisar.</p>
+    <div class="imagensAdminGrid">
+     <div class="imagemAdminItem"><label for="editProdutoImagem1">Foto 1 — Principal</label><input id="editProdutoImagem1" type="url" placeholder="https://site.com/foto1.jpg"><img id="previewImagem1" class="previewImagemAdmin" alt="Prévia 1"></div>
+     <div class="imagemAdminItem"><label for="editProdutoImagem2">Foto 2</label><input id="editProdutoImagem2" type="url" placeholder="https://site.com/foto2.jpg"><img id="previewImagem2" class="previewImagemAdmin" alt="Prévia 2"></div>
+     <div class="imagemAdminItem"><label for="editProdutoImagem3">Foto 3</label><input id="editProdutoImagem3" type="url" placeholder="https://site.com/foto3.jpg"><img id="previewImagem3" class="previewImagemAdmin" alt="Prévia 3"></div>
+     <div class="imagemAdminItem"><label for="editProdutoImagem4">Foto 4</label><input id="editProdutoImagem4" type="url" placeholder="https://site.com/foto4.jpg"><img id="previewImagem4" class="previewImagemAdmin" alt="Prévia 4"></div>
+     <div class="imagemAdminItem"><label for="editProdutoImagem5">Foto 5</label><input id="editProdutoImagem5" type="url" placeholder="https://site.com/foto5.jpg"><img id="previewImagem5" class="previewImagemAdmin" alt="Prévia 5"></div>
+     <div class="imagemAdminItem"><label for="editProdutoImagem6">Foto 6</label><input id="editProdutoImagem6" type="url" placeholder="https://site.com/foto6.jpg"><img id="previewImagem6" class="previewImagemAdmin" alt="Prévia 6"></div>
+     <div class="imagemAdminItem"><label for="editProdutoImagem7">Foto 7</label><input id="editProdutoImagem7" type="url" placeholder="https://site.com/foto7.jpg"><img id="previewImagem7" class="previewImagemAdmin" alt="Prévia 7"></div>
+     <div class="imagemAdminItem"><label for="editProdutoImagem8">Foto 8</label><input id="editProdutoImagem8" type="url" placeholder="https://site.com/foto8.jpg"><img id="previewImagem8" class="previewImagemAdmin" alt="Prévia 8"></div>
+    </div>
+   </div>
+
+   <button type="submit" class="btnLogin" id="btnSalvarProduto">CADASTRAR PRODUTO</button>
+   <button type="button" class="btn btnCinza" style="width:100%;padding:12px;margin:10px 0 0" onclick="fecharModal('modalEditarProduto')">Cancelar</button>
+  </form>
+ </div>
+</div>
+
+<div class="modal" id="modalDetalhe">
+ <div class="modalBox">
+  <div class="modalTopo"><h3 id="tituloDetalhe">Detalhes</h3><button class="fechar" onclick="fecharModal('modalDetalhe')">×</button></div>
+  <div id="conteudoDetalhe"></div>
+ </div>
+</div>
+<div id="toast"></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import {getDatabase,ref,onValue,update,push} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyB1Fw3PKVYqezBmf-TlcWlIoH_dG2EwkY",
+ authDomain:"marketplace-af9c4.firebaseapp.com",
+ databaseURL:"https://marketplace-af9c4-default-rtdb.firebaseio.com/",
+ projectId:"marketplace-af9c4",
+ storageBucket:"marketplace-af9c4.firebasestorage.app",
+ messagingSenderId:"655705511573",
+ appId:"1:655705511573:web:3bb3728ca75c217374ed9c"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+
+// Este código no navegador não substitui autenticação e regras seguras do Firebase.
+const CODIGO_ADMIN="12345";
+const COMISSAO=0.10;
+
+let clientes={},pedidos={},produtos={};
+let listenersIniciados=false;
+let toastTimer;
+
+const $=id=>document.getElementById(id);
+const moeda=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const escAttr=v=>String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+const lista=(obj)=>Object.entries(obj||{}).map(([id,item])=>({id,...(item||{})}));
+const listaClientes=()=>lista(clientes);
+const listaPedidos=()=>lista(pedidos).sort((a,b)=>Number(b.criadoEm||0)-Number(a.criadoEm||0));
+const listaProdutos=()=>lista(produtos);
+
+function toast(msg){
+ $("toast").textContent=msg;
+ $("toast").classList.add("mostrar");
+ clearTimeout(toastTimer);
+ toastTimer=setTimeout(()=>$("toast").classList.remove("mostrar"),2800);
+}
+
+function formatarData(v){
+ if(!v)return "-";
+ const d=typeof v==="number"||/^\d+$/.test(String(v))?new Date(Number(v)):new Date(v);
+ return Number.isNaN(d.getTime())?"-":d.toLocaleString("pt-BR");
+}
+
+function textoStatus(s){
+ return ({aguardando_pagamento:"Aguardando pagamento",pago:"Pago",processando:"Processando",enviado:"Enviado",entregue:"Entregue",cancelado:"Cancelado"})[s]||s||"Não informado";
+}
+function classeStatus(s){
+ return ({aguardando_pagamento:"statusAguardando",pago:"statusPago",processando:"statusProcessando",enviado:"statusEnviado",entregue:"statusEntregue",cancelado:"statusCancelado"})[s]||"";
+}
+
+$("formCodigo").addEventListener("submit",e=>{
+ e.preventDefault();
+ if($("codigoAdmin").value.trim()!==CODIGO_ADMIN){
+  $("loginErro").textContent="Código de acesso inválido.";
+  $("codigoAdmin").value="";
+  return;
+ }
+ sessionStorage.setItem("adminAutorizado","true");
+ mostrarPainel();
+});
+
+if(sessionStorage.getItem("adminAutorizado")==="true")mostrarPainel();
+
+function mostrarPainel(){
+ $("telaLogin").style.display="none";
+ $("painelAdmin").style.display="block";
+ iniciarListeners();
+}
+function sair(){
+ sessionStorage.removeItem("adminAutorizado");
+ location.reload();
+}
+window.sair=sair;
+
+function iniciarListeners(){
+ if(listenersIniciados)return;
+ listenersIniciados=true;
+ onValue(ref(db,"clientes"),s=>{clientes=s.val()||{};atualizarTudo()},e=>{console.error(e);toast("Erro ao carregar clientes.")});
+ onValue(ref(db,"pedidos"),s=>{pedidos=s.val()||{};atualizarTudo()},e=>{console.error(e);toast("Erro ao carregar pedidos.")});
+ onValue(ref(db,"produtos"),s=>{produtos=s.val()||{};atualizarTudo()},e=>{console.error(e);toast("Erro ao carregar produtos.")});
+}
+
+function atualizarTudo(){
+ atualizarDashboard();
+ renderPedidosRecentes();
+ renderClientes();
+ renderPedidos();
+ renderProdutosAdmin();
+ renderVendedores();
+ renderFinanceiro();
+}
+
+function atualizarDashboard(){
+ const ps=listaPedidos(),cs=listaClientes(),pr=listaProdutos();
+ let vendas=0,pendentes=0,pagos=0;
+ ps.forEach(p=>{
+  if(p.status==="aguardando_pagamento")pendentes++;
+  if(["pago","processando","enviado","entregue"].includes(p.status)){
+   vendas+=Number(p.total||0);pagos++;
+  }
+ });
+ $("totalClientes").textContent=cs.length;
+ $("totalPedidos").textContent=ps.length;
+ $("totalVendas").textContent=moeda(vendas);
+ $("totalProdutos").textContent=pr.length;
+ $("totalPendentes").textContent=pendentes;
+ $("totalVendedores").textContent=obterVendedores().length;
+ $("totalComissao").textContent=moeda(vendas*COMISSAO);
+ $("totalPagos").textContent=pagos;
+}
+
+function renderPedidosRecentes(){
+ const ps=listaPedidos().slice(0,8);
+ $("pedidosRecentes").innerHTML=ps.length?ps.map(p=>`
+ <div class="itemPedido"><strong>#${esc(String(p.id).slice(-8))}</strong> — ${moeda(p.total)}
+ <div style="margin-top:7px;color:#6b7280;font-size:13px">${esc(p.usuarioNome||"Cliente")} • ${formatarData(p.criadoEm)}</div></div>`).join(""):`<div class="vazio">Nenhum pedido encontrado.</div>`;
+}
+
+function renderClientes(){
+ const busca=($("buscaClientes").value||"").toLowerCase();
+ const arr=listaClientes().filter(c=>[c.nome,c.email,c.telefone,c.id].join(" ").toLowerCase().includes(busca));
+ $("listaClientes").innerHTML=arr.length?arr.map(c=>`
+ <tr><td>${esc(c.nome||"Sem nome")}</td><td>${esc(c.telefone||"-")}</td><td>${esc(c.email||"-")}</td>
+ <td><span class="status ${c.status==="bloqueado"?"statusBloqueado":"statusAtivo"}">${esc(c.status||"ativo")}</span></td>
+ <td><button class="btn btnAzul" onclick="verCliente('${escAttr(c.id)}')">Ver</button></td></tr>`).join(""):`<tr><td colspan="5" class="vazio">Nenhum cliente encontrado.</td></tr>`;
+}
+window.renderClientes=renderClientes;
+
+function verCliente(id){
+ const c=clientes[id];if(!c)return;
+ const e=c.endereco||{};
+ $("tituloDetalhe").textContent="Detalhes do cliente";
+ $("conteudoDetalhe").innerHTML=`
+ <div class="infoLinha"><strong>Nome</strong>${esc(c.nome||"-")}</div>
+ <div class="infoLinha"><strong>E-mail</strong>${esc(c.email||"-")}</div>
+ <div class="infoLinha"><strong>Telefone</strong>${esc(c.telefone||"-")}</div>
+ <div class="infoLinha"><strong>ID</strong>${esc(c.uid||id)}</div>
+ <div class="infoLinha"><strong>Status</strong>${esc(c.status||"ativo")}</div>
+ <div class="infoLinha"><strong>Pedidos</strong>${listaPedidos().filter(p=>String(p.usuarioId||"")===String(id)).length}</div>
+ <div class="infoLinha"><strong>Endereço</strong>${esc([e.logradouro,e.numero,e.bairro,e.cidade,e.estado,e.cep].filter(Boolean).join(", ")||"Não informado")}</div>`;
+ abrirModal("modalDetalhe");
+}
+window.verCliente=verCliente;
+
+function renderPedidos(){
+ const busca=($("buscaPedidos").value||"").toLowerCase();
+ const filtro=$("filtroStatus").value;
+ const arr=listaPedidos().filter(p=>[p.id,p.usuarioNome,p.usuarioEmail,p.status].join(" ").toLowerCase().includes(busca)&&(!filtro||p.status===filtro));
+ $("listaPedidos").innerHTML=arr.length?arr.map(p=>`
+ <tr><td>#${esc(String(p.id).slice(-8))}</td><td>${esc(p.usuarioNome||"Cliente")}<br><small>${esc(p.usuarioEmail||"")}</small></td>
+ <td>${moeda(p.total)}</td><td>${esc(String(p.pagamento||"pix").toUpperCase())}</td>
+ <td><span class="status ${classeStatus(p.status)}">${esc(textoStatus(p.status))}</span></td>
+ <td>${formatarData(p.criadoEm)}</td><td><button class="btn btnAzul" onclick="verPedido('${escAttr(p.id)}')">Ver</button>
+ <button class="btn btnCinza" onclick="abrirStatus('${escAttr(p.id)}')">Status</button></td></tr>`).join(""):`<tr><td colspan="7" class="vazio">Nenhum pedido encontrado.</td></tr>`;
+}
+window.renderPedidos=renderPedidos;
+
+async function alterarStatusPedido(id,status){
+ const permitidos=["aguardando_pagamento","pago","processando","enviado","entregue","cancelado"];
+ if(!permitidos.includes(status)){toast("Status inválido.");return}
+ try{
+  await update(ref(db,"pedidos/"+id),{status,atualizadoEm:Date.now()});
+  toast("Status do pedido atualizado.");
+ }catch(e){console.error(e);toast("Erro ao atualizar pedido.")}
+}
+window.alterarStatusPedido=alterarStatusPedido;
+
+function abrirStatus(id){
+ const p=pedidos[id];if(!p)return;
+ const s=prompt("Digite o status:\naguardando_pagamento\npago\nprocessando\nenviado\nentregue\ncancelado",p.status||"");
+ if(s)alterarStatusPedido(id,s.trim());
+}
+window.abrirStatus=abrirStatus;
+
+function verPedido(id){
+ const p=pedidos[id];if(!p)return;
+ const c=clientes[p.usuarioId]||{};
+ const e=c.endereco||p.endereco||{};
+ const itens=Array.isArray(p.produtos)?p.produtos:[];
+ const itensHTML=itens.length?itens.map(i=>{
+  const q=Number(i.quantidade||1),v=Number(i.preco||0);
+  return `<div class="itemPedido"><strong>${esc(i.nome||"Produto")}</strong><br>Quantidade: ${q}<br>Preço: ${moeda(v)}<br>Subtotal: ${moeda(q*v)}</div>`;
+ }).join(""):"<p>Nenhum produto registrado.</p>";
+ $("tituloDetalhe").textContent="Detalhes do pedido";
+ $("conteudoDetalhe").innerHTML=`
+ <div class="infoLinha"><strong>Número</strong>#${esc(id)}</div>
+ <div class="infoLinha"><strong>Cliente</strong>${esc(p.usuarioNome||c.nome||"-")}</div>
+ <div class="infoLinha"><strong>E-mail</strong>${esc(p.usuarioEmail||c.email||"-")}</div>
+ <div class="infoLinha"><strong>Telefone</strong>${esc(c.telefone||"-")}</div>
+ <div class="infoLinha"><strong>Endereço</strong>${esc([e.logradouro,e.numero,e.bairro,e.cidade,e.estado,e.cep].filter(Boolean).join(", ")||"Não informado")}</div>
+ <div class="infoLinha"><strong>Pagamento</strong>${esc(p.pagamento||"pix")}</div>
+ <div class="infoLinha"><strong>Status</strong><select id="detalheStatus" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px">
+ ${["aguardando_pagamento","pago","processando","enviado","entregue","cancelado"].map(s=>`<option value="${s}" ${s===p.status?"selected":""}>${textoStatus(s)}</option>`).join("")}
+ </select><button class="btn btnAzul" style="margin-top:8px" onclick="salvarStatusDetalhe('${escAttr(id)}')">Salvar status</button></div>
+ <div class="infoLinha"><strong>Data</strong>${formatarData(p.criadoEm)}</div>
+ <div class="infoLinha"><strong>Produtos</strong>${itensHTML}</div>
+ <div class="infoLinha"><strong>Total</strong><strong>${moeda(p.total)}</strong></div>`;
+ abrirModal("modalDetalhe");
+}
+window.verPedido=verPedido;
+window.salvarStatusDetalhe=async id=>alterarStatusPedido(id,$("detalheStatus").value);
+
+
+// ---------- PRODUTOS E GALERIA DE 8 IMAGENS ----------
+
+function obterImagensAdmin(produto){
+ let extras=produto?.imagens||[];
+ if(typeof extras==="string")extras=extras.split(/[\n,]+/);
+ if(!Array.isArray(extras))extras=[];
+ const imagens=[];
+ const principal=String(produto?.imagem||"").trim();
+ if(principal)imagens.push(principal);
+ extras.forEach(url=>{
+  if(typeof url!=="string")return;
+  const limpa=url.trim();
+  if(limpa&&!imagens.includes(limpa))imagens.push(limpa);
+ });
+ return imagens.slice(0,8);
+}
+
+function renderProdutosAdmin(){
+ const busca=($("buscaProdutos").value||"").toLowerCase();
+ const filtro=$("filtroProdutoStatus").value;
+ const arr=listaProdutos().filter(p=>
+  [p.nome,p.categoria,p.vendedorNome,p.id].join(" ").toLowerCase().includes(busca)&&
+  (!filtro||(p.status||"aprovado")===filtro)
+ );
+ $("listaProdutos").innerHTML=arr.length?arr.map(p=>{
+  const status=p.status||"aprovado";
+  const imagens=obterImagensAdmin(p);
+  const img=imagens[0]?`<img src="${esc(imagens[0])}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:7px;vertical-align:middle;margin-right:7px" onerror="this.style.display='none'">`:"";
+  return `<tr><td>${img}<strong>${esc(p.nome||"Sem nome")}</strong><br><small>${imagens.length} foto(s)</small></td><td>${moeda(p.preco)}</td><td>${Number(p.estoque||0)}</td><td>${esc(p.categoria||"-")}</td><td>${esc(p.vendedorNome||p.vendedorId||"-")}</td>
+  <td><span class="status ${status==="aprovado"?"statusAtivo":"statusBloqueado"}">${esc(status)}</span></td>
+  <td><button class="btn btnAzul" onclick="editarProduto('${escAttr(p.id)}')">✏️ Editar</button>
+  <button class="btn ${status==="aprovado"?"btnVermelho":"btnVerde"}" onclick="alterarStatusProduto('${escAttr(p.id)}','${status==="aprovado"?"bloqueado":"aprovado"}')">${status==="aprovado"?"Bloquear":"Ativar"}</button></td></tr>`;
+ }).join(""):`<tr><td colspan="7" class="vazio">Nenhum produto encontrado no Firebase.</td></tr>`;
+}
+window.renderProdutosAdmin=renderProdutosAdmin;
+
+function limparCamposImagens(){
+ for(let i=1;i<=8;i++){
+  $("editProdutoImagem"+i).value="";
+  atualizarPreviewImagemAdmin(i);
+ }
+}
+
+function novoProduto(){
+ $("formEditarProduto").reset();
+ $("editProdutoId").value="";
+ $("tituloFormularioProduto").textContent="Cadastrar produto";
+ $("btnSalvarProduto").textContent="CADASTRAR PRODUTO";
+ limparCamposImagens();
+ abrirModal("modalEditarProduto");
+}
+window.novoProduto=novoProduto;
+
+function editarProduto(id){
+ const p=produtos[id];
+ if(!p){toast("Produto não encontrado.");return}
+
+ $("formEditarProduto").reset();
+ $("editProdutoId").value=id;
+ $("editProdutoNome").value=p.nome||"";
+ $("editProdutoDescricao").value=p.descricao||"";
+ $("editProdutoPreco").value=Number(p.preco||0);
+ $("editProdutoEstoque").value=Number(p.estoque||0);
+ $("editProdutoCategoria").value=p.categoria||"";
+ $("editProdutoVendedorId").value=p.vendedorId||"";
+ $("editProdutoVendedorNome").value=p.vendedorNome||"";
+
+ const imagens=obterImagensAdmin(p);
+ for(let i=1;i<=8;i++){
+  $("editProdutoImagem"+i).value=imagens[i-1]||"";
+  atualizarPreviewImagemAdmin(i);
+ }
+
+ $("tituloFormularioProduto").textContent="Editar produto";
+ $("btnSalvarProduto").textContent="SALVAR ALTERAÇÕES";
+ abrirModal("modalEditarProduto");
+}
+window.editarProduto=editarProduto;
+
+function atualizarPreviewImagemAdmin(numero){
+ const campo=$("editProdutoImagem"+numero);
+ const img=$("previewImagem"+numero);
+ if(!campo||!img)return;
+ img.style.display="none";
+ img.removeAttribute("src");
+ const valor=campo.value.trim();
+ if(!valor)return;
+ try{
+  const url=new URL(valor);
+  if(!["https:","http:"].includes(url.protocol))return;
+  img.onload=()=>{img.style.display="block"};
+  img.onerror=()=>{img.style.display="none"};
+  img.src=url.href;
+ }catch{
+  img.style.display="none";
+ }
+}
+
+for(let i=1;i<=8;i++){
+ $("editProdutoImagem"+i).addEventListener("input",()=>atualizarPreviewImagemAdmin(i));
+}
+
+$("formEditarProduto").addEventListener("submit",async e=>{
+ e.preventDefault();
+
+ const idAtual=$("editProdutoId").value.trim();
+ const nome=$("editProdutoNome").value.trim();
+ const descricao=$("editProdutoDescricao").value.trim();
+ const preco=Number($("editProdutoPreco").value);
+ const estoque=Number($("editProdutoEstoque").value);
+ const categoria=$("editProdutoCategoria").value.trim();
+ const vendedorId=$("editProdutoVendedorId").value.trim();
+ const vendedorNome=$("editProdutoVendedorNome").value.trim();
+
+ if(!nome||!categoria){
+  toast("Preencha o nome e a categoria.");
+  return;
+ }
+
+ if(!Number.isFinite(preco)||preco<0||!Number.isInteger(estoque)||estoque<0){
+  toast("Confira o preço e o estoque.");
+  return;
+ }
+
+ const imagens=[];
+ for(let i=1;i<=8;i++){
+  const valor=$("editProdutoImagem"+i).value.trim();
+  if(!valor)continue;
+
+  try{
+   const url=new URL(valor);
+   if(!["https:","http:"].includes(url.protocol))throw new Error("URL inválida");
+   if(!imagens.includes(url.href))imagens.push(url.href);
+  }catch{
+   toast("Confira o link da Foto "+i+".");
+   $("editProdutoImagem"+i).focus();
+   return;
+  }
+ }
+
+ if(imagens.length===0){
+  toast("Adicione pelo menos uma imagem.");
+  return;
+ }
+
+ const botao=$("btnSalvarProduto");
+ const cadastroNovo=!idAtual;
+ botao.disabled=true;
+ botao.textContent=cadastroNovo?"CADASTRANDO...":"SALVANDO...";
+
+ try{
+  let id=idAtual;
+  if(cadastroNovo){
+   id=push(ref(db,"produtos")).key;
+   if(!id)throw new Error("Não foi possível gerar o ID do produto.");
+  }else if(!produtos[id]){
+   throw new Error("Produto não encontrado.");
+  }
+
+  const dados={
+   nome,descricao,preco,estoque,categoria,
+   imagem:imagens[0],
+   imagens,
+   vendedorId,
+   vendedorNome,
+   atualizadoEm:Date.now()
+  };
+
+  if(cadastroNovo){
+   dados.criadoEm=Date.now();
+   dados.status="aprovado";
+  }
+
+  await update(ref(db,"produtos/"+id),dados);
+  fecharModal("modalEditarProduto");
+  toast(cadastroNovo?"Produto cadastrado com sucesso!":"Produto atualizado com sucesso!");
+ }catch(err){
+  console.error(err);
+  toast("Erro ao salvar. Verifique as regras do Firebase.");
+ }finally{
+  botao.disabled=false;
+  botao.textContent=$("editProdutoId").value?"SALVAR ALTERAÇÕES":"CADASTRAR PRODUTO";
+ }
+});
+
+async function alterarStatusProduto(id,status){
+ try{
+  await update(ref(db,"produtos/"+id),{status,atualizadoEm:Date.now()});
+  toast(status==="aprovado"?"Produto ativado.":"Produto bloqueado.");
+ }catch(e){
+  console.error(e);
+  toast("Erro ao atualizar produto.");
+ }
+}
+window.alterarStatusProduto=alterarStatusProduto;
+
+
+// ---------- VENDEDORES E FINANCEIRO ----------
+
+function obterVendedores(){
+ const mapa={};
+ listaProdutos().forEach(p=>{
+  if(!p.vendedorId)return;
+  const id=p.vendedorId;
+  mapa[id]??={id,nome:p.vendedorNome||"Vendedor",produtos:0,vendas:0,valor:0};
+  mapa[id].produtos++;
+ });
+ listaPedidos().filter(p=>["pago","processando","enviado","entregue"].includes(p.status)).forEach(p=>{
+  (Array.isArray(p.produtos)?p.produtos:[]).forEach(i=>{
+   if(!i.vendedorId)return;
+   const id=i.vendedorId;
+   mapa[id]??={id,nome:i.vendedorNome||"Vendedor",produtos:0,vendas:0,valor:0};
+   const q=Number(i.quantidade||1),v=Number(i.preco||0);
+   mapa[id].vendas+=q;
+   mapa[id].valor+=q*v;
+  });
+ });
+ return Object.values(mapa);
+}
+
+function renderVendedores(){
+ const arr=obterVendedores();
+ $("listaVendedores").innerHTML=arr.length?arr.map(v=>`<tr><td>${esc(v.nome)}</td><td>${esc(v.id)}</td><td>${v.produtos}</td><td>${v.vendas}</td><td>${moeda(v.valor)}</td></tr>`).join(""):`<tr><td colspan="5" class="vazio">Nenhum vendedor encontrado.</td></tr>`;
+}
+
+function renderFinanceiro(){
+ let vendas=0;
+ listaPedidos().filter(p=>["pago","processando","enviado","entregue"].includes(p.status)).forEach(p=>vendas+=Number(p.total||0));
+ $("financeiroVendas").textContent=moeda(vendas);
+ $("financeiroComissao").textContent=moeda(vendas*COMISSAO);
+ $("financeiroVendedores").textContent=moeda(vendas*(1-COMISSAO));
+}
+
+function abrirSecao(nome,botao){
+ document.querySelectorAll(".secao").forEach(s=>s.classList.remove("ativa"));
+ $("secao-"+nome)?.classList.add("ativa");
+ document.querySelectorAll(".menuBtn").forEach(b=>b.classList.remove("ativo"));
+ if(botao)botao.classList.add("ativo");
+ else document.querySelectorAll(".menuBtn").forEach(b=>{
+  if(b.getAttribute("onclick")?.includes("'"+nome+"'"))b.classList.add("ativo");
+ });
+}
+window.abrirSecao=abrirSecao;
+
+function abrirModal(id){$(id)?.classList.add("ativo")}
+window.abrirModal=abrirModal;
+function fecharModal(id){$(id)?.classList.remove("ativo")}
+window.fecharModal=fecharModal;
+
+document.querySelectorAll(".modal").forEach(m=>{
+ m.addEventListener("click",e=>{if(e.target===m)m.classList.remove("ativo")});
+});
+</script>
+</body>
+</html>
