@@ -3863,6 +3863,7 @@ window.irParaCheckout = function () {
 ========================================================= */
 
 
+
 window.finalizarPedido = async function () {
     if (!usuarioAtual) {
         mostrarToast("Faça login primeiro.");
@@ -3874,61 +3875,138 @@ window.finalizarPedido = async function () {
         return;
     }
 
-    const total = carrinho.reduce(
-        (soma, p) => soma + Number(p.preco || 0),
-        0
-    );
-
-    const pedidoRef = push(ref(db, "pedidos"));
-    const pedidoId = pedidoRef.key;
-
-    const pedido = {
-        id: pedidoId,
-        usuarioId: usuarioAtual.uid,
-        usuarioNome:
-            usuarioAtual.displayName || usuarioAtual.email,
-        usuarioEmail: usuarioAtual.email,
-
-        produtos: carrinho.map(p => ({
-            imagem:
-                p.imagemEscolhida ||
-                p.imagemCarrinho ||
-                p.imagem ||
-                "",
-            imagemCarrinho:
-                p.imagemEscolhida ||
-                p.imagemCarrinho ||
-                p.imagem ||
-                "",
-            id: p.id,
-            nome: p.nome,
-            preco: Number(p.preco || 0),
-            quantidade: 1,
-            vendedorId: p.vendedorId || "",
-            vendedorNome: p.vendedorNome || ""
-        })),
-
-        total: Number(total.toFixed(2)),
-        pagamento: "pix",
-        pixCopiaECola: "",
-        status: "aguardando_pagamento",
-        criadoEm: new Date().toISOString()
-    };
-
     try {
+        mostrarToast("Preparando seu pedido...");
+
+        // Busca os dados salvos do cliente
+        const [clienteSnap, usuarioSnap] = await Promise.all([
+            get(ref(db, "clientes/" + usuarioAtual.uid)),
+            get(ref(db, "usuarios/" + usuarioAtual.uid))
+        ]);
+
+        const cliente = clienteSnap.val() || {};
+        const usuario = usuarioSnap.val() || {};
+
+        // Prioriza os dados de cadastro preenchidos
+        const dados = { ...usuario, ...cliente };
+
+        const enderecoOriginal = dados.endereco || {};
+
+        const telefone = String(
+            dados.telefone ||
+            dados.celular ||
+            dados.whatsapp ||
+            ""
+        ).trim();
+
+        const endereco = {
+            cep: enderecoOriginal.cep || dados.cep || "",
+            logradouro:
+                enderecoOriginal.logradouro ||
+                enderecoOriginal.endereco ||
+                dados.logradouro ||
+                dados.enderecoTexto ||
+                "",
+            numero: enderecoOriginal.numero || dados.numero || "",
+            complemento:
+                enderecoOriginal.complemento ||
+                dados.complemento ||
+                "",
+            bairro: enderecoOriginal.bairro || dados.bairro || "",
+            cidade: enderecoOriginal.cidade || dados.cidade || "",
+            estado: enderecoOriginal.estado || dados.estado || ""
+        };
+
+        if (!telefone) {
+            mostrarToast("Telefone não encontrado. Atualize seu cadastro.");
+            return;
+        }
+
+        if (
+            !endereco.logradouro ||
+            !endereco.numero ||
+            !endereco.bairro ||
+            !endereco.cidade
+        ) {
+            mostrarToast("Complete seu endereço no cadastro antes de comprar.");
+            return;
+        }
+
+        const total = Number(
+    carrinho.reduce(
+        (soma, p) =>
+            soma +
+            Number(p.preco || 0) *
+            Number(p.quantidade || 1),
+        0
+    ).toFixed(2)
+);
+
+        const pedidoRef = push(ref(db, "pedidos"));
+        const pedidoId = pedidoRef.key;
+
+        const pedido = {
+            id: pedidoId,
+            usuarioId: usuarioAtual.uid,
+            usuarioNome:
+                dados.nome ||
+                usuarioAtual.displayName ||
+                usuarioAtual.email ||
+                "Cliente",
+            usuarioEmail: usuarioAtual.email || dados.email || "",
+            telefone: telefone,
+            endereco: endereco,
+
+            // Campos extras para facilitar a leitura no painel
+            enderecoEntrega: [
+                endereco.logradouro,
+                endereco.numero,
+                endereco.complemento,
+                endereco.bairro,
+                endereco.cidade,
+                endereco.estado,
+                endereco.cep
+            ].filter(Boolean).join(", "),
+
+            produtos: carrinho.map(p => ({
+                imagem:
+                    p.imagemEscolhida ||
+                    p.imagemCarrinho ||
+                    p.imagem ||
+                    "",
+                imagemCarrinho:
+                    p.imagemEscolhida ||
+                    p.imagemCarrinho ||
+                    p.imagem ||
+                    "",
+                id: p.id,
+                nome: p.nome,
+                preco: Number(p.preco || 0),
+                quantidade: 1,
+                vendedorId: p.vendedorId || "",
+                vendedorNome: p.vendedorNome || ""
+            })),
+
+            total: total,
+            pagamento: "pix",
+            status: "aguardando_pagamento",
+            criadoEm: new Date().toISOString()
+        };
+
         await set(pedidoRef, pedido);
 
         pedidoAtual = pedido;
 
         fecharModal("modalCheckout");
 
+        // Gera e salva o Pix individual do pedido
         await gerarPix(total, pedidoId);
 
-abrirModal("modalPix");
+        abrirModal("modalPix");
 
     } catch (error) {
-        console.error("Erro ao criar pedido:", error);
-        mostrarToast("Erro ao criar pedido.");
+        console.error("Erro ao finalizar pedido:", error);
+        mostrarToast("Erro ao criar pedido. Tente novamente.");
     }
 };
 
