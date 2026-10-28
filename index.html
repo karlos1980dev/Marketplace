@@ -3187,7 +3187,311 @@ window.renderProdutos = function(){
     );
 
 };
-/* ========================================================= MINHAS COMPRAS ========================================================= */ window.abrirMinhasCompras = async function () { const container = document.getElementById( "minhasComprasConteudo" ); if (!usuarioAtual) { mostrarToast("Entre na sua conta para ver suas compras."); abrirModal("modalLogin"); return; } abrirModal("modalMinhasCompras"); container.innerHTML = "<p>Carregando seus pedidos...</p>"; try { const pedidosRef = ref(db, "pedidos"); const snapshot = await get(pedidosRef); const dados = snapshot.val() || {}; const meusPedidos = Object.entries(dados) .map(([id, pedido]) => ({ ...pedido, id })) .filter(pedido => pedido.usuarioId === usuarioAtual.uid ) .sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0) ); if (!meusPedidos.length) { container.innerHTML = ` <div class="empty"> <div style="font-size:45px">📦</div> <h3>Você ainda não fez compras</h3> <p>Seus pedidos aparecerão aqui.</p> </div> `; return; } container.innerHTML = meusPedidos.map(pedido => { const produtosPedido = Array.isArray(pedido.produtos) ? pedido.produtos : []; const data = pedido.criadoEm ? new Date(pedido.criadoEm).toLocaleString("pt-BR") : "Data não informada"; const status = String(pedido.status || "em processamento") .replaceAll("_", " "); const itens = produtosPedido.map(produto => ` <div class="minha-compra-item"> <span> ${escaparHTML(produto.nome || "Produto")} × ${Number(produto.quantidade || 1)} </span> <strong>${moeda( Number(produto.preco || 0) * Number(produto.quantidade || 1) )}</strong> </div> `).join(""); return ` <article class="minha-compra-card"> <div class="minha-compra-topo"> <strong>Pedido #${escaparHTML(pedido.id)}</strong> <span class="minha-compra-status"> ${escaparHTML(status)} </span> </div> <p class="minha-compra-data">${escaparHTML(data)}</p> <div class="minha-compra-itens"> ${itens} </div> <div class="minha-compra-total"> <span>Total</span> <strong>${moeda(pedido.total)}</strong> </div> <p class="minha-compra-pagamento"> Pagamento: ${escaparHTML(pedido.pagamento || "Não informado")} </p> </article> `; }).join(""); } catch (erro) { console.error("Erro ao carregar compras:", erro); container.innerHTML = ` <p>Não foi possível carregar suas compras. Tente novamente.</p> `; } }; /* PROTEGE O HTML DOS DADOS EXIBIDOS */ function escaparHTML(valor) { return String(valor ?? "").replace(/[&<>"']/g, caractere => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[caractere]); } 
+/* ========================================================= MINHAS COMPRAS ========================================================= */ 
+
+window.abrirMinhasCompras = async function () {
+    const container = document.getElementById("minhasComprasConteudo");
+
+    if (!container) return;
+
+    if (!usuarioAtual) {
+        mostrarToast("Entre na sua conta para ver suas compras.");
+        abrirModal("modalLogin");
+        return;
+    }
+
+    abrirModal("modalMinhasCompras");
+    container.innerHTML = "<p>Carregando seus pedidos...</p>";
+
+    try {
+        const snapshot = await get(ref(db, "pedidos"));
+        const dados = snapshot.val() || {};
+
+        const meusPedidos = Object.entries(dados)
+            .map(([id, pedidoSalvo]) => ({
+                ...pedidoSalvo,
+                id
+            }))
+            .filter(pedido => pedido.usuarioId === usuarioAtual.uid)
+            .sort((a, b) => {
+                return new Date(b.criadoEm || 0) -
+                       new Date(a.criadoEm || 0);
+            });
+
+        if (meusPedidos.length === 0) {
+            container.innerHTML = `
+                <div class="empty">
+                    <div style="font-size:45px">📦</div>
+                    <h3>Você ainda não fez compras</h3>
+                    <p>Seus pedidos aparecerão aqui.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Monta cada pedido individualmente.
+        container.innerHTML = meusPedidos.map(pedido => {
+
+            const itensPedido = Array.isArray(pedido.produtos)
+                ? pedido.produtos
+                : [];
+
+            const data = pedido.criadoEm
+                ? new Date(pedido.criadoEm).toLocaleString("pt-BR")
+                : "Data não informada";
+
+            const status = String(
+                pedido.status || "em processamento"
+            ).replace(/_/g, " ");
+
+            // Produtos deste pedido.
+            const itensHTML = itensPedido.map(produto => {
+                const imagem =
+                    produto.imagem ||
+                    produto.imagemCarrinho ||
+                    "";
+
+                const quantidade = Number(produto.quantidade || 1);
+                const preco = Number(produto.preco || 0);
+
+                return `
+                    <div style="
+                        display:flex;
+                        align-items:center;
+                        gap:10px;
+                        padding:10px 0;
+                        border-bottom:1px solid #eee;
+                    ">
+                        <img
+                            src="${escaparHTML(
+                                imagem ||
+                                "https://placehold.co/100x100?text=Produto"
+                            )}"
+                            alt="${escaparHTML(produto.nome || "Produto")}"
+                            onerror="this.onerror=null;this.src='https://placehold.co/100x100?text=Produto';"
+                            style="
+                                width:65px;
+                                height:65px;
+                                object-fit:contain;
+                                border-radius:8px;
+                                border:1px solid #eee;
+                                flex-shrink:0;
+                            "
+                        >
+
+                        <div style="flex:1;min-width:0">
+                            <div style="font-weight:600">
+                                ${escaparHTML(produto.nome || "Produto")}
+                            </div>
+
+                            <small>Quantidade: ${quantidade}</small>
+
+                            <div>${moeda(preco)} cada</div>
+                        </div>
+
+                        <strong>
+                            ${moeda(preco * quantidade)}
+                        </strong>
+                    </div>
+                `;
+            }).join("");
+
+            // Pix salvo especificamente neste pedido.
+            const pixPedido = String(
+                pedido.pixCopiaECola ||
+                pedido.pixCopiaCola ||
+                pedido.pix ||
+                ""
+            ).trim();
+
+            // Identificador exclusivo para o campo deste pedido.
+            const idCampoPix = "pix-compra-" + pedido.id;
+
+            // Área Pix deste pedido.
+            const pixHTML = pixPedido
+                ? `
+                    <div style="
+                        margin-top:15px;
+                        padding:12px;
+                        background:#f5f5f5;
+                        border:1px solid #ddd;
+                        border-radius:10px;
+                    ">
+                        <strong style="
+                            display:block;
+                            margin-bottom:8px;
+                        ">
+                            💠 Pix Copia e Cola desta compra
+                        </strong>
+
+                        <textarea
+                            id="${escaparHTML(idCampoPix)}"
+                            readonly
+                            rows="4"
+                            style="
+                                display:block;
+                                width:100%;
+                                box-sizing:border-box;
+                                padding:10px;
+                                border:1px solid #ccc;
+                                border-radius:8px;
+                                background:#fff;
+                                color:#222;
+                                font-size:13px;
+                                resize:vertical;
+                                overflow-wrap:anywhere;
+                            "
+                        >${escaparHTML(pixPedido)}</textarea>
+
+                        <button
+                            type="button"
+                            onclick="copiarPixDaCompra('${escaparHTML(idCampoPix)}')"
+                            style="
+                                width:100%;
+                                padding:12px;
+                                margin-top:8px;
+                                border:0;
+                                border-radius:8px;
+                                background:#16803d;
+                                color:#fff;
+                                font-size:15px;
+                                font-weight:bold;
+                                cursor:pointer;
+                            "
+                        >
+                            📋 Copiar Pix desta compra
+                        </button>
+                    </div>
+                `
+                : `
+                    <div style="
+                        margin-top:12px;
+                        padding:12px;
+                        background:#fff7e6;
+                        border:1px solid #ffe0a3;
+                        border-radius:8px;
+                        color:#795500;
+                    ">
+                        <strong>Pix ainda não disponível</strong>
+                        <p style="margin:6px 0 0">
+                            O código Pix desta compra não foi encontrado
+                            nos dados salvos do pedido.
+                        </p>
+                    </div>
+                `;
+
+            // Cartão completo deste pedido.
+            return `
+                <article class="minha-compra-card">
+
+                    <div class="minha-compra-topo">
+                        <strong>
+                            Pedido #${escaparHTML(pedido.id)}
+                        </strong>
+
+                        <span class="minha-compra-status">
+                            ${escaparHTML(status)}
+                        </span>
+                    </div>
+
+                    <p class="minha-compra-data">
+                        ${escaparHTML(data)}
+                    </p>
+
+                    <div class="minha-compra-itens">
+                        ${itensHTML}
+                    </div>
+
+                    ${pixHTML}
+
+                    <div class="minha-compra-total" style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        margin-top:15px;
+                        padding-top:12px;
+                        border-top:1px solid #ddd;
+                    ">
+                        <span>Total da compra</span>
+                        <strong>${moeda(pedido.total)}</strong>
+                    </div>
+
+                    <p class="minha-compra-pagamento">
+                        Pagamento:
+                        ${escaparHTML(pedido.pagamento || "Não informado")}
+                    </p>
+
+                </article>
+            `;
+        }).join("");
+
+    } catch (erro) {
+        console.error("Erro ao carregar compras:", erro);
+
+        container.innerHTML = `
+            <div style="padding:15px;text-align:center">
+                <p>Não foi possível carregar suas compras.</p>
+                <button
+                    type="button"
+                    onclick="abrirMinhasCompras()"
+                    style="
+                        padding:10px 16px;
+                        border:0;
+                        border-radius:8px;
+                        background:#16803d;
+                        color:white;
+                        font-weight:bold;
+                    "
+                >
+                    Tentar novamente
+                </button>
+            </div>
+        `;
+    }
+};
+
+
+// Copia somente o Pix da compra selecionada.
+window.copiarPixDaCompra = async function (idCampo) {
+    const campo = document.getElementById(idCampo);
+
+    if (!campo || !campo.value.trim()) {
+        mostrarToast("Pix não disponível para esta compra.");
+        return;
+    }
+
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(campo.value);
+        } else {
+            campo.focus();
+            campo.select();
+            campo.setSelectionRange(0, campo.value.length);
+
+            const sucesso = document.execCommand("copy");
+
+            if (!sucesso) {
+                throw new Error("Falha ao copiar o Pix.");
+            }
+        }
+
+        mostrarToast("Pix copiado com sucesso!");
+
+    } catch (erro) {
+        console.error("Erro ao copiar Pix:", erro);
+
+        campo.focus();
+        campo.select();
+        campo.setSelectionRange(0, campo.value.length);
+
+        mostrarToast(
+            "Não foi possível copiar automaticamente. Selecione o código e copie."
+        );
+    }
+};
+
+
+ /* PROTEGE O HTML DOS DADOS EXIBIDOS */ function escaparHTML(valor) { return String(valor ?? "").replace(/[&<>"']/g, caractere => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[caractere]); } 
 
 /* =========================================================
    CARREGAR PRODUTOS
@@ -3300,228 +3604,151 @@ function atualizarCarrinho(){
 }
 
 
-window.adicionarCarrinho = function(id){
-
-    const produto =
-        produtos.find(
-            p =>
-                String(p.id) ===
-                String(id)
-        );
 
 
-    if(!produto){
+window.adicionarCarrinho = function(id, imagemEscolhida = "") {
+    const produto = produtos.find(
+        p => String(p.id) === String(id)
+    );
 
-        mostrarToast(
-            "Produto não encontrado."
-        );
-
+    if (!produto) {
+        mostrarToast("Produto não encontrado!");
         return;
     }
 
+    const imagens = obterImagensProduto(produto);
 
-    if(
-        Number(produto.estoque || 0) <= 0
-    ){
-
-        mostrarToast(
-            "Produto sem estoque."
-        );
-
-        return;
-    }
-
+    const imagemFinal =
+        imagemEscolhida ||
+        produto.imagem ||
+        imagens[0] ||
+        "https://placehold.co/100x100?text=Produto";
 
     carrinho.push({
-
         ...produto,
-
-        quantidade:1
-
+        id: String(produto.id),
+        imagemEscolhida: imagemFinal,
+        imagemCarrinho: imagemFinal,
+        quantidade: 1
     });
 
-
     atualizarCarrinho();
+    mostrarToast("Produto adicionado ao carrinho!");
 
+    const modalCarrinho = document.getElementById("modalCarrinho");
 
-    mostrarToast(
-        "Produto adicionado ao carrinho!"
-    );
-
+    if (
+        modalCarrinho &&
+        modalCarrinho.style.display !== "none" &&
+        typeof window.abrirCarrinho === "function"
+    ) {
+        window.abrirCarrinho();
+    }
 };
 
 
-window.abrirCarrinho = function(){
+window.abrirCarrinho = function() {
+    const container = document.getElementById("carrinhoConteudo");
 
-    const container =
-        document.getElementById(
-            "carrinhoConteudo"
-        );
+    if (!container) return;
 
-
-    if(!carrinho.length){
-
+    if (!carrinho.length) {
         container.innerHTML = `
-
             <div class="empty">
-
-                <div style="font-size:45px">
-                    🛒
-                </div>
-
-                <h3>
-                    Seu carrinho está vazio
-                </h3>
-
-                <p style="margin-top:8px">
-                    Adicione algum produto para continuar.
-                </p>
-
+                <div style="font-size:45px">🛒</div>
+                <h3>Seu carrinho está vazio</h3>
+                <p>Adicione algum produto para continuar.</p>
             </div>
-
         `;
 
-
-        abrirModal(
-            "modalCarrinho"
-        );
-
+        abrirModal("modalCarrinho");
         return;
-
     }
 
+    const itensHTML = carrinho.map((produto, index) => {
+        const imagem =
+            produto.imagemEscolhida ||
+            produto.imagemCarrinho ||
+            produto.imagem ||
+            imagemPrincipal(produto) ||
+            "https://placehold.co/100x100?text=Produto";
 
-    let html = "";
+        const quantidade = Number(produto.quantidade || 1);
+        const preco = Number(produto.preco || 0);
 
+        return `
+            <div class="cart-item">
+                <img
+                    src="${escaparHTML(imagem)}"
+                    alt="${escaparHTML(produto.nome || "Produto")}"
+                    onerror="this.onerror=null;this.src='https://placehold.co/100x100?text=Produto';"
+                    style="
+                        width:90px;
+                        height:90px;
+                        object-fit:contain;
+                        flex-shrink:0;
+                        background:#fff;
+                        border-radius:8px;
+                    "
+                >
 
-    carrinho.forEach(
-        (produto,index) => {
-
-            html += `
-
-                <div class="cart-item">
-
-                    <img
-                        src="${produto.imagem}"
-                        onerror="
-                            this.src='https://via.placeholder.com/100'
-                        "
-                    >
-
-
-                    <div class="cart-info">
-
-                        <div class="cart-name">
-                            ${produto.nome}
-                        </div>
-
-
-                        <div class="cart-price">
-                            ${moeda(produto.preco)}
-                        </div>
-
-
-                        <button
-                            class="remove-cart"
-                            onclick="
-                                removerCarrinho(${index})
-                            "
-                        >
-                            Remover
-                        </button>
-
+                <div class="cart-info">
+                    <div class="cart-name">
+                        ${escaparHTML(produto.nome || "Produto")}
                     </div>
 
+                    <div class="cart-price">
+                        ${moeda(preco)}
+                    </div>
+
+                    <div>Quantidade: ${quantidade}</div>
+
+                    <strong>
+                        Subtotal: ${moeda(preco * quantidade)}
+                    </strong>
+
+                    <button
+                        class="remove-cart"
+                        onclick="removerCarrinho(${index})"
+                    >
+                        Remover
+                    </button>
                 </div>
-
-            `;
-
-        }
-    );
-
-
-    const total =
-        carrinho.reduce(
-            (soma,p) =>
-                soma +
-                Number(
-                    p.preco || 0
-                ),
-            0
-        );
-
-
-    html += `
-
-        <div class="total-box">
-
-            <div class="total-line">
-
-                <span>
-                    Produtos
-                </span>
-
-                <strong>
-                    ${carrinho.length}
-                </strong>
-
             </div>
+        `;
+    }).join("");
 
+    const total = carrinho.reduce((soma, produto) => {
+        return soma +
+            Number(produto.preco || 0) *
+            Number(produto.quantidade || 1);
+    }, 0);
 
-            <div
-                class="total-line total-final"
-            >
+    container.innerHTML = `
+        ${itensHTML}
 
-                <span>
-                    Total
-                </span>
-
-                <span>
-                    ${moeda(total)}
-                </span>
-
-            </div>
-
-
-            <button
-                class="btn btn-primary"
-                style="
-                    width:100%;
-                    margin-top:15px
-                "
-                onclick="irParaCheckout()"
-            >
-                Continuar para pagamento
-            </button>
-
+        <div class="total-line total-final">
+            <span>Total</span>
+            <strong>${moeda(total)}</strong>
         </div>
 
+        <button
+            class="btn btn-primary"
+            style="width:100%;margin-top:15px"
+            onclick="irParaCheckout()"
+        >
+            Continuar para pagamento
+        </button>
     `;
 
-
-    container.innerHTML =
-        html;
-
-
-    abrirModal(
-        "modalCarrinho"
-    );
-
+    abrirModal("modalCarrinho");
 };
 
 
-window.removerCarrinho =
-function(index){
-
-    carrinho.splice(
-        index,
-        1
-    );
-
+window.removerCarrinho = function(index) {
+    carrinho.splice(index, 1);
     atualizarCarrinho();
-
-    abrirCarrinho();
-
+    window.abrirCarrinho();
 };
 
 
@@ -3529,361 +3756,238 @@ function(index){
    CHECKOUT
 ========================================================= */
 
-window.irParaCheckout =
-function(){
-
-    if(!carrinho.length){
-
-        mostrarToast(
-            "Carrinho vazio."
-        );
-
+window.irParaCheckout = function () {
+    if (!carrinho.length) {
+        mostrarToast("Carrinho vazio.");
         return;
-
     }
 
-
-    if(!usuarioAtual){
-
-        fecharModal(
-            "modalCarrinho"
-        );
-
-        abrirModal(
-            "modalLogin"
-        );
-
-        mostrarToast(
-            "Entre na sua conta para continuar."
-        );
-
+    if (!usuarioAtual) {
+        fecharModal("modalCarrinho");
+        abrirModal("modalLogin");
+        mostrarToast("Entre na sua conta para continuar.");
         return;
-
     }
 
+    const container = document.getElementById("checkoutConteudo");
 
-    fecharModal(
-        "modalCarrinho"
-    );
+    if (!container) return;
 
+    const total = carrinho.reduce((soma, produto) => {
+        return soma +
+            Number(produto.preco || 0) *
+            Number(produto.quantidade || 1);
+    }, 0);
 
-    const total =
-        carrinho.reduce(
-            (soma,p) =>
-                soma +
-                Number(
-                    p.preco || 0
-                ),
-            0
-        );
+    const itensHTML = carrinho.map(produto => {
+   const imagem =
+    produto.imagemEscolhida ||
+    produto.imagemCarrinho ||
+    produto.imagem ||
+    imagemPrincipal(produto) ||
+    "https://placehold.co/100x100?text=Produto";
 
+        const quantidade = Number(produto.quantidade || 1);
+        const preco = Number(produto.preco || 0);
 
-    document.getElementById(
-        "checkoutConteudo"
-    ).innerHTML = `
+        return `
+            <div style="
+                display:flex;
+                align-items:center;
+                gap:10px;
+                padding:10px 0;
+                border-bottom:1px solid #eee;
+            ">
+                <img
+                    src="${escaparHTML(imagem)}"
+                    alt="${escaparHTML(produto.nome || "Produto")}"
+                    onerror="this.onerror=null;this.src='https://placehold.co/100x100?text=Produto';"
+                    style="
+                        width:65px;
+                        height:65px;
+                        object-fit:contain;
+                        border-radius:8px;
+                        flex-shrink:0;
+                    "
+                >
 
-        <div class="user-info">
+                <div style="flex:1;min-width:0">
+                    <strong>${escaparHTML(produto.nome || "Produto")}</strong>
+                    <div>Quantidade: ${quantidade}</div>
+                    <div>${moeda(preco)} cada</div>
+                </div>
 
-            <strong>
-                Comprador
-            </strong>
-
-
-            <div style="margin-top:5px">
-
-                ${
-                    usuarioAtual.displayName ||
-                    usuarioAtual.email
-                }
-
+                <strong>${moeda(preco * quantidade)}</strong>
             </div>
+        `;
+    }).join("");
 
+    container.innerHTML = `
+        <div class="user-info">
+            <strong>Comprador</strong>
+            <div style="margin-top:5px">
+                ${escaparHTML(
+                    usuarioAtual.displayName ||
+                    usuarioAtual.email ||
+                    "Cliente"
+                )}
+            </div>
         </div>
 
-
-        <h3>
-            Resumo do pedido
-        </h3>
-
+        <h3>Resumo do pedido</h3>
 
         <div class="total-box">
+            ${itensHTML}
 
-            ${
-
-                carrinho.map(
-                    p => `
-
-                        <div class="total-line">
-
-                            <span>
-                                ${p.nome}
-                            </span>
-
-                            <strong>
-                                ${moeda(p.preco)}
-                            </strong>
-
-                        </div>
-
-                    `
-                ).join("")
-
-            }
-
-
-            <div
-                class="total-line total-final"
-            >
-
-                <span>
-                    Total
-                </span>
-
-                <span>
-                    ${moeda(total)}
-                </span>
-
+            <div class="total-line total-final">
+                <span>Total</span>
+                <strong>${moeda(total)}</strong>
             </div>
-
         </div>
-
 
         <button
             class="btn btn-primary"
-            style="
-                width:100%;
-                margin-top:15px
-            "
+            style="width:100%;margin-top:15px"
             onclick="finalizarPedido()"
         >
             💠 Gerar Pix
         </button>
-
     `;
 
-
-    abrirModal(
-        "modalCheckout"
-    );
-
+    fecharModal("modalCarrinho");
+    abrirModal("modalCheckout");
 };
-
 
 /* =========================================================
    PEDIDO
 ========================================================= */
 
-window.finalizarPedido =
-async function(){
 
-    if(!usuarioAtual){
-
-        mostrarToast(
-            "Faça login primeiro."
-        );
-
+window.finalizarPedido = async function () {
+    if (!usuarioAtual) {
+        mostrarToast("Faça login primeiro.");
         return;
-
     }
 
-
-    if(!carrinho.length){
-
-        mostrarToast(
-            "Carrinho vazio."
-        );
-
+    if (!carrinho.length) {
+        mostrarToast("Carrinho vazio.");
         return;
-
     }
 
+    const total = carrinho.reduce(
+        (soma, p) => soma + Number(p.preco || 0),
+        0
+    );
 
-    const total =
-        carrinho.reduce(
-            (soma,p) =>
-                soma +
-                Number(
-                    p.preco || 0
-                ),
-            0
-        );
-
-
-    const pedidoRef =
-        push(
-            ref(
-                db,
-                "pedidos"
-            )
-        );
-
-
-    const pedidoId =
-        pedidoRef.key;
-
+    const pedidoRef = push(ref(db, "pedidos"));
+    const pedidoId = pedidoRef.key;
 
     const pedido = {
-
-        id:
-            pedidoId,
-
-        usuarioId:
-            usuarioAtual.uid,
-
+        id: pedidoId,
+        usuarioId: usuarioAtual.uid,
         usuarioNome:
-            usuarioAtual.displayName ||
-            usuarioAtual.email,
+            usuarioAtual.displayName || usuarioAtual.email,
+        usuarioEmail: usuarioAtual.email,
 
-        usuarioEmail:
-            usuarioAtual.email,
+        produtos: carrinho.map(p => ({
+            imagem:
+                p.imagemEscolhida ||
+                p.imagemCarrinho ||
+                p.imagem ||
+                "",
+            imagemCarrinho:
+                p.imagemEscolhida ||
+                p.imagemCarrinho ||
+                p.imagem ||
+                "",
+            id: p.id,
+            nome: p.nome,
+            preco: Number(p.preco || 0),
+            quantidade: 1,
+            vendedorId: p.vendedorId || "",
+            vendedorNome: p.vendedorNome || ""
+        })),
 
-        produtos:
-            carrinho.map(
-                p => ({
-
-                    id:
-                        p.id,
-
-                    nome:
-                        p.nome,
-
-                    preco:
-                        Number(
-                            p.preco || 0
-                        ),
-
-                    quantidade:
-                        1,
-
-                    vendedorId:
-                        p.vendedorId || "",
-
-                    vendedorNome:
-                        p.vendedorNome || ""
-
-                })
-            ),
-
-        total:
-            Number(
-                total.toFixed(2)
-            ),
-
-        pagamento:
-            "pix",
-
-        status:
-            "aguardando_pagamento",
-
-        criadoEm:
-            new Date().toISOString()
-
+        total: Number(total.toFixed(2)),
+        pagamento: "pix",
+        pixCopiaECola: "",
+        status: "aguardando_pagamento",
+        criadoEm: new Date().toISOString()
     };
 
+    try {
+        await set(pedidoRef, pedido);
 
-    try{
+        pedidoAtual = pedido;
 
-        await set(
-            pedidoRef,
-            pedido
-        );
+        fecharModal("modalCheckout");
 
+        await gerarPix(total, pedidoId);
 
-        pedidoAtual =
-            pedido;
+abrirModal("modalPix");
 
-
-        fecharModal(
-            "modalCheckout"
-        );
-
-
-        gerarPix(
-            total,
-            pedidoId
-        );
-
-
-        abrirModal(
-            "modalPix"
-        );
-
-
-    }catch(error){
-
-        console.error(
-            error
-        );
-
-        mostrarToast(
-            "Erro ao criar pedido."
-        );
-
+    } catch (error) {
+        console.error("Erro ao criar pedido:", error);
+        mostrarToast("Erro ao criar pedido.");
     }
-
 };
-
 
 /* =========================================================
    PIX
 ========================================================= */
 
-function gerarPix(
-    valor,
-    pedidoId
-){
 
-    const valorPix =
-        Number(valor)
-        .toFixed(2);
+async function gerarPix(valor, pedidoId) {
+    const valorPix = Number(valor).toFixed(2);
 
-
-    const payload =
-        criarPayloadPix(
-            PIX_CHAVE,
-            PIX_NOME,
-            PIX_CIDADE,
-            valorPix,
-            pedidoId
-        );
-
-
-    const campo =
-        document.getElementById(
-            "pixCopiaCola"
-        );
-
-
-    campo.value =
-        payload;
-
-
-    const qr =
-        document.getElementById(
-            "qrcode"
-        );
-
-
-    qr.innerHTML =
-        "";
-
-
-    new QRCode(
-        qr,
-        {
-
-            text:
-                payload,
-
-            width:
-                240,
-
-            height:
-                240
-
-        }
+    const payload = criarPayloadPix(
+        PIX_CHAVE,
+        PIX_NOME,
+        PIX_CIDADE,
+        valorPix,
+        pedidoId
     );
 
+    const campo = document.getElementById("pixCopiaCola");
+
+    if (!campo) {
+        throw new Error("Campo pixCopiaCola não encontrado.");
+    }
+
+    campo.value = payload;
+
+    const qr = document.getElementById("qrcode");
+
+    if (qr) {
+        qr.innerHTML = "";
+
+        new QRCode(qr, {
+            text: payload,
+            width: 240,
+            height: 240
+        });
+    }
+
+    // Salva o Pix gerado no pedido correto do Firebase.
+    await update(ref(db, "pedidos/" + pedidoId), {
+        pixCopiaECola: payload,
+        pixCopiaCola: payload,
+        pix: payload,
+        valorPix: Number(valorPix),
+        pixGeradoEm: new Date().toISOString()
+    });
+
+    // Mantém o pedido atual sincronizado.
+    if (typeof pedidoAtual !== "undefined" &&
+        pedidoAtual &&
+        pedidoAtual.id === pedidoId) {
+        pedidoAtual.pixCopiaECola = payload;
+        pedidoAtual.pixCopiaCola = payload;
+        pedidoAtual.pix = payload;
+        pedidoAtual.valorPix = Number(valorPix);
+    }
+
+    return payload;
 }
 
 
@@ -4176,6 +4280,35 @@ async function(){
 
 };
 
+
+window.copiarPixDaCompra = async function(idCampo) {
+    const campo = document.getElementById(idCampo);
+
+    if (!campo || !campo.value.trim()) {
+        mostrarToast("Pix não disponível para esta compra.");
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(campo.value);
+        mostrarToast("Pix copiado com sucesso!");
+    } catch (erro) {
+        campo.focus();
+        campo.select();
+        campo.setSelectionRange(0, campo.value.length);
+
+        try {
+            const sucesso = document.execCommand("copy");
+            mostrarToast(
+                sucesso
+                    ? "Pix copiado com sucesso!"
+                    : "Selecione e copie o Pix manualmente."
+            );
+        } catch (e) {
+            mostrarToast("Selecione e copie o Pix manualmente.");
+        }
+    }
+};
 
 /* =========================================================
    CONTA
@@ -5629,10 +5762,20 @@ window.abrirDetalhesProduto = function(id) {
         ? "🛒 Adicionar ao carrinho"
         : "Produto esgotado";
 
-    botao.onclick = function() {
-        window.adicionarCarrinho(produto.id);
-        window.fecharModal("modalDetalheProduto");
-    };
+    
+botao.onclick = function() {
+    const imagemEscolhida =
+        imagensDetalhe[indiceImagemDetalhe] ||
+        imagemPrincipal(produto);
+
+    window.adicionarCarrinho(
+        produto.id,
+        imagemEscolhida
+    );
+
+    window.fecharModal("modalDetalheProduto");
+};
+
 
     if (imagensDetalhe.length === 0) {
         imagensDetalhe = [
