@@ -109,6 +109,16 @@ body { background: var(--rosa); }
   font-size: 14px;
   font-weight: bold;
 }
+.botao-site {
+  width: 100%;
+  min-height: 48px;
+  gap:10px;
+  border-radius: 10px;
+  background: var(--verde);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
 .rodape {
   color: white;
   text-align: center;
@@ -232,6 +242,32 @@ button:disabled { opacity: .6; }
   .conteudo { padding: 8px; }
   .topo h1 { font-size: 20px; }
 }
+.grupo-botoes {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.grupo-botoes button {
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  padding: 8px;
+  border: 0;
+  border-radius: 10px;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.botao-principal {
+  background: var(--verde);
+}
+
+.botao-site {
+  background: #222;
+}
 </style>
 </head>
 
@@ -245,7 +281,7 @@ button:disabled { opacity: .6; }
   <section class="card">
     <img
       id="imagemPromocao"
-      src="https://res.cloudinary.com/dtw3turzb/image/upload/v1792255937/vivasorte.webp"
+      src="https://res.cloudinary.com/dtw3turzb/image/upload/v1792159602/bahiasorte.webp"
       alt="Promoção VIVA SORTE"
     >
 
@@ -264,10 +300,17 @@ button:disabled { opacity: .6; }
         <strong id="total">R$ 0.99</strong>
       </div>
 
-      <button class="botao-principal" id="comprar" type="button">
-        🟢 CONTINUAR PARA O PIX
-      </button>
+      <div class="grupo-botoes">
 
+  <button class="botao-principal" id="comprar" type="button">
+    🟢 CONTINUAR PARA O PIX
+  </button>
+
+  <button class="botao-site" id="comprarSite" type="button">
+    🌐 COMPRAR DIRETO NO SITE
+  </button>
+
+</div>
       <p class="descricao">Preencha seus dados para registrar a solicitação.</p>
     </div>
   </section>
@@ -794,7 +837,12 @@ $("copiarWhatsApp").addEventListener("click", async () => {
 
   window.location.href = urlWhatsApp;
 });
+/* BOTÃO COMPRAR DIRETO NO SITE */
+const LINK_SITE = "https://vivasorteoficial.com.br/?lm_source=reseller_link&reseller_slug=carlos-reis";
 
+$("comprarSite").addEventListener("click", () => {
+  window.location.href = LINK_SITE;
+});
 atualizarQuantidade();
 </script>
 </body>
